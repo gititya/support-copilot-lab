@@ -1,0 +1,108 @@
+{
+  "case_id": "invite_email_not_arriving",
+  "title": "Invite Email Not Arriving",
+  "scenario": "Admin is trying to invite a new admin, but the invite email never arrives.",
+  "transcript_turns": [
+    {
+      "turn": 1,
+      "speaker": "customer",
+      "text": "Um, yeah, so I am trying to invite a new admin."
+    },
+    {
+      "turn": 2,
+      "speaker": "agent",
+      "text": "Does the invite show as created in the admin page?"
+    },
+    {
+      "turn": 3,
+      "speaker": "customer",
+      "text": "Yes, but the invite email never arrives."
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 3,
+      "description": "Email context shows invite created, delivery suppressed, and domain policy rejected the message.",
+      "facts": [
+        "invite_status:created",
+        "email_delivery:suppressed",
+        "domain_policy:dmarc_reject"
+      ],
+      "resolved_unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "ruled_out_branches": [
+        "invite_not_created"
+      ],
+      "candidate_branches": [
+        "domain_policy_rejection",
+        "email_delivery_suppressed"
+      ],
+      "final_cause": "domain_policy_rejection",
+      "next_check": "Inspect email suppression and DMARC policy for the recipient domain."
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [
+        "flow:admin_invite"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "invite_not_created",
+        "email_delivery_suppressed"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "invite",
+        "delivery"
+      ]
+    },
+    {
+      "after_turn": 2,
+      "facts": [
+        "flow:admin_invite"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "invite_not_created",
+        "email_delivery_suppressed"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "invite",
+        "delivery"
+      ]
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "symptom:invite_email_not_received",
+        "invite_status:created",
+        "email_delivery:suppressed",
+        "domain_policy:dmarc_reject"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "domain_policy_rejection",
+        "email_delivery_suppressed"
+      ],
+      "ruled_out_branches": [
+        "invite_not_created"
+      ],
+      "next_check_contains": [
+        "DMARC",
+        "suppression"
+      ]
+    }
+  ],
+  "final_cause": "domain_policy_rejection"
+}

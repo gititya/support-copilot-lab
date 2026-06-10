@@ -1,0 +1,133 @@
+{
+  "case_id": "billing_plan_mismatch",
+  "title": "Billing Plan Mismatch",
+  "scenario": "Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.",
+  "transcript_turns": [
+    {
+      "turn": 1,
+      "speaker": "customer",
+      "text": "I cannot log in."
+    },
+    {
+      "turn": 2,
+      "speaker": "customer",
+      "text": "No, login works. The billing page shows the wrong plan."
+    },
+    {
+      "turn": 3,
+      "speaker": "agent",
+      "text": "When did the plan change?"
+    },
+    {
+      "turn": 4,
+      "speaker": "customer",
+      "text": "We upgraded yesterday."
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 4,
+      "description": "Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.",
+      "facts": [
+        "invoice_plan:pro",
+        "app_entitlement_plan:starter",
+        "billing_refresh:pending"
+      ],
+      "resolved_unknowns": [
+        "billing_entitlement_status"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending"
+      ],
+      "final_cause": "billing_entitlement_refresh_pending",
+      "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement."
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [
+        "reported_issue:login"
+      ],
+      "unknowns": [
+        "actual_surface"
+      ],
+      "candidate_branches": [
+        "login_failure"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "login",
+        "page"
+      ]
+    },
+    {
+      "after_turn": 2,
+      "facts": [
+        "correction:login_works",
+        "surface:billing_plan",
+        "symptom:wrong_plan_shown"
+      ],
+      "unknowns": [
+        "billing_entitlement_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "invoice_app_mismatch"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "entitlement",
+        "refresh"
+      ]
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "correction:login_works",
+        "surface:billing_plan",
+        "symptom:wrong_plan_shown"
+      ],
+      "unknowns": [
+        "billing_entitlement_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "invoice_app_mismatch"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "entitlement",
+        "refresh"
+      ]
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "recent_change:upgrade",
+        "invoice_plan:pro",
+        "app_entitlement_plan:starter",
+        "billing_refresh:pending"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "entitlement",
+        "refresh"
+      ]
+    }
+  ],
+  "final_cause": "billing_entitlement_refresh_pending"
+}

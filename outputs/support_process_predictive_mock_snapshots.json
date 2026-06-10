@@ -1,0 +1,2238 @@
+[
+  {
+    "fixture": {
+      "case_id": "access_after_migration",
+      "title": "Access After Migration",
+      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
+      "transcript_turns": [
+        {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Three users lost access after our migration yesterday."
+        },
+        {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Can they sign in at all, or is login blocked?"
+        },
+        {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "They can sign in, but they cannot open the new workspace."
+        }
+      ],
+      "context_events": [
+        {
+          "after_turn": 3,
+          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
+          "facts": [
+            "group_membership:Migrated-CSM",
+            "scim_sync:complete",
+            "workspace_role_missing:Migrated-CSM"
+          ],
+          "resolved_unknowns": [
+            "workspace_role_assignment"
+          ],
+          "ruled_out_branches": [
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "candidate_branches": [
+            "missing_workspace_role_inheritance"
+          ],
+          "final_cause": "missing_workspace_role_inheritance",
+          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
+        }
+      ],
+      "expected_by_turn": [
+        {
+          "after_turn": 1,
+          "facts": [
+            "affected_scope:three_users",
+            "recent_change:migration",
+            "symptom:workspace_access_loss"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "sign in"
+          ]
+        },
+        {
+          "after_turn": 2,
+          "facts": [
+            "affected_scope:three_users",
+            "recent_change:migration",
+            "symptom:workspace_access_loss"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "sign in"
+          ]
+        },
+        {
+          "after_turn": 3,
+          "facts": [
+            "auth:works",
+            "surface:workspace_access",
+            "group_membership:Migrated-CSM",
+            "scim_sync:complete",
+            "workspace_role_missing:Migrated-CSM"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "missing_workspace_role_inheritance"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "scim_sync_delay"
+          ],
+          "next_check_contains": [
+            "Migrated-CSM",
+            "inherit"
+          ]
+        }
+      ],
+      "final_cause": "missing_workspace_role_inheritance"
+    },
+    "timeline": [
+      {
+        "turn": {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Three users lost access after our migration yesterday."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "access_after_migration",
+          "version": 1,
+          "facts": [
+            "symptom:workspace_access_loss",
+            "affected_scope:three_users",
+            "recent_change:migration"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "login_block",
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache",
+            "missing_workspace_role_inheritance"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Can the affected users sign in, or are they blocked at login?",
+          "handoff_notes": [
+            "Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration",
+            "Unknowns: auth_status; workspace_role_assignment",
+            "Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache",
+            "Next check: Can the affected users sign in, or are they blocked at login?",
+            "Predicted migration role inheritance issue before system evidence."
+          ],
+          "final_cause": "missing_workspace_role_inheritance",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 1,
+          "facts": [
+            "affected_scope:three_users",
+            "recent_change:migration",
+            "symptom:workspace_access_loss"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "sign in"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "affected_scope:three_users",
+                "recent_change:migration",
+                "symptom:workspace_access_loss"
+              ],
+              "actual": [
+                "affected_scope:three_users",
+                "recent_change:migration",
+                "symptom:workspace_access_loss"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "auth_status",
+                "workspace_role_assignment"
+              ],
+              "actual": [
+                "auth_status",
+                "workspace_role_assignment"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_block",
+                "missing_workspace_role_inheritance"
+              ],
+              "expected": [
+                "missing_workspace_role",
+                "scim_sync_delay",
+                "stale_entitlement_cache"
+              ],
+              "actual": [
+                "login_block",
+                "missing_workspace_role",
+                "missing_workspace_role_inheritance",
+                "scim_sync_delay",
+                "stale_entitlement_cache"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "sign in"
+              ],
+              "actual": "Can the affected users sign in, or are they blocked at login?"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "missing_workspace_role_inheritance"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 0,\n    \"facts\": [],\n    \"unknowns\": [],\n    \"candidate_branches\": [],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"\",\n    \"handoff_notes\": [],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 1,\n    \"speaker\": \"customer\",\n    \"text\": \"Three users lost access after our migration yesterday.\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "symptom:workspace_access_loss",
+            "affected_scope:three_users",
+            "recent_change:migration"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "unknowns_remove": [],
+          "candidate_branches_add": [
+            "login_block",
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache",
+            "missing_workspace_role_inheritance"
+          ],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "Can the affected users sign in, or are they blocked at login?",
+          "final_cause": "missing_workspace_role_inheritance",
+          "root_cause_evidence_seen": false,
+          "handoff_note": "Predicted migration role inheritance issue before system evidence."
+        },
+        "llm_raw": "{\"facts_add\": [\"symptom:workspace_access_loss\", \"affected_scope:three_users\", \"recent_change:migration\"], \"facts_remove\": [], \"unknowns_add\": [\"auth_status\", \"workspace_role_assignment\"], \"unknowns_remove\": [], \"candidate_branches_add\": [\"login_block\", \"missing_workspace_role\", \"scim_sync_delay\", \"stale_entitlement_cache\", \"missing_workspace_role_inheritance\"], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"Can the affected users sign in, or are they blocked at login?\", \"final_cause\": \"missing_workspace_role_inheritance\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"Predicted migration role inheritance issue before system evidence.\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Can they sign in at all, or is login blocked?"
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "access_after_migration",
+          "version": 2,
+          "facts": [
+            "symptom:workspace_access_loss",
+            "affected_scope:three_users",
+            "recent_change:migration"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "login_block",
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache",
+            "missing_workspace_role_inheritance"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Can the affected users sign in, or are they blocked at login?",
+          "handoff_notes": [
+            "Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration",
+            "Unknowns: auth_status; workspace_role_assignment",
+            "Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache",
+            "Next check: Can the affected users sign in, or are they blocked at login?"
+          ],
+          "final_cause": "missing_workspace_role_inheritance",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 2,
+          "facts": [
+            "affected_scope:three_users",
+            "recent_change:migration",
+            "symptom:workspace_access_loss"
+          ],
+          "unknowns": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches": [
+            "missing_workspace_role",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "sign in"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "affected_scope:three_users",
+                "recent_change:migration",
+                "symptom:workspace_access_loss"
+              ],
+              "actual": [
+                "affected_scope:three_users",
+                "recent_change:migration",
+                "symptom:workspace_access_loss"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "auth_status",
+                "workspace_role_assignment"
+              ],
+              "actual": [
+                "auth_status",
+                "workspace_role_assignment"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_block",
+                "missing_workspace_role_inheritance"
+              ],
+              "expected": [
+                "missing_workspace_role",
+                "scim_sync_delay",
+                "stale_entitlement_cache"
+              ],
+              "actual": [
+                "login_block",
+                "missing_workspace_role",
+                "missing_workspace_role_inheritance",
+                "scim_sync_delay",
+                "stale_entitlement_cache"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "sign in"
+              ],
+              "actual": "Can the affected users sign in, or are they blocked at login?"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "missing_workspace_role_inheritance"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 1,\n    \"facts\": [\n      \"symptom:workspace_access_loss\",\n      \"affected_scope:three_users\",\n      \"recent_change:migration\"\n    ],\n    \"unknowns\": [\n      \"auth_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"login_block\",\n      \"missing_workspace_role\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\",\n      \"missing_workspace_role_inheritance\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Can the affected users sign in, or are they blocked at login?\",\n    \"handoff_notes\": [\n      \"Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration\",\n      \"Unknowns: auth_status; workspace_role_assignment\",\n      \"Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache\",\n      \"Next check: Can the affected users sign in, or are they blocked at login?\",\n      \"Predicted migration role inheritance issue before system evidence.\"\n    ],\n    \"final_cause\": \"missing_workspace_role_inheritance\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"agent\",\n    \"text\": \"Can they sign in at all, or is login blocked?\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [],
+          "facts_remove": [],
+          "unknowns_add": [],
+          "unknowns_remove": [],
+          "candidate_branches_add": [],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "",
+          "final_cause": "",
+          "root_cause_evidence_seen": false,
+          "handoff_note": ""
+        },
+        "llm_raw": "{\"facts_add\": [], \"facts_remove\": [], \"unknowns_add\": [], \"unknowns_remove\": [], \"candidate_branches_add\": [], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"\", \"final_cause\": \"\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "They can sign in, but they cannot open the new workspace."
+        },
+        "context_applied": [
+          {
+            "after_turn": 3,
+            "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
+            "facts": [
+              "group_membership:Migrated-CSM",
+              "scim_sync:complete",
+              "workspace_role_missing:Migrated-CSM"
+            ],
+            "resolved_unknowns": [
+              "workspace_role_assignment"
+            ],
+            "ruled_out_branches": [
+              "scim_sync_delay",
+              "stale_entitlement_cache"
+            ],
+            "candidate_branches": [
+              "missing_workspace_role_inheritance"
+            ],
+            "final_cause": "missing_workspace_role_inheritance",
+            "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
+          }
+        ],
+        "state": {
+          "case_id": "access_after_migration",
+          "version": 3,
+          "facts": [
+            "symptom:workspace_access_loss",
+            "affected_scope:three_users",
+            "recent_change:migration",
+            "auth:works",
+            "surface:workspace_access",
+            "group_membership:Migrated-CSM",
+            "scim_sync:complete",
+            "workspace_role_missing:Migrated-CSM"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "missing_workspace_role",
+            "missing_workspace_role_inheritance"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "login_failure",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration.",
+          "handoff_notes": [
+            "Known: surface:workspace_access; group_membership:Migrated-CSM; scim_sync:complete; workspace_role_missing:Migrated-CSM",
+            "Branches: missing_workspace_role; missing_workspace_role_inheritance",
+            "Next check: Confirm whether Migrated-CSM should inherit Workspace Member after migration."
+          ],
+          "final_cause": "missing_workspace_role_inheritance",
+          "root_cause_evidence_seen": true
+        },
+        "expected": {
+          "after_turn": 3,
+          "facts": [
+            "auth:works",
+            "surface:workspace_access",
+            "group_membership:Migrated-CSM",
+            "scim_sync:complete",
+            "workspace_role_missing:Migrated-CSM"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "missing_workspace_role_inheritance"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "scim_sync_delay"
+          ],
+          "next_check_contains": [
+            "Migrated-CSM",
+            "inherit"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "affected_scope:three_users",
+                "recent_change:migration",
+                "symptom:workspace_access_loss"
+              ],
+              "expected": [
+                "auth:works",
+                "group_membership:Migrated-CSM",
+                "scim_sync:complete",
+                "surface:workspace_access",
+                "workspace_role_missing:Migrated-CSM"
+              ],
+              "actual": [
+                "affected_scope:three_users",
+                "auth:works",
+                "group_membership:Migrated-CSM",
+                "recent_change:migration",
+                "scim_sync:complete",
+                "surface:workspace_access",
+                "symptom:workspace_access_loss",
+                "workspace_role_missing:Migrated-CSM"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "missing_workspace_role"
+              ],
+              "expected": [
+                "missing_workspace_role_inheritance"
+              ],
+              "actual": [
+                "missing_workspace_role",
+                "missing_workspace_role_inheritance"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_failure",
+                "stale_entitlement_cache"
+              ],
+              "expected": [
+                "login_block",
+                "scim_sync_delay"
+              ],
+              "actual": [
+                "login_block",
+                "login_failure",
+                "scim_sync_delay",
+                "stale_entitlement_cache"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "Migrated-CSM",
+                "inherit"
+              ],
+              "actual": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "missing_workspace_role_inheritance"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 2,\n    \"facts\": [\n      \"symptom:workspace_access_loss\",\n      \"affected_scope:three_users\",\n      \"recent_change:migration\"\n    ],\n    \"unknowns\": [\n      \"auth_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"login_block\",\n      \"missing_workspace_role\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\",\n      \"missing_workspace_role_inheritance\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Can the affected users sign in, or are they blocked at login?\",\n    \"handoff_notes\": [\n      \"Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration\",\n      \"Unknowns: auth_status; workspace_role_assignment\",\n      \"Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache\",\n      \"Next check: Can the affected users sign in, or are they blocked at login?\"\n    ],\n    \"final_cause\": \"missing_workspace_role_inheritance\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"customer\",\n    \"text\": \"They can sign in, but they cannot open the new workspace.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.\",\n      \"facts\": [\n        \"group_membership:Migrated-CSM\",\n        \"scim_sync:complete\",\n        \"workspace_role_missing:Migrated-CSM\"\n      ]\n    }\n  ],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "auth:works",
+            "surface:workspace_access",
+            "group_membership:Migrated-CSM",
+            "scim_sync:complete",
+            "workspace_role_missing:Migrated-CSM"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [],
+          "unknowns_remove": [
+            "auth_status",
+            "workspace_role_assignment"
+          ],
+          "candidate_branches_add": [
+            "missing_workspace_role_inheritance"
+          ],
+          "candidate_branches_remove": [
+            "login_block",
+            "login_failure",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches_add": [
+            "login_block",
+            "login_failure",
+            "scim_sync_delay",
+            "stale_entitlement_cache"
+          ],
+          "ruled_out_branches_remove": [],
+          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration.",
+          "final_cause": "missing_workspace_role_inheritance",
+          "root_cause_evidence_seen": true,
+          "handoff_note": ""
+        },
+        "llm_raw": "{\"facts_add\": [\"auth:works\", \"surface:workspace_access\", \"group_membership:Migrated-CSM\", \"scim_sync:complete\", \"workspace_role_missing:Migrated-CSM\"], \"facts_remove\": [], \"unknowns_add\": [], \"unknowns_remove\": [\"auth_status\", \"workspace_role_assignment\"], \"candidate_branches_add\": [\"missing_workspace_role_inheritance\"], \"candidate_branches_remove\": [\"login_block\", \"login_failure\", \"scim_sync_delay\", \"stale_entitlement_cache\"], \"ruled_out_branches_add\": [\"login_block\", \"login_failure\", \"scim_sync_delay\", \"stale_entitlement_cache\"], \"ruled_out_branches_remove\": [], \"next_check\": \"Confirm whether Migrated-CSM should inherit Workspace Member after migration.\", \"final_cause\": \"missing_workspace_role_inheritance\", \"root_cause_evidence_seen\": true, \"handoff_note\": \"\"}\n"
+      }
+    ],
+    "final_state": {
+      "case_id": "access_after_migration",
+      "version": 3,
+      "facts": [
+        "symptom:workspace_access_loss",
+        "affected_scope:three_users",
+        "recent_change:migration",
+        "auth:works",
+        "surface:workspace_access",
+        "group_membership:Migrated-CSM",
+        "scim_sync:complete",
+        "workspace_role_missing:Migrated-CSM"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "missing_workspace_role",
+        "missing_workspace_role_inheritance"
+      ],
+      "ruled_out_branches": [
+        "login_block",
+        "login_failure",
+        "scim_sync_delay",
+        "stale_entitlement_cache"
+      ],
+      "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration.",
+      "handoff_notes": [
+        "Known: surface:workspace_access; group_membership:Migrated-CSM; scim_sync:complete; workspace_role_missing:Migrated-CSM",
+        "Branches: missing_workspace_role; missing_workspace_role_inheritance",
+        "Next check: Confirm whether Migrated-CSM should inherit Workspace Member after migration."
+      ],
+      "final_cause": "missing_workspace_role_inheritance",
+      "root_cause_evidence_seen": true
+    },
+    "root_cause_ok": true,
+    "mode": "llm"
+  },
+  {
+    "fixture": {
+      "case_id": "billing_plan_mismatch",
+      "title": "Billing Plan Mismatch",
+      "scenario": "Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.",
+      "transcript_turns": [
+        {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "I cannot log in."
+        },
+        {
+          "turn": 2,
+          "speaker": "customer",
+          "text": "No, login works. The billing page shows the wrong plan."
+        },
+        {
+          "turn": 3,
+          "speaker": "agent",
+          "text": "When did the plan change?"
+        },
+        {
+          "turn": 4,
+          "speaker": "customer",
+          "text": "We upgraded yesterday."
+        }
+      ],
+      "context_events": [
+        {
+          "after_turn": 4,
+          "description": "Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.",
+          "facts": [
+            "invoice_plan:pro",
+            "app_entitlement_plan:starter",
+            "billing_refresh:pending"
+          ],
+          "resolved_unknowns": [
+            "billing_entitlement_status"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending"
+          ],
+          "final_cause": "billing_entitlement_refresh_pending",
+          "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement."
+        }
+      ],
+      "expected_by_turn": [
+        {
+          "after_turn": 1,
+          "facts": [
+            "reported_issue:login"
+          ],
+          "unknowns": [
+            "actual_surface"
+          ],
+          "candidate_branches": [
+            "login_failure"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "login",
+            "page"
+          ]
+        },
+        {
+          "after_turn": 2,
+          "facts": [
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        },
+        {
+          "after_turn": 3,
+          "facts": [
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        },
+        {
+          "after_turn": 4,
+          "facts": [
+            "recent_change:upgrade",
+            "invoice_plan:pro",
+            "app_entitlement_plan:starter",
+            "billing_refresh:pending"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        }
+      ],
+      "final_cause": "billing_entitlement_refresh_pending"
+    },
+    "timeline": [
+      {
+        "turn": {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "I cannot log in."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "billing_plan_mismatch",
+          "version": 1,
+          "facts": [
+            "reported_issue:login"
+          ],
+          "unknowns": [
+            "actual_surface"
+          ],
+          "candidate_branches": [
+            "login_failure"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Confirm whether login itself fails or whether a page after login is wrong.",
+          "handoff_notes": [
+            "Known: reported_issue:login",
+            "Unknowns: actual_surface",
+            "Branches: login_failure",
+            "Next check: Confirm whether login itself fails or whether a page after login is wrong.",
+            "Predicted login failure from the first symptom."
+          ],
+          "final_cause": "login_failure",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 1,
+          "facts": [
+            "reported_issue:login"
+          ],
+          "unknowns": [
+            "actual_surface"
+          ],
+          "candidate_branches": [
+            "login_failure"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "login",
+            "page"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "reported_issue:login"
+              ],
+              "actual": [
+                "reported_issue:login"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "actual_surface"
+              ],
+              "actual": [
+                "actual_surface"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "login_failure"
+              ],
+              "actual": [
+                "login_failure"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "login",
+                "page"
+              ],
+              "actual": "Confirm whether login itself fails or whether a page after login is wrong."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "login_failure"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 0,\n    \"facts\": [],\n    \"unknowns\": [],\n    \"candidate_branches\": [],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"\",\n    \"handoff_notes\": [],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 1,\n    \"speaker\": \"customer\",\n    \"text\": \"I cannot log in.\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "reported_issue:login"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "actual_surface"
+          ],
+          "unknowns_remove": [],
+          "candidate_branches_add": [
+            "login_failure"
+          ],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "Confirm whether login itself fails or whether a page after login is wrong.",
+          "final_cause": "login_failure",
+          "root_cause_evidence_seen": false,
+          "handoff_note": "Predicted login failure from the first symptom."
+        },
+        "llm_raw": "{\"facts_add\": [\"reported_issue:login\"], \"facts_remove\": [], \"unknowns_add\": [\"actual_surface\"], \"unknowns_remove\": [], \"candidate_branches_add\": [\"login_failure\"], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"Confirm whether login itself fails or whether a page after login is wrong.\", \"final_cause\": \"login_failure\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"Predicted login failure from the first symptom.\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 2,
+          "speaker": "customer",
+          "text": "No, login works. The billing page shows the wrong plan."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "billing_plan_mismatch",
+          "version": 2,
+          "facts": [
+            "reported_issue:login",
+            "auth:works",
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "login_failure"
+          ],
+          "next_check": "Check whether the billing entitlement refresh completed after the upgrade.",
+          "handoff_notes": [
+            "Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown",
+            "Unknowns: billing_entitlement_status",
+            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+            "Next check: Check whether the billing entitlement refresh completed after the upgrade."
+          ],
+          "final_cause": "login_failure",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 2,
+          "facts": [
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "auth:works",
+                "reported_issue:login"
+              ],
+              "expected": [
+                "correction:login_works",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ],
+              "actual": [
+                "auth:works",
+                "correction:login_works",
+                "reported_issue:login",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "billing_entitlement_status"
+              ],
+              "actual": [
+                "billing_entitlement_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "billing_entitlement_refresh_pending",
+                "invoice_app_mismatch"
+              ],
+              "actual": [
+                "billing_entitlement_refresh_pending",
+                "invoice_app_mismatch"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_block"
+              ],
+              "expected": [
+                "login_failure"
+              ],
+              "actual": [
+                "login_block",
+                "login_failure"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "entitlement",
+                "refresh"
+              ],
+              "actual": "Check whether the billing entitlement refresh completed after the upgrade."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "login_failure"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 1,\n    \"facts\": [\n      \"reported_issue:login\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\"\n    ],\n    \"candidate_branches\": [\n      \"login_failure\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Confirm whether login itself fails or whether a page after login is wrong.\",\n    \"handoff_notes\": [\n      \"Known: reported_issue:login\",\n      \"Unknowns: actual_surface\",\n      \"Branches: login_failure\",\n      \"Next check: Confirm whether login itself fails or whether a page after login is wrong.\",\n      \"Predicted login failure from the first symptom.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"customer\",\n    \"text\": \"No, login works. The billing page shows the wrong plan.\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "auth:works",
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "billing_entitlement_status"
+          ],
+          "unknowns_remove": [
+            "auth_status",
+            "actual_surface"
+          ],
+          "candidate_branches_add": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "candidate_branches_remove": [
+            "login_block",
+            "login_failure"
+          ],
+          "ruled_out_branches_add": [
+            "login_block",
+            "login_failure"
+          ],
+          "ruled_out_branches_remove": [],
+          "next_check": "Check whether the billing entitlement refresh completed after the upgrade.",
+          "final_cause": "",
+          "root_cause_evidence_seen": false,
+          "handoff_note": ""
+        },
+        "llm_raw": "{\"facts_add\": [\"auth:works\", \"correction:login_works\", \"surface:billing_plan\", \"symptom:wrong_plan_shown\"], \"facts_remove\": [], \"unknowns_add\": [\"billing_entitlement_status\"], \"unknowns_remove\": [\"auth_status\", \"actual_surface\"], \"candidate_branches_add\": [\"billing_entitlement_refresh_pending\", \"invoice_app_mismatch\"], \"candidate_branches_remove\": [\"login_block\", \"login_failure\"], \"ruled_out_branches_add\": [\"login_block\", \"login_failure\"], \"ruled_out_branches_remove\": [], \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\", \"final_cause\": \"\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 3,
+          "speaker": "agent",
+          "text": "When did the plan change?"
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "billing_plan_mismatch",
+          "version": 3,
+          "facts": [
+            "reported_issue:login",
+            "auth:works",
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "login_failure"
+          ],
+          "next_check": "Check whether the billing entitlement refresh completed after the upgrade.",
+          "handoff_notes": [
+            "Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown",
+            "Unknowns: billing_entitlement_status",
+            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+            "Next check: Check whether the billing entitlement refresh completed after the upgrade."
+          ],
+          "final_cause": "login_failure",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 3,
+          "facts": [
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown"
+          ],
+          "unknowns": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "auth:works",
+                "reported_issue:login"
+              ],
+              "expected": [
+                "correction:login_works",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ],
+              "actual": [
+                "auth:works",
+                "correction:login_works",
+                "reported_issue:login",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "billing_entitlement_status"
+              ],
+              "actual": [
+                "billing_entitlement_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "billing_entitlement_refresh_pending",
+                "invoice_app_mismatch"
+              ],
+              "actual": [
+                "billing_entitlement_refresh_pending",
+                "invoice_app_mismatch"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_block"
+              ],
+              "expected": [
+                "login_failure"
+              ],
+              "actual": [
+                "login_block",
+                "login_failure"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "entitlement",
+                "refresh"
+              ],
+              "actual": "Check whether the billing entitlement refresh completed after the upgrade."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "login_failure"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 2,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\",\n      \"login_failure\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"agent\",\n    \"text\": \"When did the plan change?\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [],
+          "facts_remove": [],
+          "unknowns_add": [],
+          "unknowns_remove": [],
+          "candidate_branches_add": [],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "",
+          "final_cause": "",
+          "root_cause_evidence_seen": false,
+          "handoff_note": ""
+        },
+        "llm_raw": "{\"facts_add\": [], \"facts_remove\": [], \"unknowns_add\": [], \"unknowns_remove\": [], \"candidate_branches_add\": [], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"\", \"final_cause\": \"\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 4,
+          "speaker": "customer",
+          "text": "We upgraded yesterday."
+        },
+        "context_applied": [
+          {
+            "after_turn": 4,
+            "description": "Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.",
+            "facts": [
+              "invoice_plan:pro",
+              "app_entitlement_plan:starter",
+              "billing_refresh:pending"
+            ],
+            "resolved_unknowns": [
+              "billing_entitlement_status"
+            ],
+            "ruled_out_branches": [
+              "login_failure"
+            ],
+            "candidate_branches": [
+              "billing_entitlement_refresh_pending"
+            ],
+            "final_cause": "billing_entitlement_refresh_pending",
+            "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement."
+          }
+        ],
+        "state": {
+          "case_id": "billing_plan_mismatch",
+          "version": 4,
+          "facts": [
+            "reported_issue:login",
+            "auth:works",
+            "correction:login_works",
+            "surface:billing_plan",
+            "symptom:wrong_plan_shown",
+            "recent_change:upgrade",
+            "invoice_plan:pro",
+            "app_entitlement_plan:starter",
+            "billing_refresh:pending"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending",
+            "invoice_app_mismatch"
+          ],
+          "ruled_out_branches": [
+            "login_block",
+            "login_failure"
+          ],
+          "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
+          "handoff_notes": [
+            "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
+            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+            "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
+          ],
+          "final_cause": "billing_entitlement_refresh_pending",
+          "root_cause_evidence_seen": true
+        },
+        "expected": {
+          "after_turn": 4,
+          "facts": [
+            "recent_change:upgrade",
+            "invoice_plan:pro",
+            "app_entitlement_plan:starter",
+            "billing_refresh:pending"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "billing_entitlement_refresh_pending"
+          ],
+          "ruled_out_branches": [
+            "login_failure"
+          ],
+          "next_check_contains": [
+            "entitlement",
+            "refresh"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "auth:works",
+                "correction:login_works",
+                "reported_issue:login",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ],
+              "expected": [
+                "app_entitlement_plan:starter",
+                "billing_refresh:pending",
+                "invoice_plan:pro",
+                "recent_change:upgrade"
+              ],
+              "actual": [
+                "app_entitlement_plan:starter",
+                "auth:works",
+                "billing_refresh:pending",
+                "correction:login_works",
+                "invoice_plan:pro",
+                "recent_change:upgrade",
+                "reported_issue:login",
+                "surface:billing_plan",
+                "symptom:wrong_plan_shown"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "invoice_app_mismatch"
+              ],
+              "expected": [
+                "billing_entitlement_refresh_pending"
+              ],
+              "actual": [
+                "billing_entitlement_refresh_pending",
+                "invoice_app_mismatch"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "login_block"
+              ],
+              "expected": [
+                "login_failure"
+              ],
+              "actual": [
+                "login_block",
+                "login_failure"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "entitlement",
+                "refresh"
+              ],
+              "actual": "Check the billing entitlement refresh job and re-sync the plan entitlement."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "billing_entitlement_refresh_pending"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 3,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\",\n      \"login_failure\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 4,\n    \"speaker\": \"customer\",\n    \"text\": \"We upgraded yesterday.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.\",\n      \"facts\": [\n        \"invoice_plan:pro\",\n        \"app_entitlement_plan:starter\",\n        \"billing_refresh:pending\"\n      ]\n    }\n  ],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "recent_change:upgrade",
+            "invoice_plan:pro",
+            "app_entitlement_plan:starter",
+            "billing_refresh:pending"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [],
+          "unknowns_remove": [
+            "billing_entitlement_status"
+          ],
+          "candidate_branches_add": [
+            "billing_entitlement_refresh_pending"
+          ],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [
+            "login_failure"
+          ],
+          "ruled_out_branches_remove": [],
+          "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
+          "final_cause": "billing_entitlement_refresh_pending",
+          "root_cause_evidence_seen": true,
+          "handoff_note": ""
+        },
+        "llm_raw": "{\"facts_add\": [\"recent_change:upgrade\", \"invoice_plan:pro\", \"app_entitlement_plan:starter\", \"billing_refresh:pending\"], \"facts_remove\": [], \"unknowns_add\": [], \"unknowns_remove\": [\"billing_entitlement_status\"], \"candidate_branches_add\": [\"billing_entitlement_refresh_pending\"], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [\"login_failure\"], \"ruled_out_branches_remove\": [], \"next_check\": \"Check the billing entitlement refresh job and re-sync the plan entitlement.\", \"final_cause\": \"billing_entitlement_refresh_pending\", \"root_cause_evidence_seen\": true, \"handoff_note\": \"\"}\n"
+      }
+    ],
+    "final_state": {
+      "case_id": "billing_plan_mismatch",
+      "version": 4,
+      "facts": [
+        "reported_issue:login",
+        "auth:works",
+        "correction:login_works",
+        "surface:billing_plan",
+        "symptom:wrong_plan_shown",
+        "recent_change:upgrade",
+        "invoice_plan:pro",
+        "app_entitlement_plan:starter",
+        "billing_refresh:pending"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "invoice_app_mismatch"
+      ],
+      "ruled_out_branches": [
+        "login_block",
+        "login_failure"
+      ],
+      "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
+      "handoff_notes": [
+        "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
+        "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+        "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
+      ],
+      "final_cause": "billing_entitlement_refresh_pending",
+      "root_cause_evidence_seen": true
+    },
+    "root_cause_ok": true,
+    "mode": "llm"
+  },
+  {
+    "fixture": {
+      "case_id": "invite_email_not_arriving",
+      "title": "Invite Email Not Arriving",
+      "scenario": "Admin is trying to invite a new admin, but the invite email never arrives.",
+      "transcript_turns": [
+        {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Um, yeah, so I am trying to invite a new admin."
+        },
+        {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Does the invite show as created in the admin page?"
+        },
+        {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "Yes, but the invite email never arrives."
+        }
+      ],
+      "context_events": [
+        {
+          "after_turn": 3,
+          "description": "Email context shows invite created, delivery suppressed, and domain policy rejected the message.",
+          "facts": [
+            "invite_status:created",
+            "email_delivery:suppressed",
+            "domain_policy:dmarc_reject"
+          ],
+          "resolved_unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "ruled_out_branches": [
+            "invite_not_created"
+          ],
+          "candidate_branches": [
+            "domain_policy_rejection",
+            "email_delivery_suppressed"
+          ],
+          "final_cause": "domain_policy_rejection",
+          "next_check": "Inspect email suppression and DMARC policy for the recipient domain."
+        }
+      ],
+      "expected_by_turn": [
+        {
+          "after_turn": 1,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "invite",
+            "delivery"
+          ]
+        },
+        {
+          "after_turn": 2,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "invite",
+            "delivery"
+          ]
+        },
+        {
+          "after_turn": 3,
+          "facts": [
+            "symptom:invite_email_not_received",
+            "invite_status:created",
+            "email_delivery:suppressed",
+            "domain_policy:dmarc_reject"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "domain_policy_rejection",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [
+            "invite_not_created"
+          ],
+          "next_check_contains": [
+            "DMARC",
+            "suppression"
+          ]
+        }
+      ],
+      "final_cause": "domain_policy_rejection"
+    },
+    "timeline": [
+      {
+        "turn": {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Um, yeah, so I am trying to invite a new admin."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "invite_email_not_arriving",
+          "version": 1,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed",
+            "domain_policy_rejection"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Check whether the invite was created and whether email delivery bounced or was suppressed.",
+          "handoff_notes": [
+            "Known: flow:admin_invite",
+            "Unknowns: invite_created; email_delivery_status",
+            "Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection",
+            "Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.",
+            "Predicted email policy rejection before delivery evidence."
+          ],
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 1,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "invite",
+            "delivery"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "flow:admin_invite"
+              ],
+              "actual": [
+                "flow:admin_invite"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "email_delivery_status",
+                "invite_created"
+              ],
+              "actual": [
+                "email_delivery_status",
+                "invite_created"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "domain_policy_rejection"
+              ],
+              "expected": [
+                "email_delivery_suppressed",
+                "invite_not_created"
+              ],
+              "actual": [
+                "domain_policy_rejection",
+                "email_delivery_suppressed",
+                "invite_not_created"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "invite",
+                "delivery"
+              ],
+              "actual": "Check whether the invite was created and whether email delivery bounced or was suppressed."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "domain_policy_rejection"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"invite_email_not_arriving\",\n  \"scenario\": \"Admin is trying to invite a new admin, but the invite email never arrives.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_email_not_arriving\",\n    \"version\": 0,\n    \"facts\": [],\n    \"unknowns\": [],\n    \"candidate_branches\": [],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"\",\n    \"handoff_notes\": [],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 1,\n    \"speaker\": \"customer\",\n    \"text\": \"Um, yeah, so I am trying to invite a new admin.\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "flow:admin_invite"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "unknowns_remove": [],
+          "candidate_branches_add": [
+            "invite_not_created",
+            "email_delivery_suppressed",
+            "domain_policy_rejection"
+          ],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "Check whether the invite was created and whether email delivery bounced or was suppressed.",
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": false,
+          "handoff_note": "Predicted email policy rejection before delivery evidence."
+        },
+        "llm_raw": "{\"facts_add\": [\"flow:admin_invite\"], \"facts_remove\": [], \"unknowns_add\": [\"invite_created\", \"email_delivery_status\"], \"unknowns_remove\": [], \"candidate_branches_add\": [\"invite_not_created\", \"email_delivery_suppressed\", \"domain_policy_rejection\"], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\", \"final_cause\": \"domain_policy_rejection\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"Predicted email policy rejection before delivery evidence.\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Does the invite show as created in the admin page?"
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "invite_email_not_arriving",
+          "version": 2,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed",
+            "domain_policy_rejection"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Check whether the invite was created and whether email delivery bounced or was suppressed.",
+          "handoff_notes": [
+            "Known: flow:admin_invite",
+            "Unknowns: invite_created; email_delivery_status",
+            "Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection",
+            "Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.",
+            "Predicted email policy rejection before delivery evidence."
+          ],
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 2,
+          "facts": [
+            "flow:admin_invite"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "invite_not_created",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "invite",
+            "delivery"
+          ]
+        },
+        "verdict": {
+          "passed": 5,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "flow:admin_invite"
+              ],
+              "actual": [
+                "flow:admin_invite"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "email_delivery_status",
+                "invite_created"
+              ],
+              "actual": [
+                "email_delivery_status",
+                "invite_created"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "domain_policy_rejection"
+              ],
+              "expected": [
+                "email_delivery_suppressed",
+                "invite_not_created"
+              ],
+              "actual": [
+                "domain_policy_rejection",
+                "email_delivery_suppressed",
+                "invite_not_created"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "invite",
+                "delivery"
+              ],
+              "actual": "Check whether the invite was created and whether email delivery bounced or was suppressed."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": false,
+              "missing": [
+                "final cause must wait for product/support evidence"
+              ],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "domain_policy_rejection"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"invite_email_not_arriving\",\n  \"scenario\": \"Admin is trying to invite a new admin, but the invite email never arrives.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_email_not_arriving\",\n    \"version\": 1,\n    \"facts\": [\n      \"flow:admin_invite\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"agent\",\n    \"text\": \"Does the invite show as created in the admin page?\"\n  },\n  \"new_product_support_context\": [],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "flow:admin_invite"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "unknowns_remove": [],
+          "candidate_branches_add": [
+            "invite_not_created",
+            "email_delivery_suppressed",
+            "domain_policy_rejection"
+          ],
+          "candidate_branches_remove": [],
+          "ruled_out_branches_add": [],
+          "ruled_out_branches_remove": [],
+          "next_check": "Check whether the invite was created and whether email delivery bounced or was suppressed.",
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": false,
+          "handoff_note": "Predicted email policy rejection before delivery evidence."
+        },
+        "llm_raw": "{\"facts_add\": [\"flow:admin_invite\"], \"facts_remove\": [], \"unknowns_add\": [\"invite_created\", \"email_delivery_status\"], \"unknowns_remove\": [], \"candidate_branches_add\": [\"invite_not_created\", \"email_delivery_suppressed\", \"domain_policy_rejection\"], \"candidate_branches_remove\": [], \"ruled_out_branches_add\": [], \"ruled_out_branches_remove\": [], \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\", \"final_cause\": \"domain_policy_rejection\", \"root_cause_evidence_seen\": false, \"handoff_note\": \"Predicted email policy rejection before delivery evidence.\"}\n"
+      },
+      {
+        "turn": {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "Yes, but the invite email never arrives."
+        },
+        "context_applied": [
+          {
+            "after_turn": 3,
+            "description": "Email context shows invite created, delivery suppressed, and domain policy rejected the message.",
+            "facts": [
+              "invite_status:created",
+              "email_delivery:suppressed",
+              "domain_policy:dmarc_reject"
+            ],
+            "resolved_unknowns": [
+              "invite_created",
+              "email_delivery_status"
+            ],
+            "ruled_out_branches": [
+              "invite_not_created"
+            ],
+            "candidate_branches": [
+              "domain_policy_rejection",
+              "email_delivery_suppressed"
+            ],
+            "final_cause": "domain_policy_rejection",
+            "next_check": "Inspect email suppression and DMARC policy for the recipient domain."
+          }
+        ],
+        "state": {
+          "case_id": "invite_email_not_arriving",
+          "version": 3,
+          "facts": [
+            "flow:admin_invite",
+            "symptom:invite_email_not_received",
+            "invite_status:created",
+            "email_delivery:suppressed",
+            "domain_policy:dmarc_reject"
+          ],
+          "unknowns": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches": [
+            "email_delivery_suppressed",
+            "domain_policy_rejection",
+            "invite_not_created"
+          ],
+          "ruled_out_branches": [
+            "invite_not_created"
+          ],
+          "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
+          "handoff_notes": [
+            "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
+            "Unknowns: invite_created; email_delivery_status",
+            "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+            "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
+            "Predicted email policy rejection before delivery evidence."
+          ],
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": true
+        },
+        "expected": {
+          "after_turn": 3,
+          "facts": [
+            "symptom:invite_email_not_received",
+            "invite_status:created",
+            "email_delivery:suppressed",
+            "domain_policy:dmarc_reject"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "domain_policy_rejection",
+            "email_delivery_suppressed"
+          ],
+          "ruled_out_branches": [
+            "invite_not_created"
+          ],
+          "next_check_contains": [
+            "DMARC",
+            "suppression"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "flow:admin_invite"
+              ],
+              "expected": [
+                "domain_policy:dmarc_reject",
+                "email_delivery:suppressed",
+                "invite_status:created",
+                "symptom:invite_email_not_received"
+              ],
+              "actual": [
+                "domain_policy:dmarc_reject",
+                "email_delivery:suppressed",
+                "flow:admin_invite",
+                "invite_status:created",
+                "symptom:invite_email_not_received"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "email_delivery_status",
+                "invite_created"
+              ],
+              "expected": [],
+              "actual": [
+                "email_delivery_status",
+                "invite_created"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "invite_not_created"
+              ],
+              "expected": [
+                "domain_policy_rejection",
+                "email_delivery_suppressed"
+              ],
+              "actual": [
+                "domain_policy_rejection",
+                "email_delivery_suppressed",
+                "invite_not_created"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "invite_not_created"
+              ],
+              "actual": [
+                "invite_not_created"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "DMARC",
+                "suppression"
+              ],
+              "actual": "Inspect email suppression and DMARC policy for the recipient domain."
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "domain_policy_rejection"
+            }
+          ]
+        },
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.\n\nInput:\n{\n  \"case_id\": \"invite_email_not_arriving\",\n  \"scenario\": \"Admin is trying to invite a new admin, but the invite email never arrives.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_email_not_arriving\",\n    \"version\": 2,\n    \"facts\": [\n      \"flow:admin_invite\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"customer\",\n    \"text\": \"Yes, but the invite email never arrives.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Email context shows invite created, delivery suppressed, and domain policy rejected the message.\",\n      \"facts\": [\n        \"invite_status:created\",\n        \"email_delivery:suppressed\",\n        \"domain_policy:dmarc_reject\"\n      ]\n    }\n  ],\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_patch": {
+          "facts_add": [
+            "flow:admin_invite",
+            "symptom:invite_email_not_received",
+            "invite_status:created",
+            "email_delivery:suppressed",
+            "domain_policy:dmarc_reject"
+          ],
+          "facts_remove": [],
+          "unknowns_add": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "unknowns_remove": [
+            "invite_created",
+            "email_delivery_status"
+          ],
+          "candidate_branches_add": [
+            "invite_not_created",
+            "email_delivery_suppressed",
+            "domain_policy_rejection"
+          ],
+          "candidate_branches_remove": [
+            "invite_not_created"
+          ],
+          "ruled_out_branches_add": [
+            "invite_not_created"
+          ],
+          "ruled_out_branches_remove": [],
+          "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
+          "final_cause": "domain_policy_rejection",
+          "root_cause_evidence_seen": true,
+          "handoff_note": "Predicted email policy rejection before delivery evidence."
+        },
+        "llm_raw": "{\"facts_add\": [\"flow:admin_invite\", \"symptom:invite_email_not_received\", \"invite_status:created\", \"email_delivery:suppressed\", \"domain_policy:dmarc_reject\"], \"facts_remove\": [], \"unknowns_add\": [\"invite_created\", \"email_delivery_status\"], \"unknowns_remove\": [\"invite_created\", \"email_delivery_status\"], \"candidate_branches_add\": [\"invite_not_created\", \"email_delivery_suppressed\", \"domain_policy_rejection\"], \"candidate_branches_remove\": [\"invite_not_created\"], \"ruled_out_branches_add\": [\"invite_not_created\"], \"ruled_out_branches_remove\": [], \"next_check\": \"Inspect email suppression and DMARC policy for the recipient domain.\", \"final_cause\": \"domain_policy_rejection\", \"root_cause_evidence_seen\": true, \"handoff_note\": \"Predicted email policy rejection before delivery evidence.\"}\n"
+      }
+    ],
+    "final_state": {
+      "case_id": "invite_email_not_arriving",
+      "version": 3,
+      "facts": [
+        "flow:admin_invite",
+        "symptom:invite_email_not_received",
+        "invite_status:created",
+        "email_delivery:suppressed",
+        "domain_policy:dmarc_reject"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "email_delivery_suppressed",
+        "domain_policy_rejection",
+        "invite_not_created"
+      ],
+      "ruled_out_branches": [
+        "invite_not_created"
+      ],
+      "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
+      "handoff_notes": [
+        "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
+        "Unknowns: invite_created; email_delivery_status",
+        "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+        "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
+        "Predicted email policy rejection before delivery evidence."
+      ],
+      "final_cause": "domain_policy_rejection",
+      "root_cause_evidence_seen": true
+    },
+    "root_cause_ok": true,
+    "mode": "llm"
+  }
+]
