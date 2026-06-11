@@ -10,7 +10,10 @@ Offline test of transcript + mock-system support process state.
 | --- | --- | --- | --- | --- |
 | access_after_migration | 18/18 | 100% | yes | missing_workspace_role_inheritance |
 | billing_plan_mismatch | 24/24 | 100% | yes | billing_entitlement_refresh_pending |
+| corrected_billing_after_access_report | 12/12 | 100% | yes | billing_entitlement_refresh_pending |
 | invite_email_not_arriving | 18/18 | 100% | yes | domain_policy_rejection |
+| invite_with_irrelevant_billing_context | 18/18 | 100% | yes | domain_policy_rejection |
+| stale_cache_after_migration | 18/18 | 100% | yes | stale_entitlement_cache |
 
 ## Access After Migration
 
@@ -91,12 +94,68 @@ Offline test of transcript + mock-system support process state.
   ],
   "ruled_out_branches": [
     "login_block",
-    "login_failure"
+    "login_failure",
+    "missing_workspace_role",
+    "scim_sync_delay"
   ],
   "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
   "handoff_notes": [
     "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
     "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+    "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
+  ],
+  "final_cause": "billing_entitlement_refresh_pending",
+  "root_cause_evidence_seen": true
+}
+```
+
+## Corrected Billing After Access Report
+
+| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | customer | Three users lost access after migration. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration | auth_status; workspace_role_assignment | login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache | Can the affected users sign in, or are they blocked at login? | pass | - |
+| 2 | customer | Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending | workspace_role_assignment; billing_entitlement_status | stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch | Check the billing entitlement refresh job and re-sync the plan entitlement. | pass | - |
+
+### Final State
+
+```json
+{
+  "case_id": "corrected_billing_after_access_report",
+  "version": 2,
+  "facts": [
+    "symptom:workspace_access_loss",
+    "affected_scope:three_users",
+    "recent_change:migration",
+    "auth:works",
+    "surface:workspace_access",
+    "correction:login_works",
+    "surface:billing_plan",
+    "symptom:wrong_plan_shown",
+    "recent_change:upgrade",
+    "invoice_plan:pro",
+    "app_entitlement_plan:starter",
+    "billing_refresh:pending"
+  ],
+  "unknowns": [
+    "workspace_role_assignment",
+    "billing_entitlement_status"
+  ],
+  "candidate_branches": [
+    "stale_entitlement_cache",
+    "billing_entitlement_refresh_pending",
+    "invoice_app_mismatch"
+  ],
+  "ruled_out_branches": [
+    "login_block",
+    "login_failure",
+    "missing_workspace_role",
+    "scim_sync_delay"
+  ],
+  "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
+  "handoff_notes": [
+    "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
+    "Unknowns: workspace_role_assignment; billing_entitlement_status",
+    "Branches: stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch",
     "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
   ],
   "final_cause": "billing_entitlement_refresh_pending",
@@ -145,6 +204,96 @@ Offline test of transcript + mock-system support process state.
     "Next check: Inspect email suppression and DMARC policy for the recipient domain."
   ],
   "final_cause": "domain_policy_rejection",
+  "root_cause_evidence_seen": true
+}
+```
+
+## Invite With Irrelevant Billing Context
+
+| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | customer | I am trying to invite a new admin, but the invite email never arrives. | flow:admin_invite; symptom:invite_email_not_received | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Inspect invite delivery status, suppression list, and domain policy results. | pass | - |
+| 2 | agent | Does the invite show as created in the admin page? | flow:admin_invite; symptom:invite_email_not_received | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Check whether the invite was created and whether email delivery bounced or was suppressed. | pass | - |
+| 3 | customer | Yes, the invite exists in the admin page, but no email arrives. | flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject | invite_created; email_delivery_status | email_delivery_suppressed; domain_policy_rejection; invite_not_created | Inspect email suppression and DMARC policy for the recipient domain. | pass | - |
+
+### Final State
+
+```json
+{
+  "case_id": "invite_with_irrelevant_billing_context",
+  "version": 3,
+  "facts": [
+    "flow:admin_invite",
+    "symptom:invite_email_not_received",
+    "invite_status:created",
+    "email_delivery:suppressed",
+    "domain_policy:dmarc_reject"
+  ],
+  "unknowns": [
+    "invite_created",
+    "email_delivery_status"
+  ],
+  "candidate_branches": [
+    "email_delivery_suppressed",
+    "domain_policy_rejection",
+    "invite_not_created"
+  ],
+  "ruled_out_branches": [
+    "invite_not_created"
+  ],
+  "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
+  "handoff_notes": [
+    "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
+    "Unknowns: invite_created; email_delivery_status",
+    "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+    "Next check: Inspect email suppression and DMARC policy for the recipient domain."
+  ],
+  "final_cause": "domain_policy_rejection",
+  "root_cause_evidence_seen": true
+}
+```
+
+## Stale Cache After Migration
+
+| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | customer | Three users lost access after our migration yesterday. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration | auth_status; workspace_role_assignment | login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache | Can the affected users sign in, or are they blocked at login? | pass | - |
+| 2 | agent | Can they sign in, or is login blocked? | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration | auth_status; workspace_role_assignment | login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache | Can the affected users sign in, or are they blocked at login? | pass | - |
+| 3 | customer | They can sign in, but the workspace still says they do not have access. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; workspace_role:present; scim_sync:complete; entitlement_cache:stale |  | stale_entitlement_cache | Refresh the entitlement cache and confirm workspace access works after refresh. | pass | - |
+
+### Final State
+
+```json
+{
+  "case_id": "stale_cache_after_migration",
+  "version": 3,
+  "facts": [
+    "symptom:workspace_access_loss",
+    "affected_scope:three_users",
+    "recent_change:migration",
+    "auth:works",
+    "surface:workspace_access",
+    "workspace_role:present",
+    "scim_sync:complete",
+    "entitlement_cache:stale"
+  ],
+  "unknowns": [],
+  "candidate_branches": [
+    "stale_entitlement_cache"
+  ],
+  "ruled_out_branches": [
+    "login_block",
+    "login_failure",
+    "missing_workspace_role",
+    "scim_sync_delay"
+  ],
+  "next_check": "Refresh the entitlement cache and confirm workspace access works after refresh.",
+  "handoff_notes": [
+    "Known: surface:workspace_access; workspace_role:present; scim_sync:complete; entitlement_cache:stale",
+    "Branches: stale_entitlement_cache",
+    "Next check: Refresh the entitlement cache and confirm workspace access works after refresh."
+  ],
+  "final_cause": "stale_entitlement_cache",
   "root_cause_evidence_seen": true
 }
 ```

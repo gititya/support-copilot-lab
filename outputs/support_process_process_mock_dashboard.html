@@ -44,9 +44,24 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
           <div class="muted">Final cause: billing_entitlement_refresh_pending</div>
         </div>
         <div class="card good">
+          <div class="card-title">Corrected Billing After Access Report</div>
+          <div class="metric">12/12 checks</div>
+          <div class="muted">Final cause: billing_entitlement_refresh_pending</div>
+        </div>
+        <div class="card good">
           <div class="card-title">Invite Email Not Arriving</div>
           <div class="metric">18/18 checks</div>
           <div class="muted">Final cause: domain_policy_rejection</div>
+        </div>
+        <div class="card good">
+          <div class="card-title">Invite With Irrelevant Billing Context</div>
+          <div class="metric">18/18 checks</div>
+          <div class="muted">Final cause: domain_policy_rejection</div>
+        </div>
+        <div class="card good">
+          <div class="card-title">Stale Cache After Migration</div>
+          <div class="metric">18/18 checks</div>
+          <div class="muted">Final cause: stale_entitlement_cache</div>
         </div></div>
 
         <section>
@@ -190,12 +205,85 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
   ],
   &quot;ruled_out_branches&quot;: [
     &quot;login_block&quot;,
-    &quot;login_failure&quot;
+    &quot;login_failure&quot;,
+    &quot;missing_workspace_role&quot;,
+    &quot;scim_sync_delay&quot;
   ],
   &quot;next_check&quot;: &quot;Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;,
   &quot;handoff_notes&quot;: [
     &quot;Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending&quot;,
     &quot;Branches: billing_entitlement_refresh_pending; invoice_app_mismatch&quot;,
+    &quot;Next check: Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;billing_entitlement_refresh_pending&quot;,
+  &quot;root_cause_evidence_seen&quot;: true
+}</pre>
+        </section>
+        <section>
+          <h2>Corrected Billing After Access Report</h2>
+          <p>Customer opens with a migration access complaint, then corrects the report: login and workspace access work, and the real issue is stale billing entitlement after an upgrade.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: Three users lost access after migration.<div class="context">-</div></td>
+              <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration</td>
+              <td>auth_status; workspace_role_assignment</td>
+              <td>login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache</td>
+              <td>Can the affected users sign in, or are they blocked at login?</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>customer</strong>: Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded.<div class="context">Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.</div></td>
+              <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending</td>
+              <td>workspace_role_assignment; billing_entitlement_status</td>
+              <td>stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Check the billing entitlement refresh job and re-sync the plan entitlement.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;corrected_billing_after_access_report&quot;,
+  &quot;version&quot;: 2,
+  &quot;facts&quot;: [
+    &quot;symptom:workspace_access_loss&quot;,
+    &quot;affected_scope:three_users&quot;,
+    &quot;recent_change:migration&quot;,
+    &quot;auth:works&quot;,
+    &quot;surface:workspace_access&quot;,
+    &quot;correction:login_works&quot;,
+    &quot;surface:billing_plan&quot;,
+    &quot;symptom:wrong_plan_shown&quot;,
+    &quot;recent_change:upgrade&quot;,
+    &quot;invoice_plan:pro&quot;,
+    &quot;app_entitlement_plan:starter&quot;,
+    &quot;billing_refresh:pending&quot;
+  ],
+  &quot;unknowns&quot;: [
+    &quot;workspace_role_assignment&quot;,
+    &quot;billing_entitlement_status&quot;
+  ],
+  &quot;candidate_branches&quot;: [
+    &quot;stale_entitlement_cache&quot;,
+    &quot;billing_entitlement_refresh_pending&quot;,
+    &quot;invoice_app_mismatch&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;login_block&quot;,
+    &quot;login_failure&quot;,
+    &quot;missing_workspace_role&quot;,
+    &quot;scim_sync_delay&quot;
+  ],
+  &quot;next_check&quot;: &quot;Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending&quot;,
+    &quot;Unknowns: workspace_role_assignment; billing_entitlement_status&quot;,
+    &quot;Branches: stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch&quot;,
     &quot;Next check: Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;
   ],
   &quot;final_cause&quot;: &quot;billing_entitlement_refresh_pending&quot;,
@@ -270,6 +358,148 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
     &quot;Next check: Inspect email suppression and DMARC policy for the recipient domain.&quot;
   ],
   &quot;final_cause&quot;: &quot;domain_policy_rejection&quot;,
+  &quot;root_cause_evidence_seen&quot;: true
+}</pre>
+        </section>
+        <section>
+          <h2>Invite With Irrelevant Billing Context</h2>
+          <p>Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: I am trying to invite a new admin, but the invite email never arrives.<div class="context">Unrelated billing context from another account shows invoice has Pro and app entitlement has Starter.</div></td>
+              <td>flow:admin_invite; symptom:invite_email_not_received</td>
+              <td>invite_created; email_delivery_status</td>
+              <td>invite_not_created; email_delivery_suppressed; domain_policy_rejection</td>
+              <td>Inspect invite delivery status, suppression list, and domain policy results.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>agent</strong>: Does the invite show as created in the admin page?<div class="context">-</div></td>
+              <td>flow:admin_invite; symptom:invite_email_not_received</td>
+              <td>invite_created; email_delivery_status</td>
+              <td>invite_not_created; email_delivery_suppressed; domain_policy_rejection</td>
+              <td>Check whether the invite was created and whether email delivery bounced or was suppressed.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="text"><strong>customer</strong>: Yes, the invite exists in the admin page, but no email arrives.<div class="context">Email context shows invite created, delivery suppressed, and domain policy rejected the message.</div></td>
+              <td>flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject</td>
+              <td>invite_created; email_delivery_status</td>
+              <td>email_delivery_suppressed; domain_policy_rejection; invite_not_created</td>
+              <td>Inspect email suppression and DMARC policy for the recipient domain.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;invite_with_irrelevant_billing_context&quot;,
+  &quot;version&quot;: 3,
+  &quot;facts&quot;: [
+    &quot;flow:admin_invite&quot;,
+    &quot;symptom:invite_email_not_received&quot;,
+    &quot;invite_status:created&quot;,
+    &quot;email_delivery:suppressed&quot;,
+    &quot;domain_policy:dmarc_reject&quot;
+  ],
+  &quot;unknowns&quot;: [
+    &quot;invite_created&quot;,
+    &quot;email_delivery_status&quot;
+  ],
+  &quot;candidate_branches&quot;: [
+    &quot;email_delivery_suppressed&quot;,
+    &quot;domain_policy_rejection&quot;,
+    &quot;invite_not_created&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;invite_not_created&quot;
+  ],
+  &quot;next_check&quot;: &quot;Inspect email suppression and DMARC policy for the recipient domain.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject&quot;,
+    &quot;Unknowns: invite_created; email_delivery_status&quot;,
+    &quot;Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created&quot;,
+    &quot;Next check: Inspect email suppression and DMARC policy for the recipient domain.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;domain_policy_rejection&quot;,
+  &quot;root_cause_evidence_seen&quot;: true
+}</pre>
+        </section>
+        <section>
+          <h2>Stale Cache After Migration</h2>
+          <p>Customer reports workspace access loss after migration. The tempting early answer is missing role inheritance, but system context later shows roles are present and a stale entitlement cache is the mechanism.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: Three users lost access after our migration yesterday.<div class="context">-</div></td>
+              <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration</td>
+              <td>auth_status; workspace_role_assignment</td>
+              <td>login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache</td>
+              <td>Can the affected users sign in, or are they blocked at login?</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>agent</strong>: Can they sign in, or is login blocked?<div class="context">-</div></td>
+              <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration</td>
+              <td>auth_status; workspace_role_assignment</td>
+              <td>login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache</td>
+              <td>Can the affected users sign in, or are they blocked at login?</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="text"><strong>customer</strong>: They can sign in, but the workspace still says they do not have access.<div class="context">Admin context shows the affected users have the workspace role and SCIM completed, but entitlement cache is stale.</div></td>
+              <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; workspace_role:present; scim_sync:complete; entitlement_cache:stale</td>
+              <td>-</td>
+              <td>stale_entitlement_cache</td>
+              <td>Refresh the entitlement cache and confirm workspace access works after refresh.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;stale_cache_after_migration&quot;,
+  &quot;version&quot;: 3,
+  &quot;facts&quot;: [
+    &quot;symptom:workspace_access_loss&quot;,
+    &quot;affected_scope:three_users&quot;,
+    &quot;recent_change:migration&quot;,
+    &quot;auth:works&quot;,
+    &quot;surface:workspace_access&quot;,
+    &quot;workspace_role:present&quot;,
+    &quot;scim_sync:complete&quot;,
+    &quot;entitlement_cache:stale&quot;
+  ],
+  &quot;unknowns&quot;: [],
+  &quot;candidate_branches&quot;: [
+    &quot;stale_entitlement_cache&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;login_block&quot;,
+    &quot;login_failure&quot;,
+    &quot;missing_workspace_role&quot;,
+    &quot;scim_sync_delay&quot;
+  ],
+  &quot;next_check&quot;: &quot;Refresh the entitlement cache and confirm workspace access works after refresh.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: surface:workspace_access; workspace_role:present; scim_sync:complete; entitlement_cache:stale&quot;,
+    &quot;Branches: stale_entitlement_cache&quot;,
+    &quot;Next check: Refresh the entitlement cache and confirm workspace access works after refresh.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;stale_entitlement_cache&quot;,
   &quot;root_cause_evidence_seen&quot;: true
 }</pre>
         </section>

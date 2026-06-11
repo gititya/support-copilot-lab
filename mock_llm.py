@@ -51,6 +51,8 @@ def process_patch(payload: dict[str, Any]) -> dict[str, Any]:
     speaker = turn.get("speaker", "")
     context_facts = []
     for event in payload.get("new_product_support_context", []):
+        if event.get("relevant") is False:
+            continue
         context_facts.extend(event.get("facts", []))
 
     if "lost access" in text:
@@ -130,9 +132,20 @@ def process_patch(payload: dict[str, Any]) -> dict[str, Any]:
             out["final_cause"] = "missing_workspace_role_inheritance"
             out["next_check"] = "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
 
+        if "entitlement_cache:stale" in context_facts:
+            remove(out["unknowns_remove"], "workspace_role_assignment")
+            for branch in ["missing_workspace_role", "scim_sync_delay"]:
+                remove(out["candidate_branches_remove"], branch)
+                add(out["ruled_out_branches_add"], branch)
+            add(out["candidate_branches_add"], "stale_entitlement_cache")
+            out["final_cause"] = "stale_entitlement_cache"
+            out["next_check"] = "Refresh the entitlement cache and confirm workspace access works after refresh."
+
         if "billing_refresh:pending" in context_facts:
             remove(out["unknowns_remove"], "billing_entitlement_status")
-            add(out["ruled_out_branches_add"], "login_failure")
+            for branch in ["login_failure", "missing_workspace_role", "scim_sync_delay"]:
+                remove(out["candidate_branches_remove"], branch)
+                add(out["ruled_out_branches_add"], branch)
             add(out["candidate_branches_add"], "billing_entitlement_refresh_pending")
             out["final_cause"] = "billing_entitlement_refresh_pending"
             out["next_check"] = "Check the billing entitlement refresh job and re-sync the plan entitlement."

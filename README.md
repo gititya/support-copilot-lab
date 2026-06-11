@@ -47,11 +47,14 @@ final cause only after mechanism evidence appears
 
 ## The model
 
-The experiment uses three support cases:
+The experiment uses six support cases:
 
 1. `access_after_migration` - three users lost access after migration.
 2. `billing_plan_mismatch` - customer starts with a login complaint, then corrects to billing plan mismatch.
 3. `invite_email_not_arriving` - admin invite exists, but the email never arrives.
+4. `stale_cache_after_migration` - migration access symptom where the tempting early role-inheritance answer is wrong.
+5. `corrected_billing_after_access_report` - customer corrects an access report into a billing entitlement issue.
+6. `invite_with_irrelevant_billing_context` - invite delivery case with unrelated billing context that must be ignored.
 
 Each case has:
 
@@ -60,20 +63,22 @@ Each case has:
 - expected support state after each turn
 - final cause once evidence exists
 
-The runner compares three behaviors:
+The runner compares three baseline behaviors, plus an optional real-model run:
 
 ```
 deterministic   = hardcoded reference trace, the answer key
 process_mock    = behaves like the intended LTS support-process updater
 predictive_mock = behaves like the old failed idea and guesses final cause early
+real_model      = optional provider-backed run over the same fixtures
 ```
 
 Current result:
 
 ```
-deterministic    60/60   100%   premature final causes: 0
-process_mock     60/60   100%   premature final causes: 0
-predictive_mock  53/60    88%   premature final causes: 7
+deterministic    108/108  100%   premature final causes: 0
+process_mock     108/108  100%   premature final causes: 0
+predictive_mock   96/108   89%   premature final causes: 12
+real_model        opt-in; not faked when no key/model is configured
 ```
 
 The predictive mock still gets the final cause right by the end. It fails because it says the answer too early.
@@ -91,13 +96,13 @@ It is a small offline eval harness for one narrow question: did the AI reason th
 
 ## What's in here
 
-1. `run_all.py` - one-command experiment runner. Validates fixtures, runs the reference baseline, writes prompts, runs the process mock, runs the predictive mock, and writes the summary.
-2. `run.py` - the core replay runner and evaluator.
+1. `run_all.py` - one-command experiment runner. Validates fixtures, runs the reference baseline, writes prompts, runs the process mock, runs the predictive mock, optionally runs a real model, and writes the summary.
+2. `run.py` - the core replay runner, provider adapter, command adapter, and evaluator.
 3. `mock_llm.py` - two local model behaviors: `process` and `predictive`.
 4. `validate_fixtures.py` - schema checks for the support fixtures.
 5. `test_experiment.py` - regression tests that prove process passes and predictive fails.
-6. `fixtures/` - three support-process cases with expected turn-by-turn state.
-7. `outputs/` - generated reports, dashboards, snapshots, and model-ready prompt records.
+6. `fixtures/` - support-process cases with expected turn-by-turn state.
+7. `outputs/` - generated reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
 8. `AUDITABLE_SUPPORT_AI.md` - the product idea behind the experiment.
 
 ### Run it
@@ -110,6 +115,7 @@ Then read:
 
 ```text
 outputs/experiment_summary.md
+outputs/real_model_error_analysis.md
 outputs/support_process_process_mock_report.md
 outputs/support_process_predictive_mock_report.md
 ```
@@ -136,6 +142,37 @@ python3 run_all.py
 ```bash
 python3 run.py --mode llm --run-name my_model --llm-command "your-model-command"
 ```
+
+It can also call OpenAI directly through environment variables only. Do not put keys in commands or files:
+
+```bash
+export OPENAI_API_KEY
+export SUPPORT_PROCESS_REAL_MODEL_NAME=gpt-5.5
+export SUPPORT_PROCESS_REAL_MODEL_REASONING_EFFORT=high
+python3 run.py --mode real-model --run-name real_model
+```
+
+Or run Anthropic through the same provider interface:
+
+```bash
+export ANTHROPIC_API_KEY
+export SUPPORT_PROCESS_REAL_MODEL_PROVIDER=anthropic
+export SUPPORT_PROCESS_REAL_MODEL_NAME=claude-sonnet-4-6
+python3 run.py --mode real-model --run-name real_model
+```
+
+To include that same `real_model` row in the full comparison, opt in explicitly:
+
+```bash
+export ANTHROPIC_API_KEY
+export SUPPORT_PROCESS_REAL_MODEL_PROVIDER=anthropic
+export SUPPORT_PROCESS_REAL_MODEL_NAME=claude-sonnet-4-6
+export SUPPORT_PROCESS_REAL_MODEL_REASONING_EFFORT=high
+export SUPPORT_PROCESS_RUN_REAL_MODEL=1
+python3 run_all.py
+```
+
+If the key or model is missing, `run_all.py` does not fake a real-model result. It leaves the `real_model` row marked as not run.
 
 The prompt pack is also written to:
 

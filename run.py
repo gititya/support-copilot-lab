@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shlex
 import subprocess
+import urllib.error
+import urllib.request
 from copy import deepcopy
 from typing import Any
 
@@ -23,6 +26,65 @@ PATCH_REMOVE_KEYS = {
     "unknowns": "unknowns_remove",
     "candidate_branches": "candidate_branches_remove",
     "ruled_out_branches": "ruled_out_branches_remove",
+}
+CANONICAL_LABELS = {
+    "facts": [
+        "affected_scope:three_users",
+        "app_entitlement_plan:starter",
+        "auth:works",
+        "billing_refresh:pending",
+        "correction:login_works",
+        "domain_policy:dmarc_reject",
+        "email_delivery:suppressed",
+        "flow:admin_invite",
+        "group_membership:Migrated-CSM",
+        "invite_status:created",
+        "invoice_plan:pro",
+        "recent_change:migration",
+        "recent_change:upgrade",
+        "reported_issue:login",
+        "scim_sync:complete",
+        "surface:billing_plan",
+        "surface:workspace_access",
+        "symptom:invite_email_not_received",
+        "symptom:workspace_access_loss",
+        "symptom:wrong_plan_shown",
+        "workspace_role_missing:Migrated-CSM",
+        "workspace_role:present",
+        "entitlement_cache:stale",
+    ],
+    "unknowns": [
+        "actual_surface",
+        "auth_status",
+        "billing_entitlement_status",
+        "email_delivery_status",
+        "invite_created",
+        "workspace_role_assignment",
+    ],
+    "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "domain_policy_rejection",
+        "email_delivery_suppressed",
+        "invite_not_created",
+        "invoice_app_mismatch",
+        "login_failure",
+        "missing_workspace_role",
+        "missing_workspace_role_inheritance",
+        "scim_sync_delay",
+        "stale_entitlement_cache",
+    ],
+    "ruled_out_branches": [
+        "invite_not_created",
+        "login_block",
+        "login_failure",
+        "scim_sync_delay",
+    ],
+    "final_cause": [
+        "billing_entitlement_refresh_pending",
+        "domain_policy_rejection",
+        "missing_workspace_role_inheritance",
+        "stale_entitlement_cache",
+    ],
 }
 
 
@@ -174,6 +236,8 @@ def process_turn(state: dict[str, Any], turn: dict[str, Any]) -> None:
 
 
 def apply_context_event(state: dict[str, Any], event: dict[str, Any]) -> None:
+    if event.get("relevant") is False:
+        return
     state["version"] += 1
     for fact in event.get("facts", []):
         add_fact(state, fact)
@@ -198,6 +262,7 @@ def public_context_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
         public.append({
             "description": event.get("description", ""),
             "facts": event.get("facts", []),
+            "relevant": event.get("relevant", True),
         })
     return public
 
@@ -214,6 +279,7 @@ def build_llm_prompt(
         "previous_live_support_state": state,
         "new_transcript_turn": turn,
         "new_product_support_context": public_context_events(context_events),
+        "canonical_labels": CANONICAL_LABELS,
         "task": "Return only the JSON state patch. Do not write customer-facing support copy.",
     }
     return """You are the Think step in a text-first LTS support-process experiment.
@@ -236,7 +302,7 @@ Return JSON only with this shape:
   "handoff_note": ""
 }
 
-Use short canonical labels like symptom:wrong_plan_shown, auth:works, billing_refresh:pending, or missing_workspace_role_inheritance.
+Use the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.
 
 Input:
 """ + json.dumps(payload, indent=2)
@@ -273,6 +339,140 @@ def call_llm_command(command: str, prompt: str) -> tuple[dict[str, Any], str]:
             f"LLM command failed with exit code {completed.returncode}: {completed.stderr.strip()}"
         )
     return parse_json_object(completed.stdout), completed.stdout
+
+
+def extract_response_text(response: dict[str, Any]) -> str:
+    if isinstance(response.get("output_text"), str) and response["output_text"].strip():
+        return response["output_text"]
+
+    texts = []
+    for item in response.get("output", []):
+        for content in item.get("content", []):
+            if content.get("type") in {"output_text", "text"} and isinstance(content.get("text"), str):
+                texts.append(content["text"])
+    if texts:
+        return "\n".join(texts)
+    raise ValueError("Provider response did not include output text")
+
+
+def call_openai_responses(
+    prompt: str,
+    model: str,
+    reasoning_effort: str,
+    timeout: int,
+    max_output_tokens: int,
+) -> tuple[dict[str, Any], str]:
+    token = os.environ.get("OPENAI_API_KEY")
+    if not token:
+        raise RuntimeError("OPENAI_API_KEY is required for --provider openai")
+    if not model:
+        raise ValueError("--model is required for --provider openai")
+
+    body: dict[str, Any] = {
+        "model": model,
+        "input": prompt,
+        "store": False,
+        "max_output_tokens": max_output_tokens,
+    }
+    if reasoning_effort:
+        body["reasoning"] = {"effort": reasoning_effort}
+
+    request = urllib.request.Request(
+        "https://api.openai.com/v1/responses",
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer" + chr(32) + token,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:800]
+        raise RuntimeError(f"OpenAI request failed with HTTP {exc.code}: {detail}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"OpenAI request failed: {exc.reason}") from exc
+
+    response_json = json.loads(raw)
+    output_text = extract_response_text(response_json)
+    return parse_json_object(output_text), output_text
+
+
+def extract_anthropic_text(response: dict[str, Any]) -> str:
+    texts = []
+    for item in response.get("content", []):
+        if item.get("type") == "text" and isinstance(item.get("text"), str):
+            texts.append(item["text"])
+    if texts:
+        return "\n".join(texts)
+    raise ValueError("Anthropic response did not include text content")
+
+
+def call_anthropic_messages(
+    prompt: str,
+    model: str,
+    timeout: int,
+    max_output_tokens: int,
+) -> tuple[dict[str, Any], str]:
+    token = os.environ.get("ANTHROPIC_API_KEY")
+    if not token:
+        raise RuntimeError("ANTHROPIC_API_KEY is required for --provider anthropic")
+    if not model:
+        raise ValueError("--model is required for --provider anthropic")
+
+    body: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_output_tokens,
+        "temperature": 0,
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+    }
+
+    request = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01",
+            "x-api-key": token,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:800]
+        raise RuntimeError(f"Anthropic request failed with HTTP {exc.code}: {detail}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Anthropic request failed: {exc.reason}") from exc
+
+    response_json = json.loads(raw)
+    output_text = extract_anthropic_text(response_json)
+    return parse_json_object(output_text), output_text
+
+
+def call_real_model(
+    provider: str,
+    prompt: str,
+    model: str,
+    reasoning_effort: str,
+    timeout: int,
+    max_output_tokens: int,
+) -> tuple[dict[str, Any], str]:
+    if provider == "openai":
+        return call_openai_responses(prompt, model, reasoning_effort, timeout, max_output_tokens)
+    if provider == "anthropic":
+        return call_anthropic_messages(prompt, model, timeout, max_output_tokens)
+    raise ValueError(f"Unknown provider: {provider}")
 
 
 def apply_state_patch(
@@ -367,7 +567,16 @@ def compare_state(state: dict[str, Any], expected: dict[str, Any], root_cause_ev
     return {"passed": passed, "total": total, "checks": checks}
 
 
-def run_fixture(fixture: dict[str, Any], mode: str = "deterministic", llm_command: str = "") -> dict[str, Any]:
+def run_fixture(
+    fixture: dict[str, Any],
+    mode: str = "deterministic",
+    llm_command: str = "",
+    provider: str = "openai",
+    model: str = "",
+    reasoning_effort: str = "high",
+    timeout: int = 180,
+    max_output_tokens: int = 1200,
+) -> dict[str, Any]:
     state = new_state(fixture["case_id"])
     context_by_turn: dict[int, list[dict[str, Any]]] = {}
     for event in fixture.get("context_events", []):
@@ -391,10 +600,21 @@ def run_fixture(fixture: dict[str, Any], mode: str = "deterministic", llm_comman
             prompt = build_llm_prompt(fixture, turn, deepcopy(state), context_applied)
             llm_patch, llm_raw = call_llm_command(llm_command, prompt)
             apply_state_patch(state, llm_patch, context_applied)
+        elif mode == "real-model":
+            prompt = build_llm_prompt(fixture, turn, deepcopy(state), context_applied)
+            llm_patch, llm_raw = call_real_model(
+                provider,
+                prompt,
+                model,
+                reasoning_effort,
+                timeout,
+                max_output_tokens,
+            )
+            apply_state_patch(state, llm_patch, context_applied)
         else:
             raise ValueError(f"Unknown run mode: {mode}")
 
-        if context_applied:
+        if any(event.get("relevant", True) for event in context_applied):
             root_cause_evidence_available = True
 
         expected = expected_by_turn.get(int(turn["turn"]))
@@ -602,9 +822,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the Support Process Lab.")
     parser.add_argument(
         "--mode",
-        choices=("deterministic", "prompt-pack", "llm"),
+        choices=("deterministic", "prompt-pack", "llm", "real-model"),
         default="deterministic",
-        help="deterministic runs fixture rules; prompt-pack writes LLM prompts; llm calls --llm-command for JSON state patches.",
+        help="deterministic runs fixture rules; prompt-pack writes LLM prompts; llm calls --llm-command; real-model calls a provider for JSON state patches.",
     )
     parser.add_argument(
         "--llm-command",
@@ -615,6 +835,35 @@ def main() -> None:
         "--run-name",
         default="",
         help="Optional output name, for example process_mock or predictive_mock.",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=("openai", "anthropic"),
+        default=os.environ.get("SUPPORT_PROCESS_REAL_MODEL_PROVIDER", "openai"),
+        help="Provider for --mode real-model.",
+    )
+    parser.add_argument(
+        "--model",
+        default=os.environ.get("SUPPORT_PROCESS_REAL_MODEL_NAME", ""),
+        help="Model for --mode real-model. Can also be set with SUPPORT_PROCESS_REAL_MODEL_NAME.",
+    )
+    parser.add_argument(
+        "--reasoning-effort",
+        choices=("minimal", "low", "medium", "high"),
+        default=os.environ.get("SUPPORT_PROCESS_REAL_MODEL_REASONING_EFFORT", "high"),
+        help="Reasoning effort for providers that support it.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=int(os.environ.get("SUPPORT_PROCESS_REAL_MODEL_TIMEOUT", "180")),
+        help="Provider request timeout in seconds.",
+    )
+    parser.add_argument(
+        "--max-output-tokens",
+        type=int,
+        default=int(os.environ.get("SUPPORT_PROCESS_REAL_MODEL_MAX_OUTPUT_TOKENS", "1200")),
+        help="Maximum provider output tokens for each state patch.",
     )
     args = parser.parse_args()
 
@@ -630,8 +879,22 @@ def main() -> None:
 
     if args.mode == "llm" and not args.llm_command:
         raise SystemExit("--llm-command is required when --mode llm")
+    if args.mode == "real-model" and not args.model:
+        raise SystemExit("--model or SUPPORT_PROCESS_REAL_MODEL_NAME is required when --mode real-model")
 
-    results = [run_fixture(fixture, mode=args.mode, llm_command=args.llm_command) for fixture in fixtures]
+    results = [
+        run_fixture(
+            fixture,
+            mode=args.mode,
+            llm_command=args.llm_command,
+            provider=args.provider,
+            model=args.model,
+            reasoning_effort=args.reasoning_effort,
+            timeout=args.timeout,
+            max_output_tokens=args.max_output_tokens,
+        )
+        for fixture in fixtures
+    ]
     run_label = args.run_name or args.mode
     paths = output_paths(out_dir, args.run_name, args.mode)
 
