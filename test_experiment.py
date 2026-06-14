@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
+from prototype.replay import build_replay
 from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
 
 ROOT = Path(__file__).resolve().parent
@@ -48,6 +49,29 @@ class SupportProcessExperimentTest(unittest.TestCase):
         passed, checks, premature = aggregate(results)
         self.assertEqual(passed, checks)
         self.assertEqual(premature, 0)
+
+    def test_prototype_replay_waits_for_context_before_final_cause(self):
+        result = build_replay("access_after_migration", "process-mock")
+        timeline = result["timeline"]
+        self.assertEqual([item["turn"]["turn"] for item in timeline], [1, 2, 3])
+        self.assertEqual(timeline[0]["state"]["final_cause"], "")
+        self.assertEqual(timeline[1]["state"]["final_cause"], "")
+        self.assertEqual(timeline[2]["state"]["final_cause"], "missing_workspace_role_inheritance")
+        self.assertEqual(timeline[0]["llm_patch"]["final_cause"], "")
+        self.assertEqual(timeline[2]["llm_patch"]["final_cause"], "missing_workspace_role_inheritance")
+        self.assertEqual(result["final_state"]["final_cause"], "missing_workspace_role_inheritance")
+
+    def test_prototype_replay_cleans_resolved_unknowns_and_ruled_out_branches(self):
+        for case_id in [
+            "corrected_billing_after_access_report",
+            "invite_email_not_arriving",
+            "invite_with_irrelevant_billing_context",
+        ]:
+            with self.subTest(case_id=case_id):
+                state = build_replay(case_id, "process-mock")["final_state"]
+                overlap = set(state["candidate_branches"]) & set(state["ruled_out_branches"])
+                self.assertEqual(state["unknowns"], [])
+                self.assertEqual(overlap, set())
 
     def test_predictive_mock_fails_on_premature_final_cause(self):
         command = f"{shlex.quote(sys.executable)} {shlex.quote(str(ROOT / 'mock_llm.py'))} --profile predictive"

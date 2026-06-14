@@ -6,7 +6,7 @@ This is the end-to-end offline experiment for text-first LTS support-process beh
 | --- | --- | --- | --- | --- | --- | --- |
 | deterministic | 6 | 108/108 | 100% | 6/6 | 0 | ran |
 | process_mock | 6 | 108/108 | 100% | 6/6 | 0 | ran |
-| predictive_mock | 6 | 96/108 | 89% | 6/6 | 12 | ran |
+| predictive_mock | 6 | 94/108 | 87% | 6/6 | 12 | ran |
 | real_model | 6 | 96/108 | 89% | 6/6 | 0 | ran |
 
 

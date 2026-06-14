@@ -253,6 +253,7 @@ def apply_context_event(state: dict[str, Any], event: dict[str, Any]) -> None:
         state["final_cause"] = event["final_cause"]
         state["root_cause_evidence_seen"] = True
         add_branch(state, event["final_cause"])
+    reconcile_state(state, [event])
     refresh_handoff(state)
 
 
@@ -480,6 +481,7 @@ def apply_state_patch(
     patch: dict[str, Any],
     context_events: list[dict[str, Any]],
 ) -> None:
+    relevant_context_events = [event for event in context_events if event.get("relevant", True)]
     state["version"] += 1
     for field in LIST_FIELDS:
         for value in patch.get(PATCH_REMOVE_KEYS[field], []):
@@ -489,12 +491,17 @@ def apply_state_patch(
 
     for unknown in patch.get("resolved_unknowns", []):
         resolve_unknown(state, unknown)
+    for event in relevant_context_events:
+        for unknown in event.get("resolved_unknowns", []):
+            resolve_unknown(state, unknown)
+        for branch in event.get("ruled_out_branches", []):
+            rule_out_branch(state, branch)
 
     if patch.get("next_check"):
         set_next_check(state, patch["next_check"])
 
-    if context_events or patch.get("root_cause_evidence_seen"):
-        state["root_cause_evidence_seen"] = bool(context_events or patch.get("root_cause_evidence_seen"))
+    if relevant_context_events or patch.get("root_cause_evidence_seen"):
+        state["root_cause_evidence_seen"] = bool(relevant_context_events or patch.get("root_cause_evidence_seen"))
 
     final_cause = patch.get("final_cause") or ""
     if final_cause:
@@ -502,9 +509,28 @@ def apply_state_patch(
         add_branch(state, final_cause)
 
     handoff_note = patch.get("handoff_note")
+    reconcile_state(state, relevant_context_events)
     refresh_handoff(state)
     if handoff_note:
         add_unique(state["handoff_notes"], handoff_note)
+
+
+def reconcile_state(state: dict[str, Any], context_events: list[dict[str, Any]] | None = None) -> None:
+    for event in context_events or []:
+        if event.get("relevant", True) is False:
+            continue
+        for unknown in event.get("resolved_unknowns", []):
+            resolve_unknown(state, unknown)
+        for branch in event.get("ruled_out_branches", []):
+            rule_out_branch(state, branch)
+
+    for branch in list(state["ruled_out_branches"]):
+        remove_item(state["candidate_branches"], branch)
+
+    final_cause = state.get("final_cause")
+    if final_cause:
+        remove_item(state["ruled_out_branches"], final_cause)
+        add_branch(state, final_cause)
 
 
 def refresh_handoff(state: dict[str, Any]) -> None:

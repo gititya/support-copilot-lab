@@ -239,7 +239,7 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
               <td>2</td>
               <td class="text"><strong>customer</strong>: Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded.<div class="context">Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.</div></td>
               <td>symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending</td>
-              <td>workspace_role_assignment; billing_entitlement_status</td>
+              <td>-</td>
               <td>stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
               <td>Check the billing entitlement refresh job and re-sync the plan entitlement.</td>
               <td class="pass">pass</td>
@@ -264,10 +264,7 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
     &quot;app_entitlement_plan:starter&quot;,
     &quot;billing_refresh:pending&quot;
   ],
-  &quot;unknowns&quot;: [
-    &quot;workspace_role_assignment&quot;,
-    &quot;billing_entitlement_status&quot;
-  ],
+  &quot;unknowns&quot;: [],
   &quot;candidate_branches&quot;: [
     &quot;stale_entitlement_cache&quot;,
     &quot;billing_entitlement_refresh_pending&quot;,
@@ -282,7 +279,6 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
   &quot;next_check&quot;: &quot;Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;,
   &quot;handoff_notes&quot;: [
     &quot;Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending&quot;,
-    &quot;Unknowns: workspace_role_assignment; billing_entitlement_status&quot;,
     &quot;Branches: stale_entitlement_cache; billing_entitlement_refresh_pending; invoice_app_mismatch&quot;,
     &quot;Next check: Check the billing entitlement refresh job and re-sync the plan entitlement.&quot;
   ],
@@ -320,8 +316,8 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
               <td>3</td>
               <td class="text"><strong>customer</strong>: Yes, but the invite email never arrives.<div class="context">Email context shows invite created, delivery suppressed, and domain policy rejected the message.</div></td>
               <td>flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject</td>
-              <td>invite_created; email_delivery_status</td>
-              <td>email_delivery_suppressed; domain_policy_rejection; invite_not_created</td>
+              <td>-</td>
+              <td>email_delivery_suppressed; domain_policy_rejection</td>
               <td>Inspect email suppression and DMARC policy for the recipient domain.</td>
               <td class="pass">pass</td>
               <td>-</td>
@@ -338,14 +334,10 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
     &quot;email_delivery:suppressed&quot;,
     &quot;domain_policy:dmarc_reject&quot;
   ],
-  &quot;unknowns&quot;: [
-    &quot;invite_created&quot;,
-    &quot;email_delivery_status&quot;
-  ],
+  &quot;unknowns&quot;: [],
   &quot;candidate_branches&quot;: [
     &quot;email_delivery_suppressed&quot;,
-    &quot;domain_policy_rejection&quot;,
-    &quot;invite_not_created&quot;
+    &quot;domain_policy_rejection&quot;
   ],
   &quot;ruled_out_branches&quot;: [
     &quot;invite_not_created&quot;
@@ -353,8 +345,7 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
   &quot;next_check&quot;: &quot;Inspect email suppression and DMARC policy for the recipient domain.&quot;,
   &quot;handoff_notes&quot;: [
     &quot;Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject&quot;,
-    &quot;Unknowns: invite_created; email_delivery_status&quot;,
-    &quot;Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created&quot;,
+    &quot;Branches: email_delivery_suppressed; domain_policy_rejection&quot;,
     &quot;Next check: Inspect email suppression and DMARC policy for the recipient domain.&quot;
   ],
   &quot;final_cause&quot;: &quot;domain_policy_rejection&quot;,
@@ -391,8 +382,8 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
               <td>3</td>
               <td class="text"><strong>customer</strong>: Yes, the invite exists in the admin page, but no email arrives.<div class="context">Email context shows invite created, delivery suppressed, and domain policy rejected the message.</div></td>
               <td>flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject</td>
-              <td>invite_created; email_delivery_status</td>
-              <td>email_delivery_suppressed; domain_policy_rejection; invite_not_created</td>
+              <td>-</td>
+              <td>email_delivery_suppressed; domain_policy_rejection</td>
               <td>Inspect email suppression and DMARC policy for the recipient domain.</td>
               <td class="pass">pass</td>
               <td>-</td>
@@ -409,14 +400,10 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
     &quot;email_delivery:suppressed&quot;,
     &quot;domain_policy:dmarc_reject&quot;
   ],
-  &quot;unknowns&quot;: [
-    &quot;invite_created&quot;,
-    &quot;email_delivery_status&quot;
-  ],
+  &quot;unknowns&quot;: [],
   &quot;candidate_branches&quot;: [
     &quot;email_delivery_suppressed&quot;,
-    &quot;domain_policy_rejection&quot;,
-    &quot;invite_not_created&quot;
+    &quot;domain_policy_rejection&quot;
   ],
   &quot;ruled_out_branches&quot;: [
     &quot;invite_not_created&quot;
@@ -424,8 +411,7 @@ pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:1
   &quot;next_check&quot;: &quot;Inspect email suppression and DMARC policy for the recipient domain.&quot;,
   &quot;handoff_notes&quot;: [
     &quot;Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject&quot;,
-    &quot;Unknowns: invite_created; email_delivery_status&quot;,
-    &quot;Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created&quot;,
+    &quot;Branches: email_delivery_suppressed; domain_policy_rejection&quot;,
     &quot;Next check: Inspect email suppression and DMARC policy for the recipient domain.&quot;
   ],
   &quot;final_cause&quot;: &quot;domain_policy_rejection&quot;,

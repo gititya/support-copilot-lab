@@ -999,17 +999,17 @@
           ],
           "candidate_branches": [
             "billing_entitlement_refresh_pending",
-            "invoice_app_mismatch"
+            "invoice_app_mismatch",
+            "login_failure"
           ],
           "ruled_out_branches": [
-            "login_block",
-            "login_failure"
+            "login_block"
           ],
           "next_check": "Check whether the billing entitlement refresh completed after the upgrade.",
           "handoff_notes": [
             "Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown",
             "Unknowns: billing_entitlement_status",
-            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure",
             "Next check: Check whether the billing entitlement refresh completed after the upgrade."
           ],
           "final_cause": "login_failure",
@@ -1038,7 +1038,7 @@
           ]
         },
         "verdict": {
-          "passed": 5,
+          "passed": 4,
           "total": 6,
           "checks": [
             {
@@ -1078,20 +1078,25 @@
               "field": "candidate_branches",
               "passed": true,
               "missing": [],
-              "extra": [],
+              "extra": [
+                "login_failure"
+              ],
               "expected": [
                 "billing_entitlement_refresh_pending",
                 "invoice_app_mismatch"
               ],
               "actual": [
                 "billing_entitlement_refresh_pending",
-                "invoice_app_mismatch"
+                "invoice_app_mismatch",
+                "login_failure"
               ]
             },
             {
               "field": "ruled_out_branches",
-              "passed": true,
-              "missing": [],
+              "passed": false,
+              "missing": [
+                "login_failure"
+              ],
               "extra": [
                 "login_block"
               ],
@@ -1099,8 +1104,7 @@
                 "login_failure"
               ],
               "actual": [
-                "login_block",
-                "login_failure"
+                "login_block"
               ]
             },
             {
@@ -1184,17 +1188,17 @@
           ],
           "candidate_branches": [
             "billing_entitlement_refresh_pending",
-            "invoice_app_mismatch"
+            "invoice_app_mismatch",
+            "login_failure"
           ],
           "ruled_out_branches": [
-            "login_block",
-            "login_failure"
+            "login_block"
           ],
           "next_check": "Check whether the billing entitlement refresh completed after the upgrade.",
           "handoff_notes": [
             "Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown",
             "Unknowns: billing_entitlement_status",
-            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch",
+            "Branches: billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure",
             "Next check: Check whether the billing entitlement refresh completed after the upgrade."
           ],
           "final_cause": "login_failure",
@@ -1223,7 +1227,7 @@
           ]
         },
         "verdict": {
-          "passed": 5,
+          "passed": 4,
           "total": 6,
           "checks": [
             {
@@ -1263,20 +1267,25 @@
               "field": "candidate_branches",
               "passed": true,
               "missing": [],
-              "extra": [],
+              "extra": [
+                "login_failure"
+              ],
               "expected": [
                 "billing_entitlement_refresh_pending",
                 "invoice_app_mismatch"
               ],
               "actual": [
                 "billing_entitlement_refresh_pending",
-                "invoice_app_mismatch"
+                "invoice_app_mismatch",
+                "login_failure"
               ]
             },
             {
               "field": "ruled_out_branches",
-              "passed": true,
-              "missing": [],
+              "passed": false,
+              "missing": [
+                "login_failure"
+              ],
               "extra": [
                 "login_block"
               ],
@@ -1284,8 +1293,7 @@
                 "login_failure"
               ],
               "actual": [
-                "login_block",
-                "login_failure"
+                "login_block"
               ]
             },
             {
@@ -1311,7 +1319,7 @@
             }
           ]
         },
-        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 2,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\",\n      \"login_failure\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"agent\",\n    \"text\": \"When did the plan change?\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 2,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\",\n      \"login_failure\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"agent\",\n    \"text\": \"When did the plan change?\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
         "llm_patch": {
           "facts_add": [],
           "facts_remove": [],
@@ -1506,7 +1514,7 @@
             }
           ]
         },
-        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 3,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\",\n      \"login_failure\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 4,\n    \"speaker\": \"customer\",\n    \"text\": \"We upgraded yesterday.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.\",\n      \"facts\": [\n        \"invoice_plan:pro\",\n        \"app_entitlement_plan:starter\",\n        \"billing_refresh:pending\"\n      ],\n      \"relevant\": true\n    }\n  ],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"billing_plan_mismatch\",\n  \"scenario\": \"Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"billing_plan_mismatch\",\n    \"version\": 3,\n    \"facts\": [\n      \"reported_issue:login\",\n      \"auth:works\",\n      \"correction:login_works\",\n      \"surface:billing_plan\",\n      \"symptom:wrong_plan_shown\"\n    ],\n    \"unknowns\": [\n      \"billing_entitlement_status\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"invoice_app_mismatch\",\n      \"login_failure\"\n    ],\n    \"ruled_out_branches\": [\n      \"login_block\"\n    ],\n    \"next_check\": \"Check whether the billing entitlement refresh completed after the upgrade.\",\n    \"handoff_notes\": [\n      \"Known: auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown\",\n      \"Unknowns: billing_entitlement_status\",\n      \"Branches: billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure\",\n      \"Next check: Check whether the billing entitlement refresh completed after the upgrade.\"\n    ],\n    \"final_cause\": \"login_failure\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 4,\n    \"speaker\": \"customer\",\n    \"text\": \"We upgraded yesterday.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.\",\n      \"facts\": [\n        \"invoice_plan:pro\",\n        \"app_entitlement_plan:starter\",\n        \"billing_refresh:pending\"\n      ],\n      \"relevant\": true\n    }\n  ],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
         "llm_patch": {
           "facts_add": [
             "recent_change:upgrade",
@@ -1895,10 +1903,7 @@
             "app_entitlement_plan:starter",
             "billing_refresh:pending"
           ],
-          "unknowns": [
-            "workspace_role_assignment",
-            "billing_entitlement_status"
-          ],
+          "unknowns": [],
           "candidate_branches": [
             "stale_entitlement_cache",
             "missing_workspace_role_inheritance",
@@ -1914,7 +1919,6 @@
           "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
           "handoff_notes": [
             "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
-            "Unknowns: workspace_role_assignment; billing_entitlement_status",
             "Branches: stale_entitlement_cache; missing_workspace_role_inheritance; billing_entitlement_refresh_pending; invoice_app_mismatch",
             "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
           ],
@@ -1989,15 +1993,9 @@
               "field": "unknowns",
               "passed": true,
               "missing": [],
-              "extra": [
-                "billing_entitlement_status",
-                "workspace_role_assignment"
-              ],
+              "extra": [],
               "expected": [],
-              "actual": [
-                "billing_entitlement_status",
-                "workspace_role_assignment"
-              ]
+              "actual": []
             },
             {
               "field": "candidate_branches",
@@ -2122,10 +2120,7 @@
         "app_entitlement_plan:starter",
         "billing_refresh:pending"
       ],
-      "unknowns": [
-        "workspace_role_assignment",
-        "billing_entitlement_status"
-      ],
+      "unknowns": [],
       "candidate_branches": [
         "stale_entitlement_cache",
         "missing_workspace_role_inheritance",
@@ -2141,7 +2136,6 @@
       "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
       "handoff_notes": [
         "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
-        "Unknowns: workspace_role_assignment; billing_entitlement_status",
         "Branches: stale_entitlement_cache; missing_workspace_role_inheritance; billing_entitlement_refresh_pending; invoice_app_mismatch",
         "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
       ],
@@ -2615,14 +2609,10 @@
             "email_delivery:suppressed",
             "domain_policy:dmarc_reject"
           ],
-          "unknowns": [
-            "invite_created",
-            "email_delivery_status"
-          ],
+          "unknowns": [],
           "candidate_branches": [
             "email_delivery_suppressed",
-            "domain_policy_rejection",
-            "invite_not_created"
+            "domain_policy_rejection"
           ],
           "ruled_out_branches": [
             "invite_not_created"
@@ -2630,8 +2620,7 @@
           "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
           "handoff_notes": [
             "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-            "Unknowns: invite_created; email_delivery_status",
-            "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+            "Branches: email_delivery_suppressed; domain_policy_rejection",
             "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
             "Predicted email policy rejection before delivery evidence."
           ],
@@ -2688,31 +2677,22 @@
               "field": "unknowns",
               "passed": true,
               "missing": [],
-              "extra": [
-                "email_delivery_status",
-                "invite_created"
-              ],
+              "extra": [],
               "expected": [],
-              "actual": [
-                "email_delivery_status",
-                "invite_created"
-              ]
+              "actual": []
             },
             {
               "field": "candidate_branches",
               "passed": true,
               "missing": [],
-              "extra": [
-                "invite_not_created"
-              ],
+              "extra": [],
               "expected": [
                 "domain_policy_rejection",
                 "email_delivery_suppressed"
               ],
               "actual": [
                 "domain_policy_rejection",
-                "email_delivery_suppressed",
-                "invite_not_created"
+                "email_delivery_suppressed"
               ]
             },
             {
@@ -2796,14 +2776,10 @@
         "email_delivery:suppressed",
         "domain_policy:dmarc_reject"
       ],
-      "unknowns": [
-        "invite_created",
-        "email_delivery_status"
-      ],
+      "unknowns": [],
       "candidate_branches": [
         "email_delivery_suppressed",
-        "domain_policy_rejection",
-        "invite_not_created"
+        "domain_policy_rejection"
       ],
       "ruled_out_branches": [
         "invite_not_created"
@@ -2811,8 +2787,7 @@
       "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
       "handoff_notes": [
         "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-        "Unknowns: invite_created; email_delivery_status",
-        "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+        "Branches: email_delivery_suppressed; domain_policy_rejection",
         "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
         "Predicted email policy rejection before delivery evidence."
       ],
@@ -2988,7 +2963,7 @@
             "Predicted email policy rejection before delivery evidence."
           ],
           "final_cause": "domain_policy_rejection",
-          "root_cause_evidence_seen": true
+          "root_cause_evidence_seen": false
         },
         "expected": {
           "after_turn": 1,
@@ -3150,7 +3125,7 @@
             "Predicted email policy rejection before delivery evidence."
           ],
           "final_cause": "domain_policy_rejection",
-          "root_cause_evidence_seen": true
+          "root_cause_evidence_seen": false
         },
         "expected": {
           "after_turn": 2,
@@ -3252,7 +3227,7 @@
             }
           ]
         },
-        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"invite_with_irrelevant_billing_context\",\n  \"scenario\": \"Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_with_irrelevant_billing_context\",\n    \"version\": 1,\n    \"facts\": [\n      \"flow:admin_invite\",\n      \"symptom:invite_email_not_received\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Inspect invite delivery status, suppression list, and domain policy results.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite; symptom:invite_email_not_received\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Inspect invite delivery status, suppression list, and domain policy results.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": true\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"agent\",\n    \"text\": \"Does the invite show as created in the admin page?\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"invite_with_irrelevant_billing_context\",\n  \"scenario\": \"Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_with_irrelevant_billing_context\",\n    \"version\": 1,\n    \"facts\": [\n      \"flow:admin_invite\",\n      \"symptom:invite_email_not_received\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Inspect invite delivery status, suppression list, and domain policy results.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite; symptom:invite_email_not_received\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Inspect invite delivery status, suppression list, and domain policy results.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"agent\",\n    \"text\": \"Does the invite show as created in the admin page?\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
         "llm_patch": {
           "facts_add": [
             "flow:admin_invite"
@@ -3318,14 +3293,10 @@
             "email_delivery:suppressed",
             "domain_policy:dmarc_reject"
           ],
-          "unknowns": [
-            "invite_created",
-            "email_delivery_status"
-          ],
+          "unknowns": [],
           "candidate_branches": [
             "email_delivery_suppressed",
-            "domain_policy_rejection",
-            "invite_not_created"
+            "domain_policy_rejection"
           ],
           "ruled_out_branches": [
             "invite_not_created"
@@ -3333,8 +3304,7 @@
           "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
           "handoff_notes": [
             "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-            "Unknowns: invite_created; email_delivery_status",
-            "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+            "Branches: email_delivery_suppressed; domain_policy_rejection",
             "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
             "Predicted email policy rejection before delivery evidence."
           ],
@@ -3391,31 +3361,22 @@
               "field": "unknowns",
               "passed": true,
               "missing": [],
-              "extra": [
-                "email_delivery_status",
-                "invite_created"
-              ],
+              "extra": [],
               "expected": [],
-              "actual": [
-                "email_delivery_status",
-                "invite_created"
-              ]
+              "actual": []
             },
             {
               "field": "candidate_branches",
               "passed": true,
               "missing": [],
-              "extra": [
-                "invite_not_created"
-              ],
+              "extra": [],
               "expected": [
                 "domain_policy_rejection",
                 "email_delivery_suppressed"
               ],
               "actual": [
                 "domain_policy_rejection",
-                "email_delivery_suppressed",
-                "invite_not_created"
+                "email_delivery_suppressed"
               ]
             },
             {
@@ -3451,7 +3412,7 @@
             }
           ]
         },
-        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"invite_with_irrelevant_billing_context\",\n  \"scenario\": \"Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_with_irrelevant_billing_context\",\n    \"version\": 2,\n    \"facts\": [\n      \"flow:admin_invite\",\n      \"symptom:invite_email_not_received\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite; symptom:invite_email_not_received\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": true\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"customer\",\n    \"text\": \"Yes, the invite exists in the admin page, but no email arrives.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Email context shows invite created, delivery suppressed, and domain policy rejected the message.\",\n      \"facts\": [\n        \"invite_status:created\",\n        \"email_delivery:suppressed\",\n        \"domain_policy:dmarc_reject\"\n      ],\n      \"relevant\": true\n    }\n  ],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
+        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"invite_with_irrelevant_billing_context\",\n  \"scenario\": \"Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"invite_with_irrelevant_billing_context\",\n    \"version\": 2,\n    \"facts\": [\n      \"flow:admin_invite\",\n      \"symptom:invite_email_not_received\"\n    ],\n    \"unknowns\": [\n      \"invite_created\",\n      \"email_delivery_status\"\n    ],\n    \"candidate_branches\": [\n      \"invite_not_created\",\n      \"email_delivery_suppressed\",\n      \"domain_policy_rejection\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n    \"handoff_notes\": [\n      \"Known: flow:admin_invite; symptom:invite_email_not_received\",\n      \"Unknowns: invite_created; email_delivery_status\",\n      \"Branches: invite_not_created; email_delivery_suppressed; domain_policy_rejection\",\n      \"Next check: Check whether the invite was created and whether email delivery bounced or was suppressed.\",\n      \"Predicted email policy rejection before delivery evidence.\"\n    ],\n    \"final_cause\": \"domain_policy_rejection\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"customer\",\n    \"text\": \"Yes, the invite exists in the admin page, but no email arrives.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Email context shows invite created, delivery suppressed, and domain policy rejected the message.\",\n      \"facts\": [\n        \"invite_status:created\",\n        \"email_delivery:suppressed\",\n        \"domain_policy:dmarc_reject\"\n      ],\n      \"relevant\": true\n    }\n  ],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
         "llm_patch": {
           "facts_add": [
             "flow:admin_invite",
@@ -3499,14 +3460,10 @@
         "email_delivery:suppressed",
         "domain_policy:dmarc_reject"
       ],
-      "unknowns": [
-        "invite_created",
-        "email_delivery_status"
-      ],
+      "unknowns": [],
       "candidate_branches": [
         "email_delivery_suppressed",
-        "domain_policy_rejection",
-        "invite_not_created"
+        "domain_policy_rejection"
       ],
       "ruled_out_branches": [
         "invite_not_created"
@@ -3514,8 +3471,7 @@
       "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
       "handoff_notes": [
         "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-        "Unknowns: invite_created; email_delivery_status",
-        "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+        "Branches: email_delivery_suppressed; domain_policy_rejection",
         "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
         "Predicted email policy rejection before delivery evidence."
       ],

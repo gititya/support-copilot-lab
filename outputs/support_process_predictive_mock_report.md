@@ -9,7 +9,7 @@ Offline test of transcript + mock-system support process state.
 | case | checks | pass_rate | final_cause_ok | final_cause |
 | --- | --- | --- | --- | --- |
 | access_after_migration | 16/18 | 89% | yes | missing_workspace_role_inheritance |
-| billing_plan_mismatch | 21/24 | 88% | yes | billing_entitlement_refresh_pending |
+| billing_plan_mismatch | 19/24 | 79% | yes | billing_entitlement_refresh_pending |
 | corrected_billing_after_access_report | 11/12 | 92% | yes | billing_entitlement_refresh_pending |
 | invite_email_not_arriving | 16/18 | 89% | yes | domain_policy_rejection |
 | invite_with_irrelevant_billing_context | 16/18 | 89% | yes | domain_policy_rejection |
@@ -66,8 +66,8 @@ Offline test of transcript + mock-system support process state.
 | turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | customer | I cannot log in. | reported_issue:login | actual_surface | login_failure | Confirm whether login itself fails or whether a page after login is wrong. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
-| 2 | customer | No, login works. The billing page shows the wrong plan. | reported_issue:login; auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown | billing_entitlement_status | billing_entitlement_refresh_pending; invoice_app_mismatch | Check whether the billing entitlement refresh completed after the upgrade. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
-| 3 | agent | When did the plan change? | reported_issue:login; auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown | billing_entitlement_status | billing_entitlement_refresh_pending; invoice_app_mismatch | Check whether the billing entitlement refresh completed after the upgrade. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
+| 2 | customer | No, login works. The billing page shows the wrong plan. | reported_issue:login; auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown | billing_entitlement_status | billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure | Check whether the billing entitlement refresh completed after the upgrade. | needs attention | ruled_out_branches: login_failure; final_cause_timing: final cause must wait for product/support evidence |
+| 3 | agent | When did the plan change? | reported_issue:login; auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown | billing_entitlement_status | billing_entitlement_refresh_pending; invoice_app_mismatch; login_failure | Check whether the billing entitlement refresh completed after the upgrade. | needs attention | ruled_out_branches: login_failure; final_cause_timing: final cause must wait for product/support evidence |
 | 4 | customer | We upgraded yesterday. | reported_issue:login; auth:works; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending |  | billing_entitlement_refresh_pending; invoice_app_mismatch | Check the billing entitlement refresh job and re-sync the plan entitlement. | pass | - |
 
 ### Final State
@@ -114,7 +114,7 @@ Offline test of transcript + mock-system support process state.
 | turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | customer | Three users lost access after migration. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration | auth_status; workspace_role_assignment | login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache; missing_workspace_role_inheritance | Can the affected users sign in, or are they blocked at login? | needs attention | final_cause_timing: final cause must wait for product/support evidence |
-| 2 | customer | Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending | workspace_role_assignment; billing_entitlement_status | stale_entitlement_cache; missing_workspace_role_inheritance; billing_entitlement_refresh_pending; invoice_app_mismatch | Check the billing entitlement refresh job and re-sync the plan entitlement. | pass | - |
+| 2 | customer | Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded. | symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration; auth:works; surface:workspace_access; correction:login_works; surface:billing_plan; symptom:wrong_plan_shown; recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending |  | stale_entitlement_cache; missing_workspace_role_inheritance; billing_entitlement_refresh_pending; invoice_app_mismatch | Check the billing entitlement refresh job and re-sync the plan entitlement. | pass | - |
 
 ### Final State
 
@@ -136,10 +136,7 @@ Offline test of transcript + mock-system support process state.
     "app_entitlement_plan:starter",
     "billing_refresh:pending"
   ],
-  "unknowns": [
-    "workspace_role_assignment",
-    "billing_entitlement_status"
-  ],
+  "unknowns": [],
   "candidate_branches": [
     "stale_entitlement_cache",
     "missing_workspace_role_inheritance",
@@ -155,7 +152,6 @@ Offline test of transcript + mock-system support process state.
   "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement.",
   "handoff_notes": [
     "Known: recent_change:upgrade; invoice_plan:pro; app_entitlement_plan:starter; billing_refresh:pending",
-    "Unknowns: workspace_role_assignment; billing_entitlement_status",
     "Branches: stale_entitlement_cache; missing_workspace_role_inheritance; billing_entitlement_refresh_pending; invoice_app_mismatch",
     "Next check: Check the billing entitlement refresh job and re-sync the plan entitlement."
   ],
@@ -170,7 +166,7 @@ Offline test of transcript + mock-system support process state.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | customer | Um, yeah, so I am trying to invite a new admin. | flow:admin_invite | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Check whether the invite was created and whether email delivery bounced or was suppressed. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
 | 2 | agent | Does the invite show as created in the admin page? | flow:admin_invite | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Check whether the invite was created and whether email delivery bounced or was suppressed. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
-| 3 | customer | Yes, but the invite email never arrives. | flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject | invite_created; email_delivery_status | email_delivery_suppressed; domain_policy_rejection; invite_not_created | Inspect email suppression and DMARC policy for the recipient domain. | pass | - |
+| 3 | customer | Yes, but the invite email never arrives. | flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject |  | email_delivery_suppressed; domain_policy_rejection | Inspect email suppression and DMARC policy for the recipient domain. | pass | - |
 
 ### Final State
 
@@ -185,14 +181,10 @@ Offline test of transcript + mock-system support process state.
     "email_delivery:suppressed",
     "domain_policy:dmarc_reject"
   ],
-  "unknowns": [
-    "invite_created",
-    "email_delivery_status"
-  ],
+  "unknowns": [],
   "candidate_branches": [
     "email_delivery_suppressed",
-    "domain_policy_rejection",
-    "invite_not_created"
+    "domain_policy_rejection"
   ],
   "ruled_out_branches": [
     "invite_not_created"
@@ -200,8 +192,7 @@ Offline test of transcript + mock-system support process state.
   "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
   "handoff_notes": [
     "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-    "Unknowns: invite_created; email_delivery_status",
-    "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+    "Branches: email_delivery_suppressed; domain_policy_rejection",
     "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
     "Predicted email policy rejection before delivery evidence."
   ],
@@ -216,7 +207,7 @@ Offline test of transcript + mock-system support process state.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | customer | I am trying to invite a new admin, but the invite email never arrives. | flow:admin_invite; symptom:invite_email_not_received | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Inspect invite delivery status, suppression list, and domain policy results. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
 | 2 | agent | Does the invite show as created in the admin page? | flow:admin_invite; symptom:invite_email_not_received | invite_created; email_delivery_status | invite_not_created; email_delivery_suppressed; domain_policy_rejection | Check whether the invite was created and whether email delivery bounced or was suppressed. | needs attention | final_cause_timing: final cause must wait for product/support evidence |
-| 3 | customer | Yes, the invite exists in the admin page, but no email arrives. | flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject | invite_created; email_delivery_status | email_delivery_suppressed; domain_policy_rejection; invite_not_created | Inspect email suppression and DMARC policy for the recipient domain. | pass | - |
+| 3 | customer | Yes, the invite exists in the admin page, but no email arrives. | flow:admin_invite; symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject |  | email_delivery_suppressed; domain_policy_rejection | Inspect email suppression and DMARC policy for the recipient domain. | pass | - |
 
 ### Final State
 
@@ -231,14 +222,10 @@ Offline test of transcript + mock-system support process state.
     "email_delivery:suppressed",
     "domain_policy:dmarc_reject"
   ],
-  "unknowns": [
-    "invite_created",
-    "email_delivery_status"
-  ],
+  "unknowns": [],
   "candidate_branches": [
     "email_delivery_suppressed",
-    "domain_policy_rejection",
-    "invite_not_created"
+    "domain_policy_rejection"
   ],
   "ruled_out_branches": [
     "invite_not_created"
@@ -246,8 +233,7 @@ Offline test of transcript + mock-system support process state.
   "next_check": "Inspect email suppression and DMARC policy for the recipient domain.",
   "handoff_notes": [
     "Known: symptom:invite_email_not_received; invite_status:created; email_delivery:suppressed; domain_policy:dmarc_reject",
-    "Unknowns: invite_created; email_delivery_status",
-    "Branches: email_delivery_suppressed; domain_policy_rejection; invite_not_created",
+    "Branches: email_delivery_suppressed; domain_policy_rejection",
     "Next check: Inspect email suppression and DMARC policy for the recipient domain.",
     "Predicted email policy rejection before delivery evidence."
   ],
