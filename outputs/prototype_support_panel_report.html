@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Prototype Support Panel Report</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin:0; background:#11100f; color:#f4eee8; }
+main { max-width:1180px; margin:0 auto; padding:32px 20px 64px; }
+h1 { font-size:30px; margin:0 0 8px; }
+h2 { font-size:22px; margin:4px 0 8px; }
+h3, h4 { margin:0 0 8px; }
+p { color:#c8beb5; max-width:780px; line-height:1.45; }
+code { color:#e8a08a; }
+table { width:100%; border-collapse:collapse; margin:22px 0 30px; font-size:14px; }
+th, td { border-bottom:1px solid #352f2a; text-align:left; padding:10px; vertical-align:top; }
+th { color:#a99c90; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+a { color:#e8a08a; }
+.hero, .case { border:1px solid #352f2a; border-radius:8px; padding:20px; background:#171513; margin-bottom:22px; }
+.case-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; border-bottom:1px solid #352f2a; padding-bottom:16px; margin-bottom:14px; }
+.case-verdict { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; border:1px solid; border-radius:999px; padding:6px 10px; }
+.case-verdict.pass, .badge.ok { color:#8fd19e; border-color:#376b43; }
+.case-verdict.warn, .badge.bad { color:#f0c36a; border-color:#7a5d22; }
+.badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.badge { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; border:1px solid; border-radius:999px; padding:5px 8px; }
+.notes, .empty, .facts-inline { color:#a99c90; font-size:13px; }
+.turn { border-top:1px solid #352f2a; padding-top:18px; margin-top:18px; }
+.turn-header, .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:#a99c90; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+blockquote { margin:8px 0 14px; padding:12px 14px; background:#201d1a; border-left:3px solid #c4674a; color:#fff7ef; }
+.context-wrap { margin-bottom:14px; }
+.context-item { border:1px solid #3c352f; border-radius:8px; padding:10px; margin:8px 0; background:#1d1a17; }
+.context-item.ignored { opacity:.75; }
+.state-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+.state-grid section, .next-check, .final { border:1px solid #352f2a; border-radius:8px; padding:12px; background:#151311; }
+ul { margin:0; padding-left:18px; }
+li { margin:4px 0; }
+.next-check, .final { margin-top:12px; }
+.next-check strong { color:#fff7ef; }
+.final-cause { color:#8fd19e; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+details { margin-top:12px; }
+summary { cursor:pointer; color:#e8a08a; }
+pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius:8px; padding:12px; color:#f4eee8; }
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="eyebrow">Mock-only capability report</div>
+    <h1>Prototype Support Panel Report</h1>
+    <p>Static replay of transcript turns plus mock product/support context. This report checks whether Live Support State helps work each case without premature final-cause prediction.</p>
+    <h3>Prototype Verdict: Continue</h3>
+  </section>
+  <table>
+    <thead>
+      <tr><th>Case</th><th>Final-cause timing</th><th>Unknowns</th><th>Branch hygiene</th><th>Final cause</th><th>Notes</th></tr>
+    </thead>
+    <tbody><tr><td><a href="#access_after_migration">access_after_migration</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#billing_plan_mismatch">billing_plan_mismatch</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#corrected_billing_after_access_report">corrected_billing_after_access_report</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#invite_email_not_arriving">invite_email_not_arriving</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#invite_with_irrelevant_billing_context">invite_with_irrelevant_billing_context</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#stale_cache_after_migration">stale_cache_after_migration</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr></tbody>
+  </table>
+  
+    <section class="case" id="access_after_migration">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Access After Migration</h2>
+          <code>access_after_migration</code>
+          <p>Three users lost access after migration. They can sign in, but cannot open the new workspace.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>Three users lost access after our migration yesterday.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>auth_status</li><li>workspace_role_assignment</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_block</li><li>missing_workspace_role</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Can the affected users sign in, or are they blocked at login?</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · agent</span>
+          </div>
+          <blockquote>Can they sign in at all, or is login blocked?</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>auth_status</li><li>workspace_role_assignment</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_block</li><li>missing_workspace_role</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Can the affected users sign in, or are they blocked at login?</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 3 · customer</span>
+          </div>
+          <blockquote>They can sign in, but they cannot open the new workspace.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.</div><div class="facts-inline">group_membership:Migrated-CSM, scim_sync:complete, workspace_role_missing:Migrated-CSM</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li><li>auth:works</li><li>surface:workspace_access</li><li>group_membership:Migrated-CSM</li><li>scim_sync:complete</li><li>workspace_role_missing:Migrated-CSM</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>missing_workspace_role</li><li>missing_workspace_role_inheritance</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Confirm whether Migrated-CSM should inherit Workspace Member after migration.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">missing_workspace_role_inheritance</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+    <section class="case" id="billing_plan_mismatch">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Billing Plan Mismatch</h2>
+          <code>billing_plan_mismatch</code>
+          <p>Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>I cannot log in.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>reported_issue:login</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>actual_surface</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_failure</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Confirm whether login itself fails or whether a page after login is wrong.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · customer</span>
+          </div>
+          <blockquote>No, login works. The billing page shows the wrong plan.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>reported_issue:login</li><li>auth:works</li><li>correction:login_works</li><li>surface:billing_plan</li><li>symptom:wrong_plan_shown</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>billing_entitlement_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>billing_entitlement_refresh_pending</li><li>invoice_app_mismatch</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check whether the billing entitlement refresh completed after the upgrade.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 3 · agent</span>
+          </div>
+          <blockquote>When did the plan change?</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>reported_issue:login</li><li>auth:works</li><li>correction:login_works</li><li>surface:billing_plan</li><li>symptom:wrong_plan_shown</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>billing_entitlement_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>billing_entitlement_refresh_pending</li><li>invoice_app_mismatch</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check whether the billing entitlement refresh completed after the upgrade.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 4 · customer</span>
+          </div>
+          <blockquote>We upgraded yesterday.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.</div><div class="facts-inline">invoice_plan:pro, app_entitlement_plan:starter, billing_refresh:pending</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>reported_issue:login</li><li>auth:works</li><li>correction:login_works</li><li>surface:billing_plan</li><li>symptom:wrong_plan_shown</li><li>recent_change:upgrade</li><li>invoice_plan:pro</li><li>app_entitlement_plan:starter</li><li>billing_refresh:pending</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>billing_entitlement_refresh_pending</li><li>invoice_app_mismatch</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li><li>missing_workspace_role</li><li>scim_sync_delay</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check the billing entitlement refresh job and re-sync the plan entitlement.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">billing_entitlement_refresh_pending</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+    <section class="case" id="corrected_billing_after_access_report">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Corrected Billing After Access Report</h2>
+          <code>corrected_billing_after_access_report</code>
+          <p>Customer opens with a migration access complaint, then corrects the report: login and workspace access work, and the real issue is stale billing entitlement after an upgrade.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>Three users lost access after migration.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>auth_status</li><li>workspace_role_assignment</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_block</li><li>missing_workspace_role</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Can the affected users sign in, or are they blocked at login?</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · customer</span>
+          </div>
+          <blockquote>Actually, correction: login works and the workspace opens. The billing page is showing the wrong plan after we upgraded.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Billing context shows invoice has Pro, app entitlement still has Starter, and entitlement refresh is pending.</div><div class="facts-inline">invoice_plan:pro, app_entitlement_plan:starter, billing_refresh:pending</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li><li>auth:works</li><li>surface:workspace_access</li><li>correction:login_works</li><li>surface:billing_plan</li><li>symptom:wrong_plan_shown</li><li>recent_change:upgrade</li><li>invoice_plan:pro</li><li>app_entitlement_plan:starter</li><li>billing_refresh:pending</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>stale_entitlement_cache</li><li>billing_entitlement_refresh_pending</li><li>invoice_app_mismatch</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li><li>missing_workspace_role</li><li>scim_sync_delay</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check the billing entitlement refresh job and re-sync the plan entitlement.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">billing_entitlement_refresh_pending</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+    <section class="case" id="invite_email_not_arriving">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Invite Email Not Arriving</h2>
+          <code>invite_email_not_arriving</code>
+          <p>Admin is trying to invite a new admin, but the invite email never arrives.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>Um, yeah, so I am trying to invite a new admin.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>invite_created</li><li>email_delivery_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>invite_not_created</li><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check whether the invite was created and whether email delivery bounced or was suppressed.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · agent</span>
+          </div>
+          <blockquote>Does the invite show as created in the admin page?</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>invite_created</li><li>email_delivery_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>invite_not_created</li><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check whether the invite was created and whether email delivery bounced or was suppressed.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 3 · customer</span>
+          </div>
+          <blockquote>Yes, but the invite email never arrives.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Email context shows invite created, delivery suppressed, and domain policy rejected the message.</div><div class="facts-inline">invite_status:created, email_delivery:suppressed, domain_policy:dmarc_reject</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li><li>symptom:invite_email_not_received</li><li>invite_status:created</li><li>email_delivery:suppressed</li><li>domain_policy:dmarc_reject</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>invite_not_created</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Inspect email suppression and DMARC policy for the recipient domain.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">domain_policy_rejection</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+    <section class="case" id="invite_with_irrelevant_billing_context">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Invite With Irrelevant Billing Context</h2>
+          <code>invite_with_irrelevant_billing_context</code>
+          <p>Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>I am trying to invite a new admin, but the invite email never arrives.</blockquote>
+          <div class="context-wrap"><div class="context-item ignored"><div class="eyebrow">ignored context</div><div>Unrelated billing context from another account shows invoice has Pro and app entitlement has Starter.</div><div class="facts-inline">invoice_plan:pro, app_entitlement_plan:starter, billing_refresh:pending</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li><li>symptom:invite_email_not_received</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>invite_created</li><li>email_delivery_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>invite_not_created</li><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Inspect invite delivery status, suppression list, and domain policy results.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · agent</span>
+          </div>
+          <blockquote>Does the invite show as created in the admin page?</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li><li>symptom:invite_email_not_received</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>invite_created</li><li>email_delivery_status</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>invite_not_created</li><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Check whether the invite was created and whether email delivery bounced or was suppressed.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 3 · customer</span>
+          </div>
+          <blockquote>Yes, the invite exists in the admin page, but no email arrives.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Email context shows invite created, delivery suppressed, and domain policy rejected the message.</div><div class="facts-inline">invite_status:created, email_delivery:suppressed, domain_policy:dmarc_reject</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>flow:admin_invite</li><li>symptom:invite_email_not_received</li><li>invite_status:created</li><li>email_delivery:suppressed</li><li>domain_policy:dmarc_reject</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>email_delivery_suppressed</li><li>domain_policy_rejection</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>invite_not_created</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Inspect email suppression and DMARC policy for the recipient domain.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">domain_policy_rejection</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+    <section class="case" id="stale_cache_after_migration">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">Case</div>
+          <h2>Stale Cache After Migration</h2>
+          <code>stale_cache_after_migration</code>
+          <p>Customer reports workspace access loss after migration. The tempting early answer is missing role inheritance, but system context later shows roles are present and a stale entitlement cache is the mechanism.</p>
+        </div>
+        <div class="case-verdict pass">
+          PASS
+        </div>
+      </div>
+      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+      <div class="notes">state progression is clean and evidence-timed</div>
+      
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 1 · customer</span>
+          </div>
+          <blockquote>Three users lost access after our migration yesterday.</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>auth_status</li><li>workspace_role_assignment</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_block</li><li>missing_workspace_role</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Can the affected users sign in, or are they blocked at login?</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 2 · agent</span>
+          </div>
+          <blockquote>Can they sign in, or is login blocked?</blockquote>
+          <div class="context-wrap"><div class="empty">No new product/support context.</div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <ul><li>auth_status</li><li>workspace_role_assignment</li></ul>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>login_block</li><li>missing_workspace_role</li><li>scim_sync_delay</li><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <div class="empty">-</div>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Can the affected users sign in, or are they blocked at login?</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="empty">Hidden until evidence exists.</div>
+    </div>
+    
+          
+        </article>
+        
+        <article class="turn">
+          <div class="turn-header">
+            <span>Turn 3 · customer</span>
+          </div>
+          <blockquote>They can sign in, but the workspace still says they do not have access.</blockquote>
+          <div class="context-wrap"><div class="context-item "><div class="eyebrow">context</div><div>Admin context shows the affected users have the workspace role and SCIM completed, but entitlement cache is stale.</div><div class="facts-inline">workspace_role:present, scim_sync:complete, entitlement_cache:stale</div></div></div>
+          
+    <div class="state-grid">
+      <section>
+        <h4>Known Facts</h4>
+        <ul><li>symptom:workspace_access_loss</li><li>affected_scope:three_users</li><li>recent_change:migration</li><li>auth:works</li><li>surface:workspace_access</li><li>workspace_role:present</li><li>scim_sync:complete</li><li>entitlement_cache:stale</li></ul>
+      </section>
+      <section>
+        <h4>Open Unknowns</h4>
+        <div class="empty">-</div>
+      </section>
+      <section>
+        <h4>Active Branches</h4>
+        <ul><li>stale_entitlement_cache</li></ul>
+      </section>
+      <section>
+        <h4>Ruled Out</h4>
+        <ul><li>login_block</li><li>login_failure</li><li>missing_workspace_role</li><li>scim_sync_delay</li></ul>
+      </section>
+    </div>
+    <div class="next-check">
+      <div class="eyebrow">Next Check</div>
+      <strong>Refresh the entitlement cache and confirm workspace access works after refresh.</strong>
+    </div>
+    <div class="final">
+      <div class="eyebrow">Final Cause</div>
+      <div class="final-cause">stale_entitlement_cache</div>
+    </div>
+    
+          
+        </article>
+        
+    </section>
+    
+</main>
+</body>
+</html>

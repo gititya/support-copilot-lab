@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
+from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
 from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
 
@@ -72,6 +73,28 @@ class SupportProcessExperimentTest(unittest.TestCase):
                 overlap = set(state["candidate_branches"]) & set(state["ruled_out_branches"])
                 self.assertEqual(state["unknowns"], [])
                 self.assertEqual(overlap, set())
+
+    def test_prototype_report_includes_all_cases_by_default(self):
+        html = render_report(select_case_ids())
+        for fixture in load_fixtures():
+            self.assertIn(fixture["case_id"], html)
+
+    def test_prototype_report_single_case_mode(self):
+        html = render_report(select_case_ids("access_after_migration"))
+        self.assertIn("access_after_migration", html)
+        self.assertNotIn("billing_plan_mismatch", html)
+
+    def test_prototype_report_verdict_marks_process_mock_timing_pass(self):
+        result = build_replay("access_after_migration", "process-mock")
+        self.assertEqual(case_verdict(result)["premature_turns"], [])
+        self.assertIn("final-cause timing: pass", render_report(["access_after_migration"]))
+
+    def test_prototype_report_ignored_context_does_not_pollute_state(self):
+        result = build_replay("invite_with_irrelevant_billing_context", "process-mock")
+        first_state = result["timeline"][0]["state"]
+        self.assertNotIn("invoice_plan:pro", first_state["facts"])
+        html = render_report(["invite_with_irrelevant_billing_context"])
+        self.assertIn("ignored context", html)
 
     def test_predictive_mock_fails_on_premature_final_cause(self):
         command = f"{shlex.quote(sys.executable)} {shlex.quote(str(ROOT / 'mock_llm.py'))} --profile predictive"
