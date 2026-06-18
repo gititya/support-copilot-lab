@@ -78,6 +78,8 @@ class SupportProcessExperimentTest(unittest.TestCase):
         html = render_report(select_case_ids())
         for fixture in load_fixtures():
             self.assertIn(fixture["case_id"], html)
+        self.assertIn('<details class="case"', html)
+        self.assertIn('<summary class="case-summary">', html)
 
     def test_prototype_report_single_case_mode(self):
         html = render_report(select_case_ids("access_after_migration"))

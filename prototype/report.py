@@ -173,24 +173,27 @@ def render_case(result: dict[str, Any], show_patches: bool) -> str:
         render_badge("final cause", verdict["final_cause_ok"]),
     ]
     return f"""
-    <section class="case" id="{esc(fixture["case_id"])}">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>{esc(fixture["title"])}</h2>
-          <code>{esc(fixture["case_id"])}</code>
-          <p>{esc(fixture["scenario"])}</p>
+    <details class="case" id="{esc(fixture["case_id"])}">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>{esc(fixture["title"])}</h2>
+            <code>{esc(fixture["case_id"])}</code>
+            <p>{esc(fixture["scenario"])}</p>
+          </div>
+          <div class="case-verdict {"pass" if verdict["passed"] else "warn"}">
+            {"PASS" if verdict["passed"] else "REVIEW"}
+          </div>
         </div>
-        <div class="case-verdict {"pass" if verdict["passed"] else "warn"}">
-          {"PASS" if verdict["passed"] else "REVIEW"}
-        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges">{"".join(badges)}</div>
+        <div class="notes">{"; ".join(esc(note) for note in verdict["notes"])}</div>
+        {"".join(turn_html)}
       </div>
-      <div class="badges">{"".join(badges)}</div>
-      <div class="notes">{"; ".join(esc(note) for note in verdict["notes"])}</div>
-      {"".join(turn_html)}
-    </section>
+    </details>
     """
-
 
 def overall_verdict(results: list[dict[str, Any]]) -> str:
     verdicts = [case_verdict(result) for result in results]
@@ -238,8 +241,13 @@ table {{ width:100%; border-collapse:collapse; margin:22px 0 30px; font-size:14p
 th, td {{ border-bottom:1px solid #352f2a; text-align:left; padding:10px; vertical-align:top; }}
 th {{ color:#a99c90; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }}
 a {{ color:#e8a08a; }}
-.hero, .case {{ border:1px solid #352f2a; border-radius:8px; padding:20px; background:#171513; margin-bottom:22px; }}
-.case-head {{ display:flex; justify-content:space-between; gap:18px; align-items:flex-start; border-bottom:1px solid #352f2a; padding-bottom:16px; margin-bottom:14px; }}
+.hero, .case {{ border:1px solid #352f2a; border-radius:8px; padding:20px; background:#171513; margin-bottom:14px; }}
+.case-summary {{ cursor:pointer; list-style:none; }}
+.case-summary::-webkit-details-marker {{ display:none; }}
+.case-summary::before {{ content:"Expand case"; display:inline-block; margin-bottom:10px; color:#e8a08a; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }}
+.case[open] .case-summary::before {{ content:"Collapse case"; }}
+.case-head {{ display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }}
+.case-body {{ border-top:1px solid #352f2a; padding-top:14px; margin-top:14px; }}
 .case-verdict {{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; border:1px solid; border-radius:999px; padding:6px 10px; }}
 .case-verdict.pass, .badge.ok {{ color:#8fd19e; border-color:#376b43; }}
 .case-verdict.warn, .badge.bad {{ color:#f0c36a; border-color:#7a5d22; }}

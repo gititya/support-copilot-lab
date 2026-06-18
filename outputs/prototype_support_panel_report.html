@@ -15,8 +15,13 @@ table { width:100%; border-collapse:collapse; margin:22px 0 30px; font-size:14px
 th, td { border-bottom:1px solid #352f2a; text-align:left; padding:10px; vertical-align:top; }
 th { color:#a99c90; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
 a { color:#e8a08a; }
-.hero, .case { border:1px solid #352f2a; border-radius:8px; padding:20px; background:#171513; margin-bottom:22px; }
-.case-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; border-bottom:1px solid #352f2a; padding-bottom:16px; margin-bottom:14px; }
+.hero, .case { border:1px solid #352f2a; border-radius:8px; padding:20px; background:#171513; margin-bottom:14px; }
+.case-summary { cursor:pointer; list-style:none; }
+.case-summary::-webkit-details-marker { display:none; }
+.case-summary::before { content:"Expand case"; display:inline-block; margin-bottom:10px; color:#e8a08a; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.case[open] .case-summary::before { content:"Collapse case"; }
+.case-head { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+.case-body { border-top:1px solid #352f2a; padding-top:14px; margin-top:14px; }
 .case-verdict { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; border:1px solid; border-radius:999px; padding:6px 10px; }
 .case-verdict.pass, .badge.ok { color:#8fd19e; border-color:#376b43; }
 .case-verdict.warn, .badge.bad { color:#f0c36a; border-color:#7a5d22; }
@@ -56,21 +61,24 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
     <tbody><tr><td><a href="#access_after_migration">access_after_migration</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#billing_plan_mismatch">billing_plan_mismatch</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#corrected_billing_after_access_report">corrected_billing_after_access_report</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#invite_email_not_arriving">invite_email_not_arriving</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#invite_with_irrelevant_billing_context">invite_with_irrelevant_billing_context</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr><tr><td><a href="#stale_cache_after_migration">stale_cache_after_migration</a></td><td>pass</td><td>pass</td><td>pass</td><td>pass</td><td>state progression is clean and evidence-timed</td></tr></tbody>
   </table>
   
-    <section class="case" id="access_after_migration">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Access After Migration</h2>
-          <code>access_after_migration</code>
-          <p>Three users lost access after migration. They can sign in, but cannot open the new workspace.</p>
+    <details class="case" id="access_after_migration">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Access After Migration</h2>
+            <code>access_after_migration</code>
+            <p>Three users lost access after migration. They can sign in, but cannot open the new workspace.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
         </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
-      </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -182,23 +190,27 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
-    
-    <section class="case" id="billing_plan_mismatch">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Billing Plan Mismatch</h2>
-          <code>billing_plan_mismatch</code>
-          <p>Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.</p>
-        </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
       </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+    </details>
+    
+    <details class="case" id="billing_plan_mismatch">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Billing Plan Mismatch</h2>
+            <code>billing_plan_mismatch</code>
+            <p>Customer starts with a login complaint, then corrects: login works, but the billing page shows the wrong plan after an upgrade.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
+        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -347,23 +359,27 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
-    
-    <section class="case" id="corrected_billing_after_access_report">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Corrected Billing After Access Report</h2>
-          <code>corrected_billing_after_access_report</code>
-          <p>Customer opens with a migration access complaint, then corrects the report: login and workspace access work, and the real issue is stale billing entitlement after an upgrade.</p>
-        </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
       </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+    </details>
+    
+    <details class="case" id="corrected_billing_after_access_report">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Corrected Billing After Access Report</h2>
+            <code>corrected_billing_after_access_report</code>
+            <p>Customer opens with a migration access complaint, then corrects the report: login and workspace access work, and the real issue is stale billing entitlement after an upgrade.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
+        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -438,23 +454,27 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
-    
-    <section class="case" id="invite_email_not_arriving">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Invite Email Not Arriving</h2>
-          <code>invite_email_not_arriving</code>
-          <p>Admin is trying to invite a new admin, but the invite email never arrives.</p>
-        </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
       </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+    </details>
+    
+    <details class="case" id="invite_email_not_arriving">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Invite Email Not Arriving</h2>
+            <code>invite_email_not_arriving</code>
+            <p>Admin is trying to invite a new admin, but the invite email never arrives.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
+        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -566,23 +586,27 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
-    
-    <section class="case" id="invite_with_irrelevant_billing_context">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Invite With Irrelevant Billing Context</h2>
-          <code>invite_with_irrelevant_billing_context</code>
-          <p>Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.</p>
-        </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
       </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+    </details>
+    
+    <details class="case" id="invite_with_irrelevant_billing_context">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Invite With Irrelevant Billing Context</h2>
+            <code>invite_with_irrelevant_billing_context</code>
+            <p>Admin invite email is not arriving. An unrelated billing context event appears first and must not justify a final cause or pollute the support state.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
+        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -694,23 +718,27 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
-    
-    <section class="case" id="stale_cache_after_migration">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">Case</div>
-          <h2>Stale Cache After Migration</h2>
-          <code>stale_cache_after_migration</code>
-          <p>Customer reports workspace access loss after migration. The tempting early answer is missing role inheritance, but system context later shows roles are present and a stale entitlement cache is the mechanism.</p>
-        </div>
-        <div class="case-verdict pass">
-          PASS
-        </div>
       </div>
-      <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
-      <div class="notes">state progression is clean and evidence-timed</div>
-      
+    </details>
+    
+    <details class="case" id="stale_cache_after_migration">
+      <summary class="case-summary">
+        <div class="case-head">
+          <div>
+            <div class="eyebrow">Case</div>
+            <h2>Stale Cache After Migration</h2>
+            <code>stale_cache_after_migration</code>
+            <p>Customer reports workspace access loss after migration. The tempting early answer is missing role inheritance, but system context later shows roles are present and a stale entitlement cache is the mechanism.</p>
+          </div>
+          <div class="case-verdict pass">
+            PASS
+          </div>
+        </div>
+      </summary>
+      <div class="case-body">
+        <div class="badges"><span class="badge ok">final-cause timing: pass</span><span class="badge ok">unknowns resolved: pass</span><span class="badge ok">branch hygiene: pass</span><span class="badge ok">final cause: pass</span></div>
+        <div class="notes">state progression is clean and evidence-timed</div>
+        
         <article class="turn">
           <div class="turn-header">
             <span>Turn 1 · customer</span>
@@ -822,7 +850,8 @@ pre { overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radius
           
         </article>
         
-    </section>
+      </div>
+    </details>
     
 </main>
 </body>
