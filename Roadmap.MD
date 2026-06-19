@@ -138,16 +138,17 @@ Exit criteria:
 
 - This repo can accept generator output safely once the generator evolves.
 
-### Milestone 6 - Run First Generated B2B Batch
+### Milestone 6 - Run First Generated B2B Batch Through Review Lane
 
-Status: Waiting on support-call-generator
+Status: Completed
 
-Goal: Test more B2B support calls without hand-authoring every case.
+Goal: Test more B2B support calls without hand-authoring every case, while keeping generated cases separate from the strict root fixture set.
 
 Deliverables:
 
-- Import a small generated batch, likely 10 hard B2B cases.
-- Review report output manually.
+- Import a small generated batch into `outputs/generated_fixture_staging/`.
+- Render generated cases through `prototype/generated_review.py`.
+- Write generated review output to `outputs/generated_support_review.html`.
 - Promote only accepted generated cases into the main fixture set.
 - Capture failure patterns in the roadmap or README.
 
@@ -156,14 +157,16 @@ Checks:
 - Process behavior remains evidence-timed.
 - Next checks stay actionable.
 - Irrelevant or misleading context does not pollute state.
+- Generated cases are not loaded by the strict root experiment by default.
+- `python3 prototype/generated_review.py` renders staged generated cases.
 
 Exit criteria:
 
-- Generated cases expose useful gaps or confirm robustness beyond the original fixtures.
+- Generated cases expose useful gaps or confirm robustness beyond the original fixtures without weakening the root experiment harness.
 
 ### Milestone 7 - Tighten Evaluation Criteria
 
-Status: Not started
+Status: In progress
 
 Goal: Move beyond simple field matching into better support-process scoring.
 
@@ -174,11 +177,13 @@ Deliverables:
 - Track whether ruled-out branches have evidence.
 - Track candidate branch drift.
 - Separate wording misses from true process misses.
+- Keep generated-case review scoring separate from strict hand-authored fixture scoring until promotion.
 
 Checks:
 
-- Existing 6 baseline fixtures still pass.
+- Existing 10 baseline fixtures still pass.
 - Harder fixtures identify meaningful misses without brittle wording failures.
+- Generated fixture review identifies promotion readiness without requiring direct root-fixture insertion.
 
 Exit criteria:
 

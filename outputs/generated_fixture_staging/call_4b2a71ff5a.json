@@ -1,0 +1,522 @@
+{
+  "schema_version": "support_process_fixture.v1",
+  "case_id": "call_4b2a71ff5a",
+  "title": "workspace setup: The workspace setup failure is caused by region mismatch.",
+  "scenario": "workspace_setup",
+  "difficulty_profile": "hard",
+  "transcript_turns": [
+    {
+      "speaker": "customer",
+      "text": "I'm not totally sure what's going on, but something broke. customer reports symptoms consistent with more than one workspace setup issue.",
+      "turn": 1
+    },
+    {
+      "speaker": "agent",
+      "text": "I think this may be a login thing, but let's see. When did this first start?",
+      "turn": 2
+    },
+    {
+      "speaker": "customer",
+      "text": "the issue began after a recent operational change",
+      "turn": 3
+    },
+    {
+      "speaker": "agent",
+      "text": "That points me toward invite delivery, but I want to keep this tentative. What changed right before the issue started?",
+      "turn": 4
+    },
+    {
+      "speaker": "customer",
+      "text": "The confusing part is this: An early symptom seems to support invite delivery, but later evidence weakens it.",
+      "turn": 5
+    },
+    {
+      "speaker": "agent",
+      "text": "Let's test invite delivery first. If that fits, we should see the same behavior on a known-good example.",
+      "turn": 6
+    },
+    {
+      "speaker": "customer",
+      "text": "We checked one example and it seemed to fit, but then another example did not. customer reports symptoms consistent with more than one workspace setup issue, but at least one comparison case behaves differently.",
+      "turn": 7
+    },
+    {
+      "speaker": "agent",
+      "text": "That weakens invite delivery. I am going to abandon that path for now and check billing hold.",
+      "turn": 8
+    },
+    {
+      "speaker": "customer",
+      "text": "billing hold happened to us once before, so that sounds plausible, but the symptoms are not exactly the same.",
+      "turn": 9
+    },
+    {
+      "speaker": "agent",
+      "text": "Agreed. billing hold is possible, but the evidence is mixed. I need a comparison between a working and blocked case.",
+      "turn": 10
+    },
+    {
+      "speaker": "customer",
+      "text": "One working case has the same visible setup. Also, an admin later mentions region mismatch.",
+      "turn": 11
+    },
+    {
+      "speaker": "agent",
+      "text": "That reverses the direction. The visible setup may not be the control point. I want to inspect the shared configuration boundary.",
+      "turn": 12
+    },
+    {
+      "speaker": "customer",
+      "text": "I just got a note from someone else: an admin later mentions region mismatch. customer has a time-sensitive rollout or business deadline and trust is degrading.",
+      "turn": 13
+    },
+    {
+      "speaker": "agent",
+      "text": "That late detail finally makes the actual path coherent. The likely root cause is: The workspace setup failure is caused by region mismatch.",
+      "turn": 14
+    },
+    {
+      "speaker": "customer",
+      "text": "So the earlier checks were not wasted, but they were pointing at the wrong control point?",
+      "turn": 15
+    },
+    {
+      "speaker": "agent",
+      "text": "Correct. The earlier paths were plausible but abandoned after conflicting evidence. Final outcome: agent identifies region mismatch as the likely operational cause, but certainty depends on the selected resolution type",
+      "turn": 16
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 4,
+      "candidate_branches": [],
+      "description": "an admin later mentions region mismatch",
+      "facts": [
+        "admin:late_mention"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "billing_hold"
+      ],
+      "source": "admin_panel",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_billing_hold"
+    },
+    {
+      "after_turn": 5,
+      "candidate_branches": [],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "template_outage"
+      ],
+      "source": "billing_system",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_template_outage"
+    },
+    {
+      "after_turn": 7,
+      "candidate_branches": [],
+      "description": "a working example differs in one hidden configuration detail",
+      "facts": [
+        "comparison:config_differs"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "invite_delivery"
+      ],
+      "source": "email_delivery",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_invite_delivery"
+    },
+    {
+      "after_turn": 7,
+      "candidate_branches": [],
+      "description": "Billing system shows the account is active and fully paid, ruling out a billing hold.",
+      "facts": [
+        "billing_status:active",
+        "payment:current"
+      ],
+      "is_conflicting": true,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "billing_system",
+      "relevant": true,
+      "next_check": "investigate_billing_hold"
+    },
+    {
+      "after_turn": 10,
+      "candidate_branches": [],
+      "description": "an admin later mentions region mismatch",
+      "facts": [
+        "admin:late_mention"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "audit_log",
+      "relevant": true,
+      "next_check": "investigate_billing_hold"
+    },
+    {
+      "after_turn": 14,
+      "candidate_branches": [
+        "the_workspace_setup_failure_is_caused_by_region"
+      ],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [
+        "late_evidence_points_toward_region_misma"
+      ],
+      "reveals_final_cause": true,
+      "ruled_out_branches": [],
+      "source": "incident_note",
+      "relevant": true,
+      "next_check": "confirm_root_cause"
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 2,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 3,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "admin:late_mention"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 6,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 7,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 8,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 9,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 10,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 11,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 12,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 13,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 14,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_workspace_setup_failure_is_caused_by_region"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 15,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_workspace_setup_failure_is_caused_by_region"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 16,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_workspace_setup_failure_is_caused_by_region"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "template_outage",
+        "invite_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    }
+  ],
+  "final_cause": "",
+  "resolution_type": "escalated",
+  "intent_tags": [
+    "conflicting_context",
+    "customer_correction",
+    "late_evidence_reveal",
+    "unresolved_outcome"
+  ],
+  "expected_outcome": "handoff",
+  "handoff_summary": "Escalated to engineering/product. agent identifies region mismatch as the likely operational cause, but certainty depends on the selected resolution type Key evidence collected: the issue began after a recent operational change; an admin later mentions region mismatch."
+}

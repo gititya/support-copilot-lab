@@ -1,0 +1,523 @@
+{
+  "schema_version": "support_process_fixture.v1",
+  "case_id": "call_b1b434a3a8",
+  "title": "workspace setup: Workspace domain verification is pending because DNS TXT record was added to ...",
+  "scenario": "workspace_setup",
+  "difficulty_profile": "hard",
+  "transcript_turns": [
+    {
+      "speaker": "customer",
+      "text": "This is becoming a real blocker for us. workspace setup is blocked at domain verification.",
+      "turn": 1
+    },
+    {
+      "speaker": "agent",
+      "text": "Let's separate what we know from what we still need to verify. When did this first start?",
+      "turn": 2
+    },
+    {
+      "speaker": "customer",
+      "text": "customer says DNS was updated",
+      "turn": 3
+    },
+    {
+      "speaker": "agent",
+      "text": "That points me toward billing hold, but I want to keep this tentative. What changed right before the issue started?",
+      "turn": 4
+    },
+    {
+      "speaker": "customer",
+      "text": "The confusing part is this: An early symptom seems to support billing hold, but later evidence weakens it.",
+      "turn": 5
+    },
+    {
+      "speaker": "agent",
+      "text": "Let's test billing hold first. If that fits, we should see the same behavior on a known-good example.",
+      "turn": 6
+    },
+    {
+      "speaker": "customer",
+      "text": "We checked one example and it seemed to fit, but then another example did not. workspace setup is blocked at domain verification, but verification has been pending for several hours.",
+      "turn": 7
+    },
+    {
+      "speaker": "agent",
+      "text": "That weakens billing hold. I am going to abandon that path for now and check workspace region mismatch.",
+      "turn": 8
+    },
+    {
+      "speaker": "customer",
+      "text": "workspace region mismatch happened to us once before, so that sounds plausible, but the symptoms are not exactly the same.",
+      "turn": 9
+    },
+    {
+      "speaker": "agent",
+      "text": "Agreed. workspace region mismatch is possible, but the evidence is mixed. I need a comparison between a working and blocked case.",
+      "turn": 10
+    },
+    {
+      "speaker": "customer",
+      "text": "One working case has the same visible setup. Also, the TXT record was added to app.company.com.",
+      "turn": 11
+    },
+    {
+      "speaker": "agent",
+      "text": "That reverses the direction. The visible setup may not be the control point. I want to inspect the shared configuration boundary.",
+      "turn": 12
+    },
+    {
+      "speaker": "customer",
+      "text": "I just got a note from someone else: customer's IT owner copied from a staging guide. customer's onboarding session is live while setup is blocked.",
+      "turn": 13
+    },
+    {
+      "speaker": "agent",
+      "text": "That late detail finally makes the actual path coherent. The likely root cause is: Workspace domain verification is pending because DNS TXT record was added to the wrong subdomain.",
+      "turn": 14
+    },
+    {
+      "speaker": "customer",
+      "text": "So the earlier checks were not wasted, but they were pointing at the wrong control point?",
+      "turn": 15
+    },
+    {
+      "speaker": "agent",
+      "text": "Correct. The earlier paths were plausible but abandoned after conflicting evidence. Final outcome: agent identifies wrong DNS record placement and gives exact correction",
+      "turn": 16
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 4,
+      "candidate_branches": [],
+      "description": "the TXT record was added to app.company.com",
+      "facts": [
+        "dns:txt_wrong_subdomain"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "billing_hold"
+      ],
+      "source": "admin_panel",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_billing_hold"
+    },
+    {
+      "after_turn": 5,
+      "candidate_branches": [],
+      "description": "verification expects company.com",
+      "facts": [
+        "dns:verification_target"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "workspace_region_mismatch"
+      ],
+      "source": "billing_system",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_workspace_region_mismatch"
+    },
+    {
+      "after_turn": 6,
+      "candidate_branches": [],
+      "description": "Billing system shows the account is active and fully paid, ruling out a billing hold.",
+      "facts": [
+        "billing_status:active",
+        "payment:current"
+      ],
+      "is_conflicting": true,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "billing_system",
+      "relevant": true,
+      "next_check": "investigate_billing_hold"
+    },
+    {
+      "after_turn": 7,
+      "candidate_branches": [],
+      "description": "customer's IT owner copied from a staging guide",
+      "facts": [
+        "docs:staging_guide_copied"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "invite_email_delivery"
+      ],
+      "source": "email_delivery",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_invite_email_delivery"
+    },
+    {
+      "after_turn": 13,
+      "candidate_branches": [],
+      "description": "customer's IT owner copied from a staging guide",
+      "facts": [
+        "docs:staging_guide_copied"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "audit_log",
+      "relevant": true,
+      "next_check": "investigate_billing_hold"
+    },
+    {
+      "after_turn": 14,
+      "candidate_branches": [
+        "workspace_domain_verification_is_pending_because_dns_txt"
+      ],
+      "description": "the TXT record was added to app.company.com",
+      "facts": [
+        "dns:txt_wrong_subdomain"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [
+        "dns_verification_state_is_inspected"
+      ],
+      "reveals_final_cause": true,
+      "ruled_out_branches": [],
+      "source": "incident_note",
+      "relevant": true,
+      "final_cause": "workspace_domain_verification_is_pending_because_dns_txt",
+      "next_check": "confirm_root_cause"
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 2,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 3,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "dns:txt_wrong_subdomain"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 6,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 7,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 8,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 9,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 10,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 11,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 12,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 13,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "billing",
+        "hold"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 14,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "workspace_domain_verification_is_pending_because_dns_txt"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 15,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "workspace_domain_verification_is_pending_because_dns_txt"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 16,
+      "facts": [
+        "dns:txt_wrong_subdomain",
+        "dns:verification_target",
+        "billing_status:active",
+        "payment:current",
+        "docs:staging_guide_copied"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "workspace_domain_verification_is_pending_because_dns_txt"
+      ],
+      "ruled_out_branches": [
+        "billing_hold",
+        "workspace_region_mismatch",
+        "invite_email_delivery"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    }
+  ],
+  "final_cause": "workspace_domain_verification_is_pending_because_dns_txt",
+  "resolution_type": "probable_cause",
+  "intent_tags": [
+    "conflicting_context",
+    "customer_correction",
+    "late_evidence_reveal"
+  ],
+  "expected_outcome": "probable_cause"
+}

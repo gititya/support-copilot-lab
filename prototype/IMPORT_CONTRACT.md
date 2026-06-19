@@ -16,6 +16,7 @@ The generator should export support-process fixtures, not just transcripts. The 
 `cases` may contain one or more fixtures with the same shape used by `fixtures/*.json`.
 
 The importer also accepts a single bare fixture object for convenience.
+It also accepts one schema-versioned fixture object with `schema_version: support_process_fixture.v1`.
 
 ## Required Case Fields
 
@@ -84,3 +85,19 @@ outputs/generated_fixture_staging/
 ```
 
 Do not copy staged cases into `fixtures/` until they are reviewed.
+
+## Generated Review Workflow
+
+Generated fixtures are not source-of-truth fixtures when first imported. Review them separately:
+
+```bash
+python3 prototype/generated_review.py
+```
+
+This writes:
+
+```text
+outputs/generated_support_review.html
+```
+
+Use this report to decide whether a generated case should be promoted into `fixtures/`. Promotion is manual and should happen only after the expected state is calibrated to the strict experiment harness.

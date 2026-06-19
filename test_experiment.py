@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
+from prototype.generated_review import render_generated_review, write_generated_review
 from prototype.import_generated import import_cases
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
@@ -122,6 +123,36 @@ class SupportProcessExperimentTest(unittest.TestCase):
             written = import_cases(input_path, staging_dir)
             self.assertEqual(len(written), 1)
             self.assertTrue((staging_dir / "generated_access_after_migration.json").exists())
+
+    def test_generated_fixture_importer_accepts_single_schema_fixture(self):
+        fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
+        fixture["schema_version"] = "support_process_fixture.v1"
+        fixture["case_id"] = "single_generated_access_after_migration"
+        with tempfile.TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "generated.json"
+            staging_dir = Path(tmp) / "staging"
+            input_path.write_text(json.dumps(fixture))
+            written = import_cases(input_path, staging_dir)
+            self.assertEqual(len(written), 1)
+            self.assertTrue((staging_dir / "single_generated_access_after_migration.json").exists())
+
+    def test_generated_review_renders_staged_cases_without_root_promotion(self):
+        fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
+        fixture["schema_version"] = "support_process_fixture.v1"
+        fixture["case_id"] = "review_generated_access_after_migration"
+        fixture["difficulty_profile"] = "hard"
+        fixture["expected_outcome"] = "resolved"
+        with tempfile.TemporaryDirectory() as tmp:
+            staging_dir = Path(tmp) / "staging"
+            staging_dir.mkdir()
+            (staging_dir / "review_generated_access_after_migration.json").write_text(json.dumps(fixture))
+            html = render_generated_review([fixture])
+            self.assertIn("Generated Support Fixture Review", html)
+            self.assertIn("review_generated_access_after_migration", html)
+            output_path = Path(tmp) / "generated_review.html"
+            written = write_generated_review(staging_dir=staging_dir, path=output_path)
+            self.assertEqual(written, output_path)
+            self.assertTrue(output_path.exists())
 
     def test_generated_fixture_importer_rejects_premature_final_cause_leakage(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())

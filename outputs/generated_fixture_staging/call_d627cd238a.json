@@ -1,0 +1,510 @@
+{
+  "schema_version": "support_process_fixture.v1",
+  "case_id": "call_d627cd238a",
+  "title": "onboarding migration: The migration problem is caused by archived team export filter.",
+  "scenario": "onboarding_migration",
+  "difficulty_profile": "hard",
+  "transcript_turns": [
+    {
+      "speaker": "customer",
+      "text": "I'm worried we're going to miss our deadline. customer reports symptoms consistent with more than one migration issue.",
+      "turn": 1
+    },
+    {
+      "speaker": "agent",
+      "text": "Okay, I can check a few things with you. When did this first start?",
+      "turn": 2
+    },
+    {
+      "speaker": "customer",
+      "text": "the issue began after a recent operational change",
+      "turn": 3
+    },
+    {
+      "speaker": "agent",
+      "text": "That points me toward duplicate merge, but I want to keep this tentative. What changed right before the issue started?",
+      "turn": 4
+    },
+    {
+      "speaker": "customer",
+      "text": "The confusing part is this: An early symptom seems to support duplicate merge, but later evidence weakens it.",
+      "turn": 5
+    },
+    {
+      "speaker": "agent",
+      "text": "Let's test duplicate merge first. If that fits, we should see the same behavior on a known-good example.",
+      "turn": 6
+    },
+    {
+      "speaker": "customer",
+      "text": "We checked one example and it seemed to fit, but then another example did not. customer reports symptoms consistent with more than one migration issue, but at least one comparison case behaves differently.",
+      "turn": 7
+    },
+    {
+      "speaker": "agent",
+      "text": "That weakens duplicate merge. I am going to abandon that path for now and check timezone conversion.",
+      "turn": 8
+    },
+    {
+      "speaker": "customer",
+      "text": "timezone conversion happened to us once before, so that sounds plausible, but the symptoms are not exactly the same.",
+      "turn": 9
+    },
+    {
+      "speaker": "agent",
+      "text": "Agreed. timezone conversion is possible, but the evidence is mixed. I need a comparison between a working and blocked case.",
+      "turn": 10
+    },
+    {
+      "speaker": "customer",
+      "text": "One working case has the same visible setup. Also, an admin later mentions archived team export filter.",
+      "turn": 11
+    },
+    {
+      "speaker": "agent",
+      "text": "That reverses the direction. The visible setup may not be the control point. I want to inspect the shared configuration boundary.",
+      "turn": 12
+    },
+    {
+      "speaker": "customer",
+      "text": "I just got a note from someone else: an admin later mentions archived team export filter. customer has a time-sensitive rollout or business deadline and trust is degrading.",
+      "turn": 13
+    },
+    {
+      "speaker": "agent",
+      "text": "That late detail finally makes the actual path coherent. The likely root cause is: The migration problem is caused by archived team export filter.",
+      "turn": 14
+    },
+    {
+      "speaker": "customer",
+      "text": "So the earlier checks were not wasted, but they were pointing at the wrong control point?",
+      "turn": 15
+    },
+    {
+      "speaker": "agent",
+      "text": "Correct. The earlier paths were plausible but abandoned after conflicting evidence. Final outcome: agent identifies archived team export filter as the likely operational cause, but certainty depends on the selected resolution type",
+      "turn": 16
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 3,
+      "candidate_branches": [],
+      "description": "an admin later mentions archived team export filter",
+      "facts": [
+        "admin:late_mention"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "partial_import"
+      ],
+      "source": "admin_panel",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_partial_import"
+    },
+    {
+      "after_turn": 5,
+      "candidate_branches": [],
+      "description": "Migration log reports all records as successfully imported, contradicting the missing count.",
+      "facts": [
+        "migration_status:all_imported"
+      ],
+      "is_conflicting": true,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "migration_log",
+      "relevant": true,
+      "next_check": "investigate_partial_import"
+    },
+    {
+      "after_turn": 6,
+      "candidate_branches": [],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "timezone_conversion"
+      ],
+      "source": "migration_log",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_timezone_conversion"
+    },
+    {
+      "after_turn": 9,
+      "candidate_branches": [],
+      "description": "a working example differs in one hidden configuration detail",
+      "facts": [
+        "comparison:config_differs"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "duplicate_merge"
+      ],
+      "source": "audit_log",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_duplicate_merge"
+    },
+    {
+      "after_turn": 12,
+      "candidate_branches": [],
+      "description": "an admin later mentions archived team export filter",
+      "facts": [
+        "admin:late_mention"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "prior_ticket",
+      "relevant": true,
+      "next_check": "investigate_partial_import"
+    },
+    {
+      "after_turn": 16,
+      "candidate_branches": [
+        "the_migration_problem_is_caused_by_archived_team"
+      ],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [
+        "late_evidence_points_toward_archived_tea"
+      ],
+      "reveals_final_cause": true,
+      "ruled_out_branches": [],
+      "source": "incident_note",
+      "relevant": true,
+      "final_cause": "the_migration_problem_is_caused_by_archived_team",
+      "next_check": "confirm_root_cause"
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 2,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "admin:late_mention"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "admin:late_mention"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "partial",
+        "import"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 6,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 7,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 8,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 9,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 10,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 11,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 12,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "partial",
+        "import"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 13,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "partial",
+        "import"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 14,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "partial",
+        "import"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 15,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "partial",
+        "import"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 16,
+      "facts": [
+        "admin:late_mention",
+        "migration_status:all_imported",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_migration_problem_is_caused_by_archived_team"
+      ],
+      "ruled_out_branches": [
+        "partial_import",
+        "timezone_conversion",
+        "duplicate_merge"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    }
+  ],
+  "final_cause": "the_migration_problem_is_caused_by_archived_team",
+  "resolution_type": "probable_cause",
+  "intent_tags": [
+    "conflicting_context",
+    "customer_correction",
+    "late_evidence_reveal"
+  ],
+  "expected_outcome": "probable_cause"
+}

@@ -31,9 +31,11 @@ def load_generated_cases(path: Path) -> list[dict[str, Any]]:
         if schema_version != SUPPORTED_SCHEMA:
             raise ValueError(f"Unsupported schema_version: {schema_version}")
         cases = payload.get("cases")
-        if not isinstance(cases, list) or not cases:
-            raise ValueError("Generated fixture envelope needs a non-empty cases list")
-        return cases
+        if cases is not None:
+            if not isinstance(cases, list) or not cases:
+                raise ValueError("Generated fixture envelope needs a non-empty cases list")
+            return cases
+        return [payload]
     if isinstance(payload, dict):
         return [payload]
     raise ValueError("Generated fixture file must contain an envelope object or one fixture object")

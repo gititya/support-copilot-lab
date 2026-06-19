@@ -1,0 +1,472 @@
+{
+  "schema_version": "support_process_fixture.v1",
+  "case_id": "call_5915a35e20",
+  "title": "permissions access: The access failure is caused by manually retained user no longer entitled.",
+  "scenario": "permissions_access",
+  "difficulty_profile": "hard",
+  "transcript_turns": [
+    {
+      "speaker": "customer",
+      "text": "I need a fast answer here. customer reports symptoms consistent with more than one access issue.",
+      "turn": 1
+    },
+    {
+      "speaker": "agent",
+      "text": "Okay, I can check a few things with you. When did this first start?",
+      "turn": 2
+    },
+    {
+      "speaker": "customer",
+      "text": "the issue began after a recent operational change",
+      "turn": 3
+    },
+    {
+      "speaker": "agent",
+      "text": "That points me toward license limit, but I want to keep this tentative. What changed right before the issue started?",
+      "turn": 4
+    },
+    {
+      "speaker": "customer",
+      "text": "The confusing part is this: An early symptom seems to support license limit, but later evidence weakens it.",
+      "turn": 5
+    },
+    {
+      "speaker": "agent",
+      "text": "Let's test license limit first. If that fits, we should see the same behavior on a known-good example.",
+      "turn": 6
+    },
+    {
+      "speaker": "customer",
+      "text": "We checked one example and it seemed to fit, but then another example did not. customer reports symptoms consistent with more than one access issue, but at least one comparison case behaves differently.",
+      "turn": 7
+    },
+    {
+      "speaker": "agent",
+      "text": "That weakens license limit. I am going to abandon that path for now and check expired invitation.",
+      "turn": 8
+    },
+    {
+      "speaker": "customer",
+      "text": "expired invitation happened to us once before, so that sounds plausible, but the symptoms are not exactly the same.",
+      "turn": 9
+    },
+    {
+      "speaker": "agent",
+      "text": "Agreed. expired invitation is possible, but the evidence is mixed. I need a comparison between a working and blocked case.",
+      "turn": 10
+    },
+    {
+      "speaker": "customer",
+      "text": "One working case has the same visible setup. Also, an admin later mentions manually retained user no longer entitled.",
+      "turn": 11
+    },
+    {
+      "speaker": "agent",
+      "text": "That reverses the direction. The visible setup may not be the control point. I want to inspect the shared configuration boundary.",
+      "turn": 12
+    },
+    {
+      "speaker": "customer",
+      "text": "I just got a note from someone else: logs show a warning that was initially dismissed. customer has a time-sensitive rollout or business deadline and trust is degrading.",
+      "turn": 13
+    },
+    {
+      "speaker": "agent",
+      "text": "That late detail finally makes the actual path coherent. The likely root cause is: The access failure is caused by manually retained user no longer entitled.",
+      "turn": 14
+    },
+    {
+      "speaker": "customer",
+      "text": "So the earlier checks were not wasted, but they were pointing at the wrong control point?",
+      "turn": 15
+    },
+    {
+      "speaker": "agent",
+      "text": "Correct. The earlier paths were plausible but abandoned after conflicting evidence. Final outcome: agent identifies manually retained user no longer entitled as the likely operational cause, but certainty depends on the selected resolution type",
+      "turn": 16
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 5,
+      "candidate_branches": [],
+      "description": "an admin later mentions manually retained user no longer entitled",
+      "facts": [
+        "admin:late_mention"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "browser_cache"
+      ],
+      "source": "admin_panel",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_browser_cache"
+    },
+    {
+      "after_turn": 6,
+      "candidate_branches": [],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "license_limit"
+      ],
+      "source": "identity_provider",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_license_limit"
+    },
+    {
+      "after_turn": 8,
+      "candidate_branches": [],
+      "description": "a working example differs in one hidden configuration detail",
+      "facts": [
+        "comparison:config_differs"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [
+        "expired_invitation"
+      ],
+      "source": "audit_log",
+      "relevant": true,
+      "next_check": "verify_after_ruling_out_expired_invitation"
+    },
+    {
+      "after_turn": 12,
+      "candidate_branches": [],
+      "description": "logs show a warning that was initially dismissed",
+      "facts": [
+        "logs:warning_dismissed"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [],
+      "reveals_final_cause": false,
+      "ruled_out_branches": [],
+      "source": "incident_note",
+      "relevant": true,
+      "next_check": "investigate_browser_cache"
+    },
+    {
+      "after_turn": 14,
+      "candidate_branches": [
+        "the_access_failure_is_caused_by_manually_retained"
+      ],
+      "description": "a working example differs in one hidden configuration detail",
+      "facts": [
+        "comparison:config_differs"
+      ],
+      "is_conflicting": false,
+      "resolved_unknowns": [
+        "late_evidence_points_toward_manually_ret"
+      ],
+      "reveals_final_cause": true,
+      "ruled_out_branches": [],
+      "source": "prior_ticket",
+      "relevant": true,
+      "final_cause": "the_access_failure_is_caused_by_manually_retained",
+      "next_check": "confirm_root_cause"
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 2,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 3,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 4,
+      "facts": [],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [],
+      "next_check_contains": [],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "admin:late_mention"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 6,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 7,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 8,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 9,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 10,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 11,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "verify",
+        "after",
+        "ruling"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 12,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "browser",
+        "cache"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 13,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "investigate",
+        "browser",
+        "cache"
+      ],
+      "final_cause_allowed": false
+    },
+    {
+      "after_turn": 14,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_access_failure_is_caused_by_manually_retained"
+      ],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 15,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_access_failure_is_caused_by_manually_retained"
+      ],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    },
+    {
+      "after_turn": 16,
+      "facts": [
+        "admin:late_mention",
+        "logs:warning_dismissed",
+        "comparison:config_differs"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "the_access_failure_is_caused_by_manually_retained"
+      ],
+      "ruled_out_branches": [
+        "browser_cache",
+        "license_limit",
+        "expired_invitation"
+      ],
+      "next_check_contains": [
+        "confirm",
+        "root",
+        "cause"
+      ],
+      "final_cause_allowed": true
+    }
+  ],
+  "final_cause": "the_access_failure_is_caused_by_manually_retained",
+  "resolution_type": "probable_cause",
+  "intent_tags": [
+    "customer_correction",
+    "late_evidence_reveal"
+  ],
+  "expected_outcome": "probable_cause"
+}
