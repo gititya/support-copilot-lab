@@ -166,7 +166,7 @@ Exit criteria:
 
 ### Milestone 7 - Tighten Evaluation Criteria
 
-Status: In progress
+Status: Completed
 
 Goal: Move beyond simple field matching into better support-process scoring.
 

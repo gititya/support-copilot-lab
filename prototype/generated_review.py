@@ -36,7 +36,9 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
     exact_passed = 0
     exact_total = 0
     missing_next_checks = []
+    next_check_wording_misses = []
     premature_turns = []
+    field_failures: dict[str, int] = {}
     for item in result["timeline"]:
         state = item["state"]
         if not state.get("next_check"):
@@ -47,6 +49,13 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         if verdict:
             exact_passed += verdict["passed"]
             exact_total += verdict["total"]
+            for check in verdict["checks"]:
+                if check["passed"]:
+                    continue
+                field = check["field"]
+                field_failures[field] = field_failures.get(field, 0) + 1
+                if field == "next_check" and state.get("next_check"):
+                    next_check_wording_misses.append(item["turn"]["turn"])
 
     final_state = result["final_state"]
     fixture = result["fixture"]
@@ -58,6 +67,48 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         if expects_handoff
         else (not fixture.get("final_cause") or final_state.get("final_cause") == fixture.get("final_cause"))
     )
+    relevant_context = [
+        event
+        for event in fixture.get("context_events", [])
+        if event.get("relevant", True)
+    ]
+    ignored_context = [
+        event
+        for event in fixture.get("context_events", [])
+        if event.get("relevant", True) is False
+    ]
+    final_cause_events = [
+        event
+        for event in relevant_context
+        if event.get("final_cause") or event.get("reveals_final_cause")
+    ]
+    unresolved_unknowns = list(final_state["unknowns"])
+    handoff_ok = (
+        bool(unresolved_unknowns) and not final_state.get("final_cause")
+        if expects_handoff
+        else not unresolved_unknowns
+    )
+    structural_fields = {"facts", "unknowns", "candidate_branches", "ruled_out_branches", "final_cause_timing"}
+    structural_misses = sum(count for field, count in field_failures.items() if field in structural_fields)
+    next_check_misses = field_failures.get("next_check", 0)
+    blockers = []
+    if structural_misses:
+        blockers.append(f"{structural_misses} structural state miss(es)")
+    if missing_next_checks:
+        blockers.append(f"{len(missing_next_checks)} turn(s) with no next check")
+    elif next_check_misses:
+        blockers.append(f"{next_check_misses} next-check wording miss(es)")
+    if premature_turns:
+        blockers.append("premature final cause")
+    if overlaps:
+        blockers.append("candidate/ruled-out overlap")
+    if not final_cause_ok:
+        blockers.append("final cause mismatch")
+    if not handoff_ok:
+        blockers.append("handoff/unknown status mismatch")
+    if not relevant_context:
+        blockers.append("no relevant context")
+
     ready_for_promotion = (
         exact_total > 0
         and exact_passed == exact_total
@@ -65,17 +116,37 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         and not premature_turns
         and not overlaps
         and final_cause_ok
+        and handoff_ok
+        and bool(relevant_context)
     )
     return {
         "exact_passed": exact_passed,
         "exact_total": exact_total,
         "missing_next_checks": missing_next_checks,
+        "next_check_wording_misses": next_check_wording_misses,
         "premature_turns": premature_turns,
+        "field_failures": field_failures,
         "overlaps": overlaps,
         "final_cause_ok": final_cause_ok,
         "expects_handoff": expects_handoff,
+        "handoff_ok": handoff_ok,
+        "unresolved_unknowns": unresolved_unknowns,
+        "relevant_context_count": len(relevant_context),
+        "ignored_context_count": len(ignored_context),
+        "final_cause_event_count": len(final_cause_events),
+        "structural_misses": structural_misses,
+        "next_check_misses": next_check_misses,
+        "blockers": blockers,
         "ready_for_promotion": ready_for_promotion,
     }
+
+
+def render_review_detail(review: dict[str, Any]) -> str:
+    if review["ready_for_promotion"]:
+        return "ready"
+    if not review["blockers"]:
+        return "manual review"
+    return "; ".join(review["blockers"])
 
 
 def render_review_summary(results: list[dict[str, Any]]) -> str:
@@ -84,15 +155,18 @@ def render_review_summary(results: list[dict[str, Any]]) -> str:
         fixture = result["fixture"]
         review = generated_review(result)
         exact = f"{review['exact_passed']}/{review['exact_total']}"
+        context = f"{review['relevant_context_count']} relevant / {review['ignored_context_count']} ignored"
         rows.append(
             "<tr>"
             f"<td><a href=\"#{esc(fixture['case_id'])}\">{esc(fixture['case_id'])}</a></td>"
             f"<td>{esc(fixture.get('difficulty_profile', '-'))}</td>"
             f"<td>{esc(fixture.get('expected_outcome', 'resolved'))}</td>"
             f"<td>{esc(exact)}</td>"
+            f"<td>{esc(context)}</td>"
             f"<td>{'pass' if not review['premature_turns'] else 'check'}</td>"
-            f"<td>{'pass' if not review['missing_next_checks'] else 'review'}</td>"
+            f"<td>{'pass' if not review['next_check_misses'] else 'review'}</td>"
             f"<td>{'ready' if review['ready_for_promotion'] else 'stage only'}</td>"
+            f"<td>{esc(render_review_detail(review))}</td>"
             "</tr>"
         )
     return "".join(rows)
@@ -161,7 +235,7 @@ pre {{ overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radiu
   </section>
   <table>
     <thead>
-      <tr><th>Case</th><th>Difficulty</th><th>Outcome</th><th>Exact Checks</th><th>Final Timing</th><th>Next Check</th><th>Status</th></tr>
+      <tr><th>Case</th><th>Difficulty</th><th>Outcome</th><th>Exact Checks</th><th>Context</th><th>Final Timing</th><th>Next Check</th><th>Status</th><th>Review Focus</th></tr>
     </thead>
     <tbody>{render_review_summary(results)}</tbody>
   </table>

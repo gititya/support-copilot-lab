@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
-from prototype.generated_review import render_generated_review, write_generated_review
+from prototype.generated_review import generated_review, render_generated_review, write_generated_review
 from prototype.import_generated import import_cases
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
@@ -153,6 +153,23 @@ class SupportProcessExperimentTest(unittest.TestCase):
             written = write_generated_review(staging_dir=staging_dir, path=output_path)
             self.assertEqual(written, output_path)
             self.assertTrue(output_path.exists())
+
+    def test_generated_review_reports_promotion_diagnostics(self):
+        fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
+        fixture["schema_version"] = "support_process_fixture.v1"
+        fixture["case_id"] = "diagnostic_generated_access_after_migration"
+        fixture["difficulty_profile"] = "hard"
+        fixture["expected_outcome"] = "resolved"
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        self.assertEqual(review["exact_passed"], review["exact_total"])
+        self.assertEqual(review["relevant_context_count"], 1)
+        self.assertEqual(review["ignored_context_count"], 0)
+        self.assertEqual(review["final_cause_event_count"], 1)
+        self.assertEqual(review["structural_misses"], 0)
+        self.assertEqual(review["next_check_misses"], 0)
+        self.assertEqual(review["blockers"], [])
+        self.assertTrue(review["ready_for_promotion"])
 
     def test_generated_fixture_importer_rejects_premature_final_cause_leakage(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
