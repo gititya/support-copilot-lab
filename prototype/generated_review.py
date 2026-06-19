@@ -17,6 +17,8 @@ from prototype.report import render_case
 from run import run_fixture
 
 REVIEW_PATH = OUTPUT_DIR / "generated_support_review.html"
+VALID_OUTCOMES = {"resolved", "probable_cause", "handoff"}
+HANDOFF_RESOLUTIONS = {"handoff", "escalated", "unresolved"}
 
 
 def load_staged_fixtures(staging_dir: Path = DEFAULT_STAGING_DIR, case_id: str = "") -> list[dict[str, Any]]:
@@ -30,6 +32,32 @@ def load_staged_fixtures(staging_dir: Path = DEFAULT_STAGING_DIR, case_id: str =
     if not fixtures:
         raise SystemExit(f"No staged generated fixtures found in {staging_dir}")
     return fixtures
+
+
+def review_outcome(fixture: dict[str, Any]) -> str:
+    expected = fixture.get("expected_outcome")
+    resolution = fixture.get("resolution_type", "")
+    if expected in VALID_OUTCOMES:
+        return expected
+    if resolution in VALID_OUTCOMES:
+        return resolution
+    if resolution in HANDOFF_RESOLUTIONS:
+        return "handoff"
+    return "resolved"
+
+
+def review_fields(fixture: dict[str, Any], final_state: dict[str, Any]) -> dict[str, str]:
+    outcome = review_outcome(fixture)
+    summary = fixture.get("safe_customer_summary") or fixture.get("handoff_summary") or fixture.get("scenario", "")
+    next_owner = fixture.get("next_owner", "")
+
+    if outcome == "handoff":
+        next_owner = next_owner or "next support owner"
+
+    return {
+        "next_owner": next_owner,
+        "safe_customer_summary": summary or final_state.get("next_check", ""),
+    }
 
 
 def generated_review(result: dict[str, Any]) -> dict[str, Any]:
@@ -60,7 +88,7 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
     final_state = result["final_state"]
     fixture = result["fixture"]
     overlaps = sorted(set(final_state["candidate_branches"]) & set(final_state["ruled_out_branches"]))
-    expected_outcome = fixture.get("expected_outcome", "resolved")
+    expected_outcome = review_outcome(fixture)
     expects_handoff = expected_outcome == "handoff"
     final_cause_ok = (
         not final_state.get("final_cause")
@@ -83,8 +111,12 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         if event.get("final_cause") or event.get("reveals_final_cause")
     ]
     unresolved_unknowns = list(final_state["unknowns"])
-    handoff_ok = (
-        bool(unresolved_unknowns) and not final_state.get("final_cause")
+    fields = review_fields(fixture, final_state)
+    transfer_ready = True
+    if expected_outcome == "handoff":
+        transfer_ready = bool(fields["next_owner"] and fields["safe_customer_summary"])
+    outcome_ok = (
+        not final_state.get("final_cause") and transfer_ready
         if expects_handoff
         else not unresolved_unknowns
     )
@@ -104,8 +136,8 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         blockers.append("candidate/ruled-out overlap")
     if not final_cause_ok:
         blockers.append("final cause mismatch")
-    if not handoff_ok:
-        blockers.append("handoff/unknown status mismatch")
+    if not outcome_ok:
+        blockers.append(f"{expected_outcome} outcome details incomplete")
     if not relevant_context:
         blockers.append("no relevant context")
 
@@ -116,7 +148,7 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         and not premature_turns
         and not overlaps
         and final_cause_ok
-        and handoff_ok
+        and outcome_ok
         and bool(relevant_context)
     )
     return {
@@ -129,7 +161,11 @@ def generated_review(result: dict[str, Any]) -> dict[str, Any]:
         "overlaps": overlaps,
         "final_cause_ok": final_cause_ok,
         "expects_handoff": expects_handoff,
-        "handoff_ok": handoff_ok,
+        "outcome": expected_outcome,
+        "handoff_ok": outcome_ok,
+        "outcome_ok": outcome_ok,
+        "transfer_ready": transfer_ready,
+        "review_fields": fields,
         "unresolved_unknowns": unresolved_unknowns,
         "relevant_context_count": len(relevant_context),
         "ignored_context_count": len(ignored_context),
@@ -149,6 +185,44 @@ def render_review_detail(review: dict[str, Any]) -> str:
     return "; ".join(review["blockers"])
 
 
+def outcome_distribution(fixtures: list[dict[str, Any]]) -> dict[str, int]:
+    counts = {outcome: 0 for outcome in ["resolved", "probable_cause", "handoff"]}
+    for fixture in fixtures:
+        outcome = review_outcome(fixture)
+        counts[outcome] = counts.get(outcome, 0) + 1
+    return counts
+
+
+def outcome_coverage_notes(fixtures: list[dict[str, Any]]) -> list[str]:
+    counts = outcome_distribution(fixtures)
+    notes = []
+    if counts["resolved"] == 0:
+        notes.append("missing resolved cases")
+    if counts["probable_cause"] == 0:
+        notes.append("missing probable-cause cases")
+    if counts["handoff"] == 0:
+        notes.append("missing handoff cases")
+    return notes
+
+
+def render_outcome_distribution(fixtures: list[dict[str, Any]]) -> str:
+    counts = outcome_distribution(fixtures)
+    summary = (
+        f"resolved: {counts['resolved']} | "
+        f"probable cause: {counts['probable_cause']} | "
+        f"handoff: {counts['handoff']}"
+    )
+    notes = outcome_coverage_notes(fixtures)
+    note_text = "Coverage gap: " + "; ".join(notes) if notes else "Outcome coverage is complete for this review gate."
+    return f"""
+    <section class="outcomes">
+      <div class="eyebrow">Outcome Coverage</div>
+      <p>{esc(summary)}</p>
+      <p>{esc(note_text)}</p>
+    </section>
+    """
+
+
 def render_review_summary(results: list[dict[str, Any]]) -> str:
     rows = []
     for result in results:
@@ -156,13 +230,16 @@ def render_review_summary(results: list[dict[str, Any]]) -> str:
         review = generated_review(result)
         exact = f"{review['exact_passed']}/{review['exact_total']}"
         context = f"{review['relevant_context_count']} relevant / {review['ignored_context_count']} ignored"
+        fields = review["review_fields"]
+        transfer = fields["next_owner"] or "-"
         rows.append(
             "<tr>"
             f"<td><a href=\"#{esc(fixture['case_id'])}\">{esc(fixture['case_id'])}</a></td>"
             f"<td>{esc(fixture.get('difficulty_profile', '-'))}</td>"
-            f"<td>{esc(fixture.get('expected_outcome', 'resolved'))}</td>"
+            f"<td>{esc(review['outcome'])}</td>"
             f"<td>{esc(exact)}</td>"
             f"<td>{esc(context)}</td>"
+            f"<td>{esc(transfer)}</td>"
             f"<td>{'pass' if not review['premature_turns'] else 'check'}</td>"
             f"<td>{'pass' if not review['next_check_misses'] else 'review'}</td>"
             f"<td>{'ready' if review['ready_for_promotion'] else 'stage only'}</td>"
@@ -214,6 +291,7 @@ blockquote {{ margin:8px 0 14px; padding:12px 14px; background:#201d1a; border-l
 .state-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }}
 .state-grid section, .next-check, .final {{ border:1px solid #352f2a; border-radius:8px; padding:12px; background:#151311; }}
 .handoff {{ border:1px solid #3c352f; border-radius:8px; padding:12px; margin:14px 0; background:#151311; }}
+.outcomes {{ border:1px solid #3c352f; border-radius:8px; padding:12px; margin:16px 0; background:#151311; }}
 .handoff-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }}
 ul {{ margin:0; padding-left:18px; }}
 li {{ margin:4px 0; }}
@@ -232,10 +310,11 @@ pre {{ overflow:auto; background:#0d0c0b; border:1px solid #352f2a; border-radiu
     <h1>Generated Support Fixture Review</h1>
     <p>This is the expansion lane for support-call-generator output. These cases are staged for review and are not source-of-truth fixtures until manually promoted.</p>
     <h3>{ready_count}/{len(results)} ready for promotion by strict generated-review checks</h3>
+    {render_outcome_distribution(fixtures)}
   </section>
   <table>
     <thead>
-      <tr><th>Case</th><th>Difficulty</th><th>Outcome</th><th>Exact Checks</th><th>Context</th><th>Final Timing</th><th>Next Check</th><th>Status</th><th>Review Focus</th></tr>
+      <tr><th>Case</th><th>Difficulty</th><th>Outcome</th><th>Exact Checks</th><th>Context</th><th>Transfer / Owner</th><th>Final Timing</th><th>Next Check</th><th>Status</th><th>Review Focus</th></tr>
     </thead>
     <tbody>{render_review_summary(results)}</tbody>
   </table>

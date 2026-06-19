@@ -9,7 +9,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
-from prototype.generated_review import generated_review, render_generated_review, write_generated_review
+from prototype.generated_review import (
+    generated_review,
+    outcome_coverage_notes,
+    outcome_distribution,
+    render_generated_review,
+    review_outcome,
+    write_generated_review,
+)
 from prototype.import_generated import import_cases
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
@@ -170,6 +177,48 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertEqual(review["next_check_misses"], 0)
         self.assertEqual(review["blockers"], [])
         self.assertTrue(review["ready_for_promotion"])
+
+    def test_generated_review_maps_escalated_resolution_to_handoff(self):
+        fixture = json.loads((ROOT / "fixtures" / "level2_unresolved_workspace_handoff.json").read_text())
+        fixture["schema_version"] = "support_process_fixture.v1"
+        fixture["case_id"] = "generated_escalated_handoff_case"
+        fixture["expected_outcome"] = "handoff"
+        fixture["resolution_type"] = "escalated"
+        fixture["next_owner"] = "engineering/product support"
+        fixture["safe_customer_summary"] = "Access issue needs engineering cache investigation."
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        self.assertEqual(review_outcome(fixture), "handoff")
+        self.assertTrue(review["final_cause_ok"])
+        self.assertTrue(review["transfer_ready"])
+        self.assertTrue(review["outcome_ok"])
+
+    def test_generated_review_maps_unresolved_resolution_to_handoff(self):
+        fixture = json.loads((ROOT / "fixtures" / "level2_unresolved_workspace_handoff.json").read_text())
+        fixture["schema_version"] = "support_process_fixture.v1"
+        fixture["case_id"] = "generated_unresolved_handoff_case"
+        fixture["expected_outcome"] = "handoff"
+        fixture["resolution_type"] = "unresolved"
+        fixture["next_owner"] = "follow-up support owner"
+        fixture["safe_customer_summary"] = "The case needs follow-up because verification was not complete during the call."
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        self.assertEqual(review_outcome(fixture), "handoff")
+        self.assertTrue(review["final_cause_ok"])
+        self.assertTrue(review["transfer_ready"])
+        self.assertTrue(review["outcome_ok"])
+
+    def test_generated_review_reports_outcome_distribution_gaps(self):
+        fixtures = [
+            {"expected_outcome": "resolved"},
+            {"expected_outcome": "probable_cause"},
+            {"expected_outcome": "handoff"},
+            {"resolution_type": "escalated"},
+            {"resolution_type": "unresolved"},
+        ]
+        self.assertEqual(outcome_distribution(fixtures)["handoff"], 3)
+        self.assertEqual(outcome_coverage_notes(fixtures), [])
+        self.assertIn("missing handoff", "; ".join(outcome_coverage_notes(fixtures[:2])))
 
     def test_generated_fixture_importer_rejects_premature_final_cause_leakage(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())

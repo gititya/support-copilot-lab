@@ -30,8 +30,10 @@ It also accepts one schema-versioned fixture object with `schema_version: suppor
 
 Optional fields:
 
-- `expected_outcome`: set to `handoff` when no final cause should be named.
-- `handoff_summary`: customer-safe summary for unresolved handoff cases.
+- `expected_outcome`: one of `resolved`, `probable_cause`, or `handoff`.
+- `handoff_summary`: customer-safe summary for cases that continue with another owner or later follow-up.
+- `next_owner`: owner for handoff cases, such as engineering, product support, customer admin, identity team, implementation owner, vendor, or follow-up support.
+- `safe_customer_summary`: customer-safe summary of the case state.
 - `difficulty`: for example `simple`, `hard`, or `harder`.
 - `domain`: for example `b2b_saas`.
 - `capability_tags`: examples include `late_context`, `irrelevant_context`, `correction`, `handoff`, `conflicting_context`.
@@ -101,3 +103,5 @@ outputs/generated_support_review.html
 ```
 
 Use this report to decide whether a generated case should be promoted into `fixtures/`. Promotion is manual and should happen only after the expected state is calibrated to the strict experiment harness.
+
+Realistic B2B outcome coverage is required before UI/UX work. Generated cases should include resolved, probable-cause, and handoff outcomes. Engineering escalation, customer-admin transfer, identity-team transfer, implementation-owner follow-up, vendor dependency, and unresolved follow-up are all represented as handoff details through `next_owner`, `handoff_summary`, and `safe_customer_summary`.

@@ -163,6 +163,7 @@ Checks:
 Exit criteria:
 
 - Generated cases expose useful gaps or confirm robustness beyond the original fixtures without weakening the root experiment harness.
+- Generated batches include realistic outcomes: resolved, probable cause, and handoff.
 
 ### Milestone 7 - Tighten Evaluation Criteria
 
@@ -178,12 +179,14 @@ Deliverables:
 - Track candidate branch drift.
 - Separate wording misses from true process misses.
 - Keep generated-case review scoring separate from strict hand-authored fixture scoring until promotion.
+- Treat handoff as a valid support outcome, not a failure, when next owner and customer-safe summary are clear. Engineering escalation, customer-admin transfer, identity-team transfer, implementation-owner follow-up, vendor dependency, and unresolved follow-up are represented as handoff details.
 
 Checks:
 
 - Existing 10 baseline fixtures still pass.
 - Harder fixtures identify meaningful misses without brittle wording failures.
 - Generated fixture review identifies promotion readiness without requiring direct root-fixture insertion.
+- Generated fixture review reports outcome distribution and flags missing resolved, probable-cause, or handoff coverage before UI/UX.
 
 Exit criteria:
 
