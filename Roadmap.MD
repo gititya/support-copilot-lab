@@ -192,6 +192,26 @@ Exit criteria:
 
 - The evaluator rewards support discipline, not exact phrasing.
 
+### B2B Real-Testing Checkpoint
+
+Status: In progress
+
+Latest result:
+
+- `main` is now the source branch for the B2B prototype.
+- Fresh 15-case harder offline generator batch: 14/15 ready for promotion by generated-review checks.
+- Full 67-case historical generator export stress review: 33/67 ready for promotion.
+- Stress review outcome mix: 13 resolved, 24 probable cause, 30 handoff.
+- The remaining new-batch miss is a next-check wording issue, not premature final-cause prediction.
+- Older historical generator cases mostly fail on final-cause mismatch or incomplete probable/resolved outcome details, so they should not be promoted without review.
+
+Next gate before UI/UX:
+
+- Human-review the ready generated cases for support usefulness.
+- Promote only strong cases into `fixtures/`.
+- Keep weak generated cases in staging or send feedback back to `support-call-generator`.
+- Do not begin Copilot-like UI/UX until at least one promoted generated batch passes the root harness.
+
 ### Milestone 8 - B2B Copilot-Like UI/UX Transformation
 
 Status: Not started
