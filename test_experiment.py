@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 import shlex
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from common import load_fixtures
+from prototype.import_generated import import_cases
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
 from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
@@ -97,6 +99,39 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertNotIn("invoice_plan:pro", first_state["facts"])
         html = render_report(["invite_with_irrelevant_billing_context"])
         self.assertIn("ignored context", html)
+
+    def test_prototype_report_supports_unresolved_handoff_case(self):
+        result = build_replay("level2_unresolved_workspace_handoff", "process-mock")
+        verdict = case_verdict(result)
+        self.assertTrue(verdict["passed"])
+        self.assertTrue(verdict["expects_handoff"])
+        self.assertEqual(result["final_state"]["final_cause"], "")
+        self.assertIn("cache_status", result["final_state"]["unknowns"])
+        html = render_report(["level2_unresolved_workspace_handoff"])
+        self.assertIn("Post-Case Handoff", html)
+        self.assertIn("Unresolved; hand off", html)
+
+    def test_generated_fixture_importer_stages_valid_case(self):
+        fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
+        fixture["case_id"] = "generated_access_after_migration"
+        envelope = {"schema_version": "support_process_fixture.v1", "cases": [fixture]}
+        with tempfile.TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "generated.json"
+            staging_dir = Path(tmp) / "staging"
+            input_path.write_text(json.dumps(envelope))
+            written = import_cases(input_path, staging_dir)
+            self.assertEqual(len(written), 1)
+            self.assertTrue((staging_dir / "generated_access_after_migration.json").exists())
+
+    def test_generated_fixture_importer_rejects_premature_final_cause_leakage(self):
+        fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
+        fixture["case_id"] = "leaky_generated_case"
+        fixture["transcript_turns"][0]["text"] = "This is definitely missing_workspace_role_inheritance."
+        with tempfile.TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "generated.json"
+            input_path.write_text(json.dumps({"schema_version": "support_process_fixture.v1", "cases": [fixture]}))
+            with self.assertRaisesRegex(ValueError, "leaks final_cause"):
+                import_cases(input_path, Path(tmp) / "staging")
 
     def test_predictive_mock_fails_on_premature_final_cause(self):
         command = f"{shlex.quote(sys.executable)} {shlex.quote(str(ROOT / 'mock_llm.py'))} --profile predictive"

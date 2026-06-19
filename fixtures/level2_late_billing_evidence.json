@@ -1,0 +1,154 @@
+{
+  "case_id": "level2_late_billing_evidence",
+  "title": "Level 2 Late Billing Evidence",
+  "scenario": "Customer opens as if login is broken, corrects the surface to billing, and only late context proves the billing entitlement refresh is pending.",
+  "transcript_turns": [
+    {
+      "turn": 1,
+      "speaker": "customer",
+      "text": "One of our admins says they cannot log in after yesterday's upgrade."
+    },
+    {
+      "turn": 2,
+      "speaker": "agent",
+      "text": "Is login itself failing, or do they get in and then see the wrong page?"
+    },
+    {
+      "turn": 3,
+      "speaker": "customer",
+      "text": "No login works. The billing page is the problem; it still shows the wrong plan."
+    },
+    {
+      "turn": 4,
+      "speaker": "agent",
+      "text": "I am checking whether the invoice and app entitlement agree after the upgrade."
+    },
+    {
+      "turn": 5,
+      "speaker": "customer",
+      "text": "The invoice shows Pro, but the app still behaves like Starter."
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 5,
+      "description": "Billing context shows invoice_plan:pro, app_entitlement_plan:starter, and billing_refresh:pending.",
+      "facts": [
+        "invoice_plan:pro",
+        "app_entitlement_plan:starter",
+        "billing_refresh:pending"
+      ],
+      "resolved_unknowns": [
+        "actual_surface",
+        "billing_entitlement_status"
+      ],
+      "ruled_out_branches": [
+        "login_failure",
+        "missing_workspace_role",
+        "scim_sync_delay"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending"
+      ],
+      "final_cause": "billing_entitlement_refresh_pending",
+      "next_check": "Check the billing entitlement refresh job and re-sync the plan entitlement."
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [
+        "reported_issue:login",
+        "recent_change:upgrade"
+      ],
+      "unknowns": [
+        "actual_surface"
+      ],
+      "candidate_branches": [
+        "login_failure"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "login itself"
+      ]
+    },
+    {
+      "after_turn": 2,
+      "facts": [
+        "reported_issue:login",
+        "recent_change:upgrade"
+      ],
+      "unknowns": [
+        "actual_surface"
+      ],
+      "candidate_branches": [
+        "login_failure"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "login itself"
+      ]
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "correction:login_works",
+        "surface:billing_plan",
+        "symptom:wrong_plan_shown",
+        "recent_change:upgrade"
+      ],
+      "unknowns": [
+        "billing_entitlement_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "invoice_app_mismatch"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "billing entitlement"
+      ]
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "surface:billing_plan",
+        "recent_change:upgrade"
+      ],
+      "unknowns": [
+        "billing_entitlement_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending",
+        "invoice_app_mismatch"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "billing entitlement"
+      ]
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "invoice_plan:pro",
+        "app_entitlement_plan:starter",
+        "billing_refresh:pending"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "billing_entitlement_refresh_pending"
+      ],
+      "ruled_out_branches": [
+        "login_failure"
+      ],
+      "next_check_contains": [
+        "billing entitlement refresh"
+      ]
+    }
+  ],
+  "final_cause": "billing_entitlement_refresh_pending"
+}

@@ -43,7 +43,7 @@ Exit criteria:
 
 ### Milestone 2 - Add Harder Hand-Authored B2B Fixtures
 
-Status: Not started
+Status: Completed
 
 Goal: Test whether Live Support State still helps when cases are less toy-like.
 
@@ -68,7 +68,7 @@ Exit criteria:
 
 ### Milestone 3 - Add Handoff And Post-Case Record
 
-Status: Not started
+Status: Completed
 
 Goal: Make the prototype useful when a case does not fully resolve during the session.
 
@@ -94,7 +94,7 @@ Exit criteria:
 
 ### Milestone 4 - Define Support-Call-Generator Import Contract
 
-Status: Not started
+Status: Completed
 
 Goal: Make this repo ready to consume generated cases without depending on generator internals.
 
@@ -117,7 +117,7 @@ Exit criteria:
 
 ### Milestone 5 - Add Generated Fixture Importer
 
-Status: Not started
+Status: Completed
 
 Goal: Prepare for scaled B2B testing once the support-call-generator can export compatible cases.
 

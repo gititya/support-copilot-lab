@@ -48,7 +48,10 @@ def validate_fixture(fixture: dict[str, Any]) -> list[str]:
         require("description" in event, f"{case_id}: context event after turn {after_turn} missing description", errors)
         require("facts" in event, f"{case_id}: context event after turn {after_turn} missing facts", errors)
 
-    require(bool(fixture.get("final_cause")), f"{case_id}: final_cause must be set", errors)
+    if fixture.get("expected_outcome") == "handoff":
+        require(fixture.get("final_cause", "") == "", f"{case_id}: handoff fixtures must leave final_cause empty", errors)
+    else:
+        require(bool(fixture.get("final_cause")), f"{case_id}: final_cause must be set", errors)
     return errors
 
 

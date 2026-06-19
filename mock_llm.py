@@ -134,12 +134,21 @@ def process_patch(payload: dict[str, Any]) -> dict[str, Any]:
 
         if "entitlement_cache:stale" in context_facts:
             remove(out["unknowns_remove"], "workspace_role_assignment")
+            remove(out["unknowns_remove"], "cache_status")
             for branch in ["missing_workspace_role", "scim_sync_delay"]:
                 remove(out["candidate_branches_remove"], branch)
                 add(out["ruled_out_branches_add"], branch)
             add(out["candidate_branches_add"], "stale_entitlement_cache")
             out["final_cause"] = "stale_entitlement_cache"
             out["next_check"] = "Refresh the entitlement cache and confirm workspace access works after refresh."
+
+        if "workspace_role:present" in context_facts and "entitlement_cache:stale" not in context_facts:
+            remove(out["unknowns_remove"], "workspace_role_assignment")
+            remove(out["candidate_branches_remove"], "missing_workspace_role")
+            remove(out["candidate_branches_remove"], "missing_workspace_role_inheritance")
+            add(out["ruled_out_branches_add"], "missing_workspace_role")
+            add(out["ruled_out_branches_add"], "missing_workspace_role_inheritance")
+            out["next_check"] = "Check entitlement cache status or product incident signals before naming a final cause."
 
         if "billing_refresh:pending" in context_facts:
             remove(out["unknowns_remove"], "billing_entitlement_status")

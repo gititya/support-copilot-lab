@@ -59,6 +59,7 @@ CANONICAL_LABELS = {
         "billing_entitlement_status",
         "email_delivery_status",
         "invite_created",
+        "cache_status",
         "workspace_role_assignment",
     ],
     "candidate_branches": [
@@ -71,6 +72,7 @@ CANONICAL_LABELS = {
         "missing_workspace_role",
         "missing_workspace_role_inheritance",
         "scim_sync_delay",
+        "upstream_service_incident",
         "stale_entitlement_cache",
     ],
     "ruled_out_branches": [
@@ -241,6 +243,8 @@ def apply_context_event(state: dict[str, Any], event: dict[str, Any]) -> None:
     state["version"] += 1
     for fact in event.get("facts", []):
         add_fact(state, fact)
+    for unknown in event.get("unknowns", []):
+        add_unknown(state, unknown)
     for unknown in event.get("resolved_unknowns", []):
         resolve_unknown(state, unknown)
     for branch in event.get("candidate_branches", []):
@@ -492,6 +496,8 @@ def apply_state_patch(
     for unknown in patch.get("resolved_unknowns", []):
         resolve_unknown(state, unknown)
     for event in relevant_context_events:
+        for unknown in event.get("unknowns", []):
+            add_unknown(state, unknown)
         for unknown in event.get("resolved_unknowns", []):
             resolve_unknown(state, unknown)
         for branch in event.get("ruled_out_branches", []):

@@ -29,6 +29,8 @@ def select_case_ids(case_id: str = "") -> list[str]:
 
 def case_verdict(result: dict[str, Any]) -> dict[str, Any]:
     final_state = result["final_state"]
+    expected_outcome = result["fixture"].get("expected_outcome", "resolved")
+    expects_handoff = expected_outcome == "handoff"
     final_expected = result["fixture"].get("final_cause", "")
     overlaps = sorted(set(final_state["candidate_branches"]) & set(final_state["ruled_out_branches"]))
     premature_turns = [
@@ -42,13 +44,20 @@ def case_verdict(result: dict[str, Any]) -> dict[str, Any]:
         if not item["state"].get("next_check")
     ]
     unresolved_unknowns = list(final_state["unknowns"])
-    final_cause_ok = not final_expected or final_state.get("final_cause") == final_expected
-    passed = not premature_turns and not unresolved_unknowns and not overlaps and final_cause_ok
+    final_cause_ok = (
+        not final_state.get("final_cause")
+        if expects_handoff
+        else (not final_expected or final_state.get("final_cause") == final_expected)
+    )
+    unknowns_ok = bool(unresolved_unknowns) if expects_handoff else not unresolved_unknowns
+    passed = not premature_turns and unknowns_ok and not overlaps and final_cause_ok
     notes = []
     if premature_turns:
         notes.append("final cause appeared before evidence")
-    if unresolved_unknowns:
+    if unresolved_unknowns and not expects_handoff:
         notes.append("final state has unresolved unknowns")
+    if expects_handoff and not unresolved_unknowns:
+        notes.append("handoff case should preserve unresolved unknowns")
     if overlaps:
         notes.append("candidate branches overlap with ruled-out branches")
     if not final_cause_ok:
@@ -59,8 +68,10 @@ def case_verdict(result: dict[str, Any]) -> dict[str, Any]:
         notes.append("state progression is clean and evidence-timed")
     return {
         "passed": passed,
+        "expects_handoff": expects_handoff,
         "premature_turns": premature_turns,
         "unresolved_unknowns": unresolved_unknowns,
+        "unknowns_ok": unknowns_ok,
         "overlaps": overlaps,
         "final_cause_ok": final_cause_ok,
         "missing_next_checks": missing_next_checks,
@@ -135,6 +146,41 @@ def render_state_panel(state: dict[str, Any]) -> str:
     """
 
 
+def render_handoff(result: dict[str, Any]) -> str:
+    state = result["final_state"]
+    fixture = result["fixture"]
+    final_cause = state.get("final_cause")
+    if final_cause:
+        outcome = f"Resolved with evidence-backed cause: {final_cause}"
+    elif fixture.get("expected_outcome") == "handoff":
+        outcome = "Unresolved; hand off with open checks instead of naming a final cause."
+    else:
+        outcome = "No final cause recorded."
+    return f"""
+    <section class="handoff">
+      <div class="eyebrow">Post-Case Handoff</div>
+      <h4>Outcome</h4>
+      <p>{esc(outcome)}</p>
+      <h4>Customer-Safe Summary</h4>
+      <p>{esc(fixture.get("handoff_summary") or fixture["scenario"])}</p>
+      <div class="handoff-grid">
+        <section>
+          <h4>Known Facts</h4>
+          {render_list(state["facts"])}
+        </section>
+        <section>
+          <h4>Unresolved Unknowns</h4>
+          {render_list(state["unknowns"])}
+        </section>
+        <section>
+          <h4>Recommended Follow-Up</h4>
+          <p>{esc(state.get("next_check") or "-")}</p>
+        </section>
+      </div>
+    </section>
+    """
+
+
 def render_patch(item: dict[str, Any], show_patches: bool) -> str:
     if not show_patches:
         return ""
@@ -168,7 +214,7 @@ def render_case(result: dict[str, Any], show_patches: bool) -> str:
 
     badges = [
         render_badge("final-cause timing", not verdict["premature_turns"]),
-        render_badge("unknowns resolved", not verdict["unresolved_unknowns"]),
+        render_badge("unknown status", verdict["unknowns_ok"]),
         render_badge("branch hygiene", not verdict["overlaps"]),
         render_badge("final cause", verdict["final_cause_ok"]),
     ]
@@ -190,6 +236,7 @@ def render_case(result: dict[str, Any], show_patches: bool) -> str:
       <div class="case-body">
         <div class="badges">{"".join(badges)}</div>
         <div class="notes">{"; ".join(esc(note) for note in verdict["notes"])}</div>
+        {render_handoff(result)}
         {"".join(turn_html)}
       </div>
     </details>
@@ -217,7 +264,7 @@ def render_report(case_ids: list[str], show_patches: bool = False) -> str:
             "<tr>"
             f"<td><a href=\"#{esc(fixture['case_id'])}\">{esc(fixture['case_id'])}</a></td>"
             f"<td>{'pass' if not case_result['premature_turns'] else 'check'}</td>"
-            f"<td>{'pass' if not case_result['unresolved_unknowns'] else 'check'}</td>"
+            f"<td>{'pass' if case_result['unknowns_ok'] else 'check'}</td>"
             f"<td>{'pass' if not case_result['overlaps'] else 'check'}</td>"
             f"<td>{'pass' if case_result['final_cause_ok'] else 'check'}</td>"
             f"<td>{esc('; '.join(case_result['notes']))}</td>"
@@ -262,6 +309,8 @@ blockquote {{ margin:8px 0 14px; padding:12px 14px; background:#201d1a; border-l
 .context-item.ignored {{ opacity:.75; }}
 .state-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }}
 .state-grid section, .next-check, .final {{ border:1px solid #352f2a; border-radius:8px; padding:12px; background:#151311; }}
+.handoff {{ border:1px solid #3c352f; border-radius:8px; padding:12px; margin:14px 0; background:#151311; }}
+.handoff-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }}
 ul {{ margin:0; padding-left:18px; }}
 li {{ margin:4px 0; }}
 .next-check, .final {{ margin-top:12px; }}

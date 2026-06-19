@@ -1,0 +1,141 @@
+{
+  "case_id": "level2_irrelevant_then_late_invite_context",
+  "title": "Level 2 Irrelevant Then Late Invite Context",
+  "scenario": "Admin invite email is not arriving. An unrelated billing signal appears first and must be ignored; later delivery context provides the real mechanism.",
+  "transcript_turns": [
+    {
+      "turn": 1,
+      "speaker": "customer",
+      "text": "I sent an admin invite but the email never arrives."
+    },
+    {
+      "turn": 2,
+      "speaker": "agent",
+      "text": "I am checking whether the invite was created and whether delivery bounced."
+    },
+    {
+      "turn": 3,
+      "speaker": "customer",
+      "text": "The recipient checked spam and still does not see the invite email."
+    },
+    {
+      "turn": 4,
+      "speaker": "agent",
+      "text": "I am checking suppression and recipient-domain policy now."
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 1,
+      "description": "Billing context says invoice_plan:pro. This is unrelated to invite email delivery.",
+      "facts": [
+        "invoice_plan:pro"
+      ],
+      "relevant": false
+    },
+    {
+      "after_turn": 4,
+      "description": "Email delivery context shows the invite was created, delivery was suppressed, and the recipient domain rejected the message by DMARC policy.",
+      "facts": [
+        "invite_status:created",
+        "email_delivery:suppressed",
+        "domain_policy:dmarc_reject"
+      ],
+      "resolved_unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "ruled_out_branches": [
+        "invite_not_created"
+      ],
+      "candidate_branches": [
+        "domain_policy_rejection",
+        "email_delivery_suppressed"
+      ],
+      "final_cause": "domain_policy_rejection",
+      "next_check": "Inspect email suppression and DMARC policy for the recipient domain."
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [
+        "flow:admin_invite",
+        "symptom:invite_email_not_received"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "invite_not_created",
+        "email_delivery_suppressed",
+        "domain_policy_rejection"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "delivery"
+      ]
+    },
+    {
+      "after_turn": 2,
+      "facts": [
+        "flow:admin_invite",
+        "symptom:invite_email_not_received"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "invite_not_created",
+        "email_delivery_suppressed",
+        "domain_policy_rejection"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "delivery"
+      ]
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "flow:admin_invite",
+        "symptom:invite_email_not_received"
+      ],
+      "unknowns": [
+        "invite_created",
+        "email_delivery_status"
+      ],
+      "candidate_branches": [
+        "invite_not_created",
+        "email_delivery_suppressed",
+        "domain_policy_rejection"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "suppression"
+      ]
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "invite_status:created",
+        "email_delivery:suppressed",
+        "domain_policy:dmarc_reject"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "domain_policy_rejection",
+        "email_delivery_suppressed"
+      ],
+      "ruled_out_branches": [
+        "invite_not_created"
+      ],
+      "next_check_contains": [
+        "DMARC"
+      ]
+    }
+  ],
+  "final_cause": "domain_policy_rejection"
+}
