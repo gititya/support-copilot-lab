@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Support Copilot Demo</title>
+<style>
+body { margin:0; background:#11100f; color:#f6efe8; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+main { max-width:1060px; margin:0 auto; padding:40px 20px 72px; }
+.hero { border-bottom:1px solid #352f2a; padding-bottom:28px; margin-bottom:28px; }
+.eyebrow, .label { color:#c4674a; font-size:12px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+h1 { font-size:38px; line-height:1.05; margin:10px 0 14px; max-width:820px; }
+h2 { font-size:24px; margin:8px 0 8px; }
+h3 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:#a99c90; margin:0 0 8px; }
+p { color:#d6ccc2; line-height:1.5; }
+.plain { font-size:18px; max-width:860px; }
+.case-card { border:1px solid #352f2a; border-radius:8px; background:#171513; padding:24px; margin:18px 0; }
+.summary { margin-top:0; color:#fff7ef; }
+blockquote { margin:0; padding:14px 16px; background:#201d1a; border-left:3px solid #c4674a; color:#fff7ef; line-height:1.45; }
+.customer, .next-step, .outcome, details, .grid section { border:1px solid #352f2a; border-radius:8px; background:#151311; padding:16px; margin-top:14px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; }
+ul { margin:0; padding-left:18px; color:#f6efe8; }
+li { margin:6px 0; }
+.muted { color:#a99c90; margin:0; }
+.next-step p, .outcome p { margin:0; color:#fff7ef; font-size:17px; }
+summary { cursor:pointer; color:#e8a08a; }
+.note { color:#a99c90; font-size:14px; max-width:850px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="eyebrow">Support leader demo</div>
+    <h1>A support copilot that works the case instead of guessing early.</h1>
+    <p class="plain">This prototype follows a support conversation as evidence arrives. It keeps track of what is known, what is unknown, what to check next, and whether the case should resolve, stay probable, or move to another owner.</p>
+    <p class="note">This page shows three synthetic B2B examples. The larger audit report still exists, but this is the simpler story to review first.</p>
+  </section>
+  
+    <article class="case-card">
+      <div class="label">Resolved</div>
+      <h2>Workspace access case - Resolved</h2>
+      <p class="summary">The assistant waited for product evidence, then helped close the case.</p>
+
+      <section class="customer">
+        <h3>1. Customer Situation</h3>
+        <blockquote>This is becoming a real blocker for us. customer reports symptoms consistent with more than one access issue.</blockquote>
+      </section>
+
+      <div class="grid">
+        <section>
+          <h3>2. What We Know</h3>
+          <ul><li>An admin shared a late detail that changed the investigation.</li><li>The related role was last changed six months ago, so a recent role edit is less likely.</li><li>A working example and an affected example differ in configuration; compare them before closing the case.</li><li>A warning appeared in the logs and should be treated as relevant evidence.</li><li>The issue appeared after a migration.</li></ul>
+        </section>
+        <section>
+          <h3>3. What Is Still Unknown</h3>
+          <p class="muted">None blocking the next step.</p>
+        </section>
+      </div>
+
+      <section>
+        <h3>4. Evidence That Changed The Case</h3>
+        <p>A working workspace access example and an affected example differ; compare the exact setting before closing the case.</p>
+      </section>
+
+      <section class="next-step">
+        <h3>5. Next Best Action</h3>
+        <p>Confirm the customer can complete the affected workflow after the fix is applied.</p>
+      </section>
+
+      <section class="outcome">
+        <h3>How The Case Ended</h3>
+        <p>The case can close once the customer confirms the workflow works again. The supported cause is a missing access group or role.</p>
+      </section>
+
+      <details>
+        <summary>Show internal state details</summary>
+        <div class="grid">
+          <section>
+            <h3>Possible Causes Still Active</h3>
+            <ul><li>a missing access group or role</li></ul>
+          </section>
+          <section>
+            <h3>Causes Ruled Out</h3>
+            <ul><li>browser cache</li><li>expired invitation</li><li>license limit</li></ul>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+    <article class="case-card">
+      <div class="label">Probable Cause</div>
+      <h2>Workspace access case - Probable Cause</h2>
+      <p class="summary">The assistant found the likely cause while keeping the verification need visible.</p>
+
+      <section class="customer">
+        <h3>1. Customer Situation</h3>
+        <blockquote>I&#x27;m not totally sure what&#x27;s going on, but something broke. customer reports symptoms consistent with more than one access issue.</blockquote>
+      </section>
+
+      <div class="grid">
+        <section>
+          <h3>2. What We Know</h3>
+          <ul><li>Group membership is relevant to the access problem.</li><li>A warning appeared in the logs and should be treated as relevant evidence.</li><li>A working example and an affected example differ in configuration; compare them before closing the case.</li><li>The related role was last changed six months ago, so a recent role edit is less likely.</li></ul>
+        </section>
+        <section>
+          <h3>3. What Is Still Unknown</h3>
+          <ul><li>One more product signal should confirm the likely cause before the case is treated as resolved.</li></ul>
+        </section>
+      </div>
+
+      <section>
+        <h3>4. Evidence That Changed The Case</h3>
+        <p>A working workspace access example and an affected example differ; compare the exact setting before closing the case.</p>
+      </section>
+
+      <section class="next-step">
+        <h3>5. Next Best Action</h3>
+        <p>Compare one blocked user with one working user in the identity provider before treating the access cause as resolved.</p>
+      </section>
+
+      <section class="outcome">
+        <h3>How The Case Ended</h3>
+        <p>The leading cause is clear enough to guide the customer, but one more product signal should be checked before calling it fully resolved.</p>
+      </section>
+
+      <details>
+        <summary>Show internal state details</summary>
+        <div class="grid">
+          <section>
+            <h3>Possible Causes Still Active</h3>
+            <ul><li>an SSO group mismatch</li></ul>
+          </section>
+          <section>
+            <h3>Causes Ruled Out</h3>
+            <ul><li>browser cache</li><li>license limit</li><li>expired invitation</li></ul>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+    <article class="case-card">
+      <div class="label">Handoff</div>
+      <h2>Workspace access case - Handoff</h2>
+      <p class="summary">The assistant avoided overclaiming and prepared the next owner to continue.</p>
+
+      <section class="customer">
+        <h3>1. Customer Situation</h3>
+        <blockquote>I need a fast answer here. customer reports symptoms consistent with more than one access issue.</blockquote>
+      </section>
+
+      <div class="grid">
+        <section>
+          <h3>2. What We Know</h3>
+          <ul><li>Group membership is relevant to the access problem.</li><li>A warning appeared in the logs and should be treated as relevant evidence.</li><li>A working example and an affected example differ in configuration; compare them before closing the case.</li><li>The related role was last changed six months ago, so a recent role edit is less likely.</li></ul>
+        </section>
+        <section>
+          <h3>3. What Is Still Unknown</h3>
+          <ul><li>The receiving owner should confirm the remaining product evidence before closing the case.</li></ul>
+        </section>
+      </div>
+
+      <section>
+        <h3>4. Evidence That Changed The Case</h3>
+        <p>Group membership is relevant to the access problem.</p>
+      </section>
+
+      <section class="next-step">
+        <h3>5. Next Best Action</h3>
+        <p>Send the evidence summary and affected examples to engineering/product support, and keep the unresolved checks attached to the case.</p>
+      </section>
+
+      <section class="outcome">
+        <h3>How The Case Ended</h3>
+        <p>The case should move to engineering/product support with the evidence summary and open checks preserved.</p>
+      </section>
+
+      <details>
+        <summary>Show internal state details</summary>
+        <div class="grid">
+          <section>
+            <h3>Possible Causes Still Active</h3>
+            <ul><li>an SSO group mismatch</li></ul>
+          </section>
+          <section>
+            <h3>Causes Ruled Out</h3>
+            <ul><li>browser cache</li><li>license limit</li><li>expired invitation</li></ul>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+</main>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support Live Simulator</title>
+<style>
+:root {
+  --bg: #11100f;
+  --surface: #171513;
+  --surface-2: #201d1a;
+  --surface-3: #28231f;
+  --line: #3a332d;
+  --text: #f6efe8;
+  --muted: #a99c90;
+  --accent: #c4674a;
+  --accent-text: #e8a08a;
+  --good: #8fb996;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+main {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+header {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 24px 18px;
+}
+.eyebrow {
+  color: var(--accent-text);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+h1 {
+  font-family: Cormorant, Georgia, serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  margin: 8px 0 8px;
+}
+.subhead {
+  max-width: 780px;
+  color: #d8cec4;
+  line-height: 1.45;
+  margin: 0;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
+  min-height: 0;
+}
+.pane {
+  min-width: 0;
+  padding: 20px 24px 28px;
+}
+.pane + .pane {
+  border-left: 1px solid var(--line);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.turn-count {
+  color: var(--muted);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+button {
+  min-width: 92px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 9px 12px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button:disabled {
+  cursor: not-allowed;
+  color: #6f655d;
+  border-color: #2a2521;
+  background: #151311;
+}
+.conversation {
+  display: grid;
+  gap: 12px;
+}
+.message {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+}
+.message.agent {
+  background: var(--surface-2);
+}
+.speaker {
+  color: var(--accent-text);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.message p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
+}
+.copilot {
+  display: grid;
+  gap: 14px;
+}
+.next-action {
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: #211914;
+  padding: 16px;
+}
+.section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+}
+h2, h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.next-action h2 {
+  color: var(--accent-text);
+}
+.next-action p, .outcome {
+  margin: 0;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.35;
+}
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+li {
+  border-left: 2px solid var(--surface-3);
+  padding-left: 10px;
+  color: #e7ddd4;
+  line-height: 1.35;
+}
+.empty {
+  margin: 0;
+  color: var(--muted);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.context-event {
+  border-left: 2px solid var(--good);
+  padding-left: 10px;
+}
+.context-event.irrelevant {
+  border-left-color: var(--muted);
+}
+.context-event p {
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #141210;
+  padding: 12px 14px;
+}
+summary {
+  cursor: pointer;
+  color: var(--accent-text);
+}
+pre {
+  white-space: pre-wrap;
+  color: #d8cec4;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@media (max-width: 860px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .pane + .pane {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  header, .pane {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Live support simulator</div>
+    <h1>Workspace access after migration</h1>
+    <p class="subhead">A realistic support replay where the tempting early answer is wrong until product context arrives.</p>
+  </header>
+  <section class="workspace">
+    <div class="pane">
+      <div class="toolbar">
+        <div>
+          <div class="eyebrow">Conversation</div>
+          <div class="turn-count" id="turn-count"></div>
+        </div>
+        <div class="buttons">
+          <button id="previous">Previous</button>
+          <button id="next">Next</button>
+        </div>
+      </div>
+      <div class="conversation" id="conversation"></div>
+    </div>
+    <div class="pane">
+      <div class="toolbar">
+        <div>
+          <div class="eyebrow">Copilot state</div>
+          <div class="turn-count" id="copilot-count"></div>
+        </div>
+      </div>
+      <div class="copilot" id="copilot"></div>
+    </div>
+  </section>
+</main>
+<script id="simulator-data" type="application/json">{"case_id": "level2_conflicting_migration_context", "title": "Workspace access after migration", "subtitle": "A realistic support replay where the tempting early answer is wrong until product context arrives.", "customer": "B2B admin account", "steps": [{"turn": 1, "speaker": "customer", "conversation": [{"speaker": "customer", "text": "Three users lost access after our migration yesterday."}], "new_context": [], "state": {"known_facts": ["The customer reports workspace access loss.", "Three users are affected.", "The issue appeared after a migration."], "still_unknown": ["Can the affected users sign in?", "Do affected users have the right workspace role?"], "possible_causes": ["login is blocked", "the workspace role is missing", "SCIM sync has not completed", "stale entitlement cache"], "ruled_out": [], "next_best_action": "Can the affected users sign in, or are they blocked at login?", "final_outcome": "Not ready yet. The copilot should keep investigating instead of naming a final cause.", "raw": {"case_id": "level2_conflicting_migration_context", "version": 1, "facts": ["symptom:workspace_access_loss", "affected_scope:three_users", "recent_change:migration"], "unknowns": ["auth_status", "workspace_role_assignment"], "candidate_branches": ["login_block", "missing_workspace_role", "scim_sync_delay", "stale_entitlement_cache"], "ruled_out_branches": [], "next_check": "Can the affected users sign in, or are they blocked at login?", "handoff_notes": ["Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration", "Unknowns: auth_status; workspace_role_assignment", "Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache", "Next check: Can the affected users sign in, or are they blocked at login?"], "final_cause": "", "root_cause_evidence_seen": false}}}, {"turn": 2, "speaker": "agent", "conversation": [{"speaker": "customer", "text": "Three users lost access after our migration yesterday."}, {"speaker": "agent", "text": "Can they sign in at all, or is login blocked?"}], "new_context": [], "state": {"known_facts": ["The customer reports workspace access loss.", "Three users are affected.", "The issue appeared after a migration."], "still_unknown": ["Can the affected users sign in?", "Do affected users have the right workspace role?"], "possible_causes": ["login is blocked", "the workspace role is missing", "SCIM sync has not completed", "stale entitlement cache"], "ruled_out": [], "next_best_action": "Can the affected users sign in, or are they blocked at login?", "final_outcome": "Not ready yet. The copilot should keep investigating instead of naming a final cause.", "raw": {"case_id": "level2_conflicting_migration_context", "version": 2, "facts": ["symptom:workspace_access_loss", "affected_scope:three_users", "recent_change:migration"], "unknowns": ["auth_status", "workspace_role_assignment"], "candidate_branches": ["login_block", "missing_workspace_role", "scim_sync_delay", "stale_entitlement_cache"], "ruled_out_branches": [], "next_check": "Can the affected users sign in, or are they blocked at login?", "handoff_notes": ["Known: symptom:workspace_access_loss; affected_scope:three_users; recent_change:migration", "Unknowns: auth_status; workspace_role_assignment", "Branches: login_block; missing_workspace_role; scim_sync_delay; stale_entitlement_cache", "Next check: Can the affected users sign in, or are they blocked at login?"], "final_cause": "", "root_cause_evidence_seen": false}}}, {"turn": 3, "speaker": "customer", "conversation": [{"speaker": "customer", "text": "Three users lost access after our migration yesterday."}, {"speaker": "agent", "text": "Can they sign in at all, or is login blocked?"}, {"speaker": "customer", "text": "They can sign in, and they reach the workspace switcher, but the new workspace will not open."}], "new_context": [{"description": "Admin context shows Migrated-CSM has the workspace role and SCIM completed.", "facts": ["The workspace role is present.", "SCIM sync has completed."], "relevant": true}], "state": {"known_facts": ["The customer reports workspace access loss.", "Three users are affected.", "The issue appeared after a migration.", "The affected users can sign in.", "The visible issue is workspace access.", "The workspace role is present.", "SCIM sync has completed."], "still_unknown": ["Is cached entitlement state still blocking access?"], "possible_causes": ["stale entitlement cache"], "ruled_out": ["login is blocked", "login is failing", "the workspace role is missing", "the migrated group did not inherit the workspace role", "SCIM sync has not completed"], "next_best_action": "Check entitlement cache status before naming a final cause.", "final_outcome": "Not ready yet. The copilot should keep investigating instead of naming a final cause.", "raw": {"case_id": "level2_conflicting_migration_context", "version": 4, "facts": ["symptom:workspace_access_loss", "affected_scope:three_users", "recent_change:migration", "auth:works", "surface:workspace_access", "workspace_role:present", "scim_sync:complete"], "unknowns": ["cache_status"], "candidate_branches": ["stale_entitlement_cache"], "ruled_out_branches": ["login_block", "login_failure", "missing_workspace_role", "missing_workspace_role_inheritance", "scim_sync_delay"], "next_check": "Check entitlement cache status before naming a final cause.", "handoff_notes": ["Known: auth:works; surface:workspace_access; workspace_role:present; scim_sync:complete", "Unknowns: cache_status", "Branches: stale_entitlement_cache", "Next check: Check entitlement cache status before naming a final cause."], "final_cause": "", "root_cause_evidence_seen": false}}}, {"turn": 4, "speaker": "agent", "conversation": [{"speaker": "customer", "text": "Three users lost access after our migration yesterday."}, {"speaker": "agent", "text": "Can they sign in at all, or is login blocked?"}, {"speaker": "customer", "text": "They can sign in, and they reach the workspace switcher, but the new workspace will not open."}, {"speaker": "agent", "text": "I am checking the migrated group role and entitlement cache now."}], "new_context": [], "state": {"known_facts": ["The customer reports workspace access loss.", "Three users are affected.", "The issue appeared after a migration.", "The affected users can sign in.", "The visible issue is workspace access.", "The workspace role is present.", "SCIM sync has completed."], "still_unknown": ["Is cached entitlement state still blocking access?"], "possible_causes": ["stale entitlement cache"], "ruled_out": ["login is blocked", "login is failing", "the workspace role is missing", "the migrated group did not inherit the workspace role", "SCIM sync has not completed"], "next_best_action": "Check entitlement cache status before naming a final cause.", "final_outcome": "Not ready yet. The copilot should keep investigating instead of naming a final cause.", "raw": {"case_id": "level2_conflicting_migration_context", "version": 5, "facts": ["symptom:workspace_access_loss", "affected_scope:three_users", "recent_change:migration", "auth:works", "surface:workspace_access", "workspace_role:present", "scim_sync:complete"], "unknowns": ["cache_status"], "candidate_branches": ["stale_entitlement_cache"], "ruled_out_branches": ["login_block", "login_failure", "missing_workspace_role", "missing_workspace_role_inheritance", "scim_sync_delay"], "next_check": "Check entitlement cache status before naming a final cause.", "handoff_notes": ["Known: auth:works; surface:workspace_access; workspace_role:present; scim_sync:complete", "Unknowns: cache_status", "Branches: stale_entitlement_cache", "Next check: Check entitlement cache status before naming a final cause."], "final_cause": "", "root_cause_evidence_seen": false}}}, {"turn": 5, "speaker": "customer", "conversation": [{"speaker": "customer", "text": "Three users lost access after our migration yesterday."}, {"speaker": "agent", "text": "Can they sign in at all, or is login blocked?"}, {"speaker": "customer", "text": "They can sign in, and they reach the workspace switcher, but the new workspace will not open."}, {"speaker": "agent", "text": "I am checking the migrated group role and entitlement cache now."}, {"speaker": "customer", "text": "It still fails after they refresh their sessions."}], "new_context": [{"description": "Entitlement service shows the migrated workspace role is correct but entitlement cache remains stale for the three affected users.", "facts": ["The entitlement cache is stale for the affected users."], "relevant": true}], "state": {"known_facts": ["The customer reports workspace access loss.", "Three users are affected.", "The issue appeared after a migration.", "The affected users can sign in.", "The visible issue is workspace access.", "The workspace role is present.", "SCIM sync has completed.", "The entitlement cache is stale for the affected users."], "still_unknown": [], "possible_causes": ["stale entitlement cache"], "ruled_out": ["login is blocked", "login is failing", "the workspace role is missing", "the migrated group did not inherit the workspace role", "SCIM sync has not completed"], "next_best_action": "Refresh the entitlement cache and confirm workspace access works after refresh.", "final_outcome": "Evidence now supports the final outcome: stale entitlement cache.", "raw": {"case_id": "level2_conflicting_migration_context", "version": 7, "facts": ["symptom:workspace_access_loss", "affected_scope:three_users", "recent_change:migration", "auth:works", "surface:workspace_access", "workspace_role:present", "scim_sync:complete", "entitlement_cache:stale"], "unknowns": [], "candidate_branches": ["stale_entitlement_cache"], "ruled_out_branches": ["login_block", "login_failure", "missing_workspace_role", "missing_workspace_role_inheritance", "scim_sync_delay"], "next_check": "Refresh the entitlement cache and confirm workspace access works after refresh.", "handoff_notes": ["Known: surface:workspace_access; workspace_role:present; scim_sync:complete; entitlement_cache:stale", "Branches: stale_entitlement_cache", "Next check: Refresh the entitlement cache and confirm workspace access works after refresh."], "final_cause": "stale_entitlement_cache", "root_cause_evidence_seen": true}}}]}</script>
+<script>
+const data = JSON.parse(document.getElementById("simulator-data").textContent);
+let index = 0;
+
+const conversation = document.getElementById("conversation");
+const copilot = document.getElementById("copilot");
+const turnCount = document.getElementById("turn-count");
+const copilotCount = document.getElementById("copilot-count");
+const previous = document.getElementById("previous");
+const next = document.getElementById("next");
+
+function text(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function list(items, emptyText) {
+  if (!items || items.length === 0) {
+    return `<p class="empty">${emptyText}</p>`;
+  }
+  return `<ul>${items.map((item) => `<li>${text(item)}</li>`).join("")}</ul>`;
+}
+
+function renderConversation(step) {
+  conversation.innerHTML = step.conversation.map((message) => `
+    <article class="message ${message.speaker === "agent" ? "agent" : "customer"}">
+      <div class="speaker">${text(message.speaker)}</div>
+      <p>${text(message.text)}</p>
+    </article>
+  `).join("");
+}
+
+function renderContext(events) {
+  if (!events.length) {
+    return `<p class="empty">No new product or support context has arrived at this turn.</p>`;
+  }
+  return events.map((event) => `
+    <div class="context-event ${event.relevant ? "" : "irrelevant"}">
+      <p>${text(event.description)}</p>
+      ${list(event.facts, "No customer-useful facts were added.")}
+    </div>
+  `).join("");
+}
+
+function renderCopilot(step) {
+  const state = step.state;
+  copilot.innerHTML = `
+    <section class="next-action">
+      <h2>Next best question, check, or action</h2>
+      <p>${text(state.next_best_action || "Keep gathering evidence before advising the customer.")}</p>
+    </section>
+    <div class="grid">
+      <section class="section">
+        <h3>Known facts</h3>
+        ${list(state.known_facts, "No durable facts yet.")}
+      </section>
+      <section class="section">
+        <h3>Still unknown</h3>
+        ${list(state.still_unknown, "No blocking unknowns remain.")}
+      </section>
+      <section class="section">
+        <h3>Possible causes</h3>
+        ${list(state.possible_causes, "No possible cause should be named yet.")}
+      </section>
+      <section class="section">
+        <h3>Ruled out</h3>
+        ${list(state.ruled_out, "Nothing has been ruled out yet.")}
+      </section>
+    </div>
+    <section class="section">
+      <h3>Product and support context</h3>
+      ${renderContext(step.new_context)}
+    </section>
+    <section class="section">
+      <h3>Final outcome</h3>
+      <p class="outcome">${text(state.final_outcome)}</p>
+    </section>
+    <details>
+      <summary>Show raw eval state</summary>
+      <pre>${JSON.stringify(state.raw, null, 2)}</pre>
+    </details>
+  `;
+}
+
+function render() {
+  const step = data.steps[index];
+  turnCount.textContent = `Turn ${index + 1} of ${data.steps.length}`;
+  copilotCount.textContent = `${data.customer}`;
+  previous.disabled = index === 0;
+  next.disabled = index === data.steps.length - 1;
+  renderConversation(step);
+  renderCopilot(step);
+}
+
+previous.addEventListener("click", () => {
+  index = Math.max(0, index - 1);
+  render();
+});
+
+next.addEventListener("click", () => {
+  index = Math.min(data.steps.length - 1, index + 1);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

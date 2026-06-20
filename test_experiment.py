@@ -18,8 +18,17 @@ from prototype.generated_review import (
     write_generated_review,
 )
 from prototype.import_generated import import_cases
+from prototype.leader_demo import render_support_leader_demo, write_support_leader_demo
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
+from prototype.support_language import (
+    BANNED_SUPPORT_PHRASES,
+    contains_internal_language,
+    translate_facts,
+    translate_next_action,
+    translate_outcome,
+    translate_unknowns,
+)
 from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
 
 ROOT = Path(__file__).resolve().parent
@@ -219,6 +228,71 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertEqual(outcome_distribution(fixtures)["handoff"], 3)
         self.assertEqual(outcome_coverage_notes(fixtures), [])
         self.assertIn("missing handoff", "; ".join(outcome_coverage_notes(fixtures[:2])))
+
+    def test_support_leader_demo_renders_three_plain_language_outcomes(self):
+        staging_dir = ROOT / "outputs" / "generated_fixture_staging"
+        fixtures = [json.loads(path.read_text()) for path in sorted(staging_dir.glob("*.json"))]
+        html = render_support_leader_demo(fixtures)
+        self.assertIn("Support Copilot Demo", html)
+        self.assertIn("Resolved", html)
+        self.assertIn("Probable Cause", html)
+        self.assertIn("Handoff", html)
+        self.assertIn("Customer Situation", html)
+        self.assertIn("Next Best Action", html)
+        self.assertNotIn("Exact Checks", html)
+        self.assertNotIn("ready for promotion", html)
+        for phrase in BANNED_SUPPORT_PHRASES:
+            self.assertNotIn(phrase, html.lower())
+        self.assertNotIn("comparison:config_differs", html)
+        self.assertNotIn("sso_group:membership", html)
+
+    def test_support_leader_demo_writes_output_file(self):
+        staging_dir = ROOT / "outputs" / "generated_fixture_staging"
+        with tempfile.TemporaryDirectory() as tmp:
+            output_path = Path(tmp) / "support_leader_demo.html"
+            written = write_support_leader_demo(staging_dir, output_path)
+            self.assertEqual(written, output_path)
+            self.assertTrue(output_path.exists())
+            self.assertIn("A support copilot that works the case", output_path.read_text())
+
+    def test_support_language_translates_compact_labels(self):
+        facts = translate_facts(["sso_group:membership", "comparison:config_differs"])
+        unknowns = translate_unknowns(["workspace_role_assignment"])
+        self.assertIn("Group membership is relevant", facts[0])
+        self.assertIn("working example", facts[1])
+        self.assertIn("workspace role", unknowns[0])
+        self.assertFalse(any(":" in item for item in facts + unknowns))
+
+    def test_support_language_next_actions_are_outcome_specific(self):
+        fixture = json.loads((ROOT / "outputs" / "generated_fixture_staging" / "call_8c0a974e28.json").read_text())
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        action = translate_next_action(result, review)
+        outcome = translate_outcome(result, review)
+        self.assertIn("engineering/product support", action)
+        self.assertIn("evidence summary", action)
+        self.assertIn("engineering/product support", outcome)
+        self.assertFalse(contains_internal_language(action))
+
+    def test_support_language_probable_cause_preserves_uncertainty(self):
+        fixture = json.loads((ROOT / "outputs" / "generated_fixture_staging" / "call_4ae34b2a60.json").read_text())
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        action = translate_next_action(result, review)
+        outcome = translate_outcome(result, review)
+        self.assertIn("before treating", action)
+        self.assertIn("one more product signal", outcome)
+        self.assertFalse(contains_internal_language(action))
+
+    def test_support_language_resolved_action_is_closure_oriented(self):
+        fixture = json.loads((ROOT / "outputs" / "generated_fixture_staging" / "call_a700c9bbc2.json").read_text())
+        result = run_fixture(fixture)
+        review = generated_review(result)
+        action = translate_next_action(result, review)
+        outcome = translate_outcome(result, review)
+        self.assertIn("Confirm the customer can complete", action)
+        self.assertNotIn("one more product signal", outcome)
+        self.assertFalse(contains_internal_language(action))
 
     def test_generated_fixture_importer_rejects_premature_final_cause_leakage(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
