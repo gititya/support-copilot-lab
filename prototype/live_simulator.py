@@ -67,6 +67,14 @@ CAUSE_TEXT = {
     "upstream_service_incident": "an upstream service issue",
 }
 
+ROUTE_STAGES = [
+    "Intake",
+    "Clarify issue",
+    "Check context",
+    "Narrow cause",
+    "Resolve or hand off",
+]
+
 
 def load_fixture(case_id: str) -> dict[str, Any]:
     path = FIXTURE_DIR / f"{case_id}.json"
@@ -119,13 +127,151 @@ def state_for_display(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def route_stage(turn: dict[str, Any], state: dict[str, Any], context_events: list[dict[str, Any]]) -> str:
+    turn_number = int(turn.get("turn", 0))
+    if state.get("final_cause"):
+        return "Resolve or hand off"
+    if context_events:
+        return "Check context"
+    if turn_number >= 4:
+        return "Narrow cause"
+    if turn_number >= 2:
+        return "Clarify issue"
+    return "Intake"
+
+
+def handoff_readiness(state: dict[str, Any]) -> dict[str, Any]:
+    facts = state.get("facts", [])
+    unknowns = state.get("unknowns", [])
+    ruled_out = state.get("ruled_out_branches", [])
+    next_check = state.get("next_check", "")
+    final_cause = state.get("final_cause", "")
+    issue_clear = any(fact.startswith("symptom:") or fact.startswith("surface:") for fact in facts)
+    checks = [
+        {
+            "label": "Customer issue is clear",
+            "ready": issue_clear,
+            "detail": "The handoff names the customer-visible problem." if issue_clear else "Keep clarifying the customer-visible problem.",
+        },
+        {
+            "label": "Known facts are captured",
+            "ready": bool(facts),
+            "detail": "The next owner can see the facts gathered so far." if facts else "Capture at least one durable fact before handoff.",
+        },
+        {
+            "label": "Open questions are visible",
+            "ready": bool(unknowns) or bool(final_cause),
+            "detail": "Remaining uncertainty is visible." if unknowns else "No blocking unknowns remain.",
+        },
+        {
+            "label": "Ruled-out paths are preserved",
+            "ready": bool(ruled_out),
+            "detail": "The next owner can avoid rechecking paths already ruled out." if ruled_out else "Nothing has been ruled out yet.",
+        },
+        {
+            "label": "Next action is specific",
+            "ready": bool(next_check),
+            "detail": next_check or "Add the next best check before handing off.",
+        },
+        {
+            "label": "Final cause is evidence-supported",
+            "ready": bool(final_cause and state.get("root_cause_evidence_seen")) or not final_cause,
+            "detail": "Final cause is supported by product context." if final_cause else "No final cause is included yet.",
+        },
+    ]
+    ready_count = sum(1 for check in checks if check["ready"])
+    if final_cause and ready_count == len(checks):
+        status = "Ready to close or hand off with supported outcome."
+    elif not ruled_out:
+        status = "Not ready for handoff yet."
+    elif ready_count >= 4:
+        status = "Usable if the case must move, but keep unresolved checks attached."
+    else:
+        status = "Not ready for handoff yet."
+    return {
+        "status": status,
+        "ready_count": ready_count,
+        "total": len(checks),
+        "checks": checks,
+    }
+
+
+def evidence_events_for_turn(
+    item: dict[str, Any],
+    previous_state: dict[str, Any] | None,
+) -> list[dict[str, str]]:
+    turn = item["turn"]
+    state = item["state"]
+    events = [{
+        "kind": "Conversation",
+        "title": f"Turn {turn.get('turn')}: {turn.get('speaker', 'speaker').title()} update",
+        "body": turn.get("text", ""),
+    }]
+    for context in item.get("context_applied", []):
+        if context.get("relevant", True):
+            body = context.get("description", "Product or support context arrived.")
+        else:
+            body = context.get("description", "Context arrived but was not relevant to this case.")
+        events.append({
+            "kind": "Product context",
+            "title": f"After turn {turn.get('turn')}: context arrived",
+            "body": body,
+        })
+
+    before = previous_state or {
+        "facts": [],
+        "unknowns": [],
+        "ruled_out_branches": [],
+        "final_cause": "",
+    }
+    added_facts = [fact for fact in state.get("facts", []) if fact not in before.get("facts", [])]
+    resolved_unknowns = [unknown for unknown in before.get("unknowns", []) if unknown not in state.get("unknowns", [])]
+    ruled_out = [
+        branch
+        for branch in state.get("ruled_out_branches", [])
+        if branch not in before.get("ruled_out_branches", [])
+    ]
+    final_cause = state.get("final_cause", "")
+    previous_final_cause = before.get("final_cause", "")
+
+    if added_facts:
+        events.append({
+            "kind": "Facts added",
+            "title": "Known facts changed",
+            "body": "; ".join(translate_list(added_facts)),
+        })
+    if resolved_unknowns:
+        events.append({
+            "kind": "Unknown resolved",
+            "title": "Open question closed",
+            "body": "; ".join(translate_list(resolved_unknowns)),
+        })
+    if ruled_out:
+        events.append({
+            "kind": "Ruled out",
+            "title": "Cause narrowed",
+            "body": "; ".join(translate_list(ruled_out)),
+        })
+    if final_cause and final_cause != previous_final_cause:
+        events.append({
+            "kind": "Final outcome",
+            "title": "Final cause is now supported",
+            "body": readable_label(final_cause),
+        })
+    return events
+
+
 def build_simulator_data(case_id: str = CASE_ID) -> dict[str, Any]:
     fixture = load_fixture(case_id)
     result = run_fixture(fixture, mode="deterministic")
     steps = []
     conversation_so_far: list[dict[str, Any]] = []
+    evidence_timeline: list[dict[str, str]] = []
+    previous_state = None
     for item in result["timeline"]:
         turn = item["turn"]
+        evidence_timeline.extend(evidence_events_for_turn(item, previous_state))
+        previous_state = item["state"]
         conversation_so_far.append({
             "speaker": turn.get("speaker", "speaker"),
             "text": turn.get("text", ""),
@@ -133,8 +279,12 @@ def build_simulator_data(case_id: str = CASE_ID) -> dict[str, Any]:
         steps.append({
             "turn": turn.get("turn"),
             "speaker": turn.get("speaker", ""),
+            "route_stage": route_stage(turn, item["state"], item.get("context_applied", [])),
+            "route_stages": ROUTE_STAGES,
             "conversation": list(conversation_so_far),
             "new_context": context_summary(item.get("context_applied", [])),
+            "evidence_timeline": list(evidence_timeline),
+            "handoff_readiness": handoff_readiness(item["state"]),
             "state": state_for_display(item["state"]),
         })
     return {
@@ -254,6 +404,37 @@ button:disabled {{
   display: grid;
   gap: 12px;
 }}
+.route-map {{
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 14px;
+  margin-bottom: 16px;
+}}
+.route-steps {{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}}
+.route-step {{
+  min-height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #141210;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.25;
+}}
+.route-step.active {{
+  border-color: var(--accent);
+  color: var(--text);
+  background: #211914;
+}}
 .message {{
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -342,6 +523,61 @@ li {{
   margin: 0 0 8px;
   line-height: 1.4;
 }}
+.readiness {{
+  display: grid;
+  gap: 10px;
+}}
+.readiness-status {{
+  margin: 0;
+  color: var(--text);
+  line-height: 1.4;
+}}
+.readiness-count {{
+  color: var(--accent-text);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}}
+.readiness-check {{
+  border-left: 2px solid var(--surface-3);
+  padding-left: 10px;
+}}
+.readiness-check.ready {{
+  border-left-color: var(--good);
+}}
+.readiness-check strong {{
+  display: block;
+  color: var(--text);
+  margin-bottom: 3px;
+}}
+.readiness-check span {{
+  color: var(--muted);
+  line-height: 1.35;
+}}
+.timeline {{
+  display: grid;
+  gap: 10px;
+}}
+.timeline-event {{
+  border-left: 2px solid var(--surface-3);
+  padding-left: 10px;
+}}
+.timeline-kind {{
+  color: var(--accent-text);
+  font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}}
+.timeline-event strong {{
+  display: block;
+  color: var(--text);
+  margin: 3px 0;
+}}
+.timeline-event p {{
+  margin: 0;
+  color: #d8cec4;
+  line-height: 1.4;
+}}
 details {{
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -367,6 +603,9 @@ pre {{
     border-top: 1px solid var(--line);
   }}
   .grid {{
+    grid-template-columns: 1fr;
+  }}
+  .route-steps {{
     grid-template-columns: 1fr;
   }}
   header, .pane {{
@@ -395,6 +634,7 @@ pre {{
           <button id="next">Next</button>
         </div>
       </div>
+      <div class="route-map" id="route-map"></div>
       <div class="conversation" id="conversation"></div>
     </div>
     <div class="pane">
@@ -415,6 +655,7 @@ let index = 0;
 
 const conversation = document.getElementById("conversation");
 const copilot = document.getElementById("copilot");
+const routeMap = document.getElementById("route-map");
 const turnCount = document.getElementById("turn-count");
 const copilotCount = document.getElementById("copilot-count");
 const previous = document.getElementById("previous");
@@ -445,6 +686,19 @@ function renderConversation(step) {{
   `).join("");
 }}
 
+function renderRouteMap(step) {{
+  routeMap.innerHTML = `
+    <h2>Case route</h2>
+    <div class="route-steps">
+      ${{step.route_stages.map((stage) => `
+        <div class="route-step ${{stage === step.route_stage ? "active" : ""}}">
+          ${{text(stage)}}
+        </div>
+      `).join("")}}
+    </div>
+  `;
+}}
+
 function renderContext(events) {{
   if (!events.length) {{
     return `<p class="empty">No new product or support context has arrived at this turn.</p>`;
@@ -455,6 +709,38 @@ function renderContext(events) {{
       ${{list(event.facts, "No customer-useful facts were added.")}}
     </div>
   `).join("");
+}}
+
+function renderHandoffReadiness(readiness) {{
+  return `
+    <div class="readiness">
+      <p class="readiness-status">${{text(readiness.status)}}</p>
+      <div class="readiness-count">${{text(readiness.ready_count)}}/${{text(readiness.total)}} handoff checks ready</div>
+      ${{readiness.checks.map((check) => `
+        <div class="readiness-check ${{check.ready ? "ready" : ""}}">
+          <strong>${{text(check.label)}}</strong>
+          <span>${{text(check.detail)}}</span>
+        </div>
+      `).join("")}}
+    </div>
+  `;
+}}
+
+function renderEvidenceTimeline(events) {{
+  if (!events || events.length === 0) {{
+    return `<p class="empty">No evidence has arrived yet.</p>`;
+  }}
+  return `
+    <div class="timeline">
+      ${{events.map((event) => `
+        <div class="timeline-event">
+          <div class="timeline-kind">${{text(event.kind)}}</div>
+          <strong>${{text(event.title)}}</strong>
+          <p>${{text(event.body)}}</p>
+        </div>
+      `).join("")}}
+    </div>
+  `;
 }}
 
 function renderCopilot(step) {{
@@ -487,6 +773,14 @@ function renderCopilot(step) {{
       ${{renderContext(step.new_context)}}
     </section>
     <section class="section">
+      <h3>Evidence timeline</h3>
+      ${{renderEvidenceTimeline(step.evidence_timeline)}}
+    </section>
+    <section class="section">
+      <h3>Handoff readiness preview</h3>
+      ${{renderHandoffReadiness(step.handoff_readiness)}}
+    </section>
+    <section class="section">
       <h3>Final outcome</h3>
       <p class="outcome">${{text(state.final_outcome)}}</p>
     </section>
@@ -503,6 +797,7 @@ function render() {{
   copilotCount.textContent = `${{data.customer}}`;
   previous.disabled = index === 0;
   next.disabled = index === data.steps.length - 1;
+  renderRouteMap(step);
   renderConversation(step);
   renderCopilot(step);
 }}
