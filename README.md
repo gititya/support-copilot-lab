@@ -2,7 +2,25 @@
 
 My corrected take on real-time support intelligence. The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? This version asks the support question that actually matters: can the AI work the case properly as evidence arrives?
 
-Run `python3 run_all.py`. That's the whole experiment.
+This repo is now a working offline prototype with an evaluation harness underneath. The prototype shows a support copilot working one case turn by turn, while the harness proves whether the copilot keeps facts, unknowns, possible causes, ruled-out paths, next checks, and final outcomes in the right order.
+
+To try the product surface:
+
+```bash
+python3 prototype/live_simulator.py
+```
+
+Then open:
+
+```text
+outputs/support_live_simulator.html
+```
+
+To run the evaluation harness:
+
+```bash
+python3 run_all.py
+```
 
 ## The one idea
 
@@ -45,9 +63,9 @@ facts / unknowns / branches / ruled-out paths / next check
 final cause only after mechanism evidence appears
 ```
 
-## The model
+## The cases
 
-The experiment uses six support cases:
+The harness uses ten support cases, including simple fixtures and harder B2B cases:
 
 1. `access_after_migration` - three users lost access after migration.
 2. `billing_plan_mismatch` - customer starts with a login complaint, then corrects to billing plan mismatch.
@@ -55,6 +73,10 @@ The experiment uses six support cases:
 4. `stale_cache_after_migration` - migration access symptom where the tempting early role-inheritance answer is wrong.
 5. `corrected_billing_after_access_report` - customer corrects an access report into a billing entitlement issue.
 6. `invite_with_irrelevant_billing_context` - invite delivery case with unrelated billing context that must be ignored.
+7. `level2_conflicting_migration_context` - migration case where the tempting early answer is wrong until late entitlement evidence arrives.
+8. `level2_late_billing_evidence` - billing case where final cause waits for late product context.
+9. `level2_irrelevant_then_late_invite_context` - invite case with irrelevant context before useful delivery evidence.
+10. `level2_unresolved_workspace_handoff` - unresolved workspace case that should hand off instead of inventing a final cause.
 
 Each case has:
 
@@ -88,11 +110,11 @@ The predictive mock still gets the final cause right by the end. It fails becaus
 1. NOT a customer-facing support bot.
 2. NOT a voice agent.
 3. NOT a real integration with Zendesk, Intercom, Salesforce, Stripe, or product databases.
-4. NOT proof that a real LLM will pass.
+4. NOT battle-tested production automation.
 5. NOT a claim that support AI agents do not already exist.
 6. NOT a root-cause prediction benchmark.
 
-It is a small offline eval harness for one narrow question: did the AI reason through the support case correctly as evidence arrived?
+It is a working offline prototype for one narrow product question: can a support copilot help an agent work the case correctly as evidence arrives?
 
 ## What's in here
 
@@ -102,8 +124,9 @@ It is a small offline eval harness for one narrow question: did the AI reason th
 4. `validate_fixtures.py` - schema checks for the support fixtures.
 5. `test_experiment.py` - regression tests that prove process passes and predictive fails.
 6. `fixtures/` - support-process cases with expected turn-by-turn state.
-7. `outputs/` - generated reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
-8. `AUDITABLE_SUPPORT_AI.md` - the product idea behind the experiment.
+7. `prototype/live_simulator.py` - static 3-case live replay simulator for judging the support-agent experience.
+8. `outputs/` - generated simulator, reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
+9. `AUDITABLE_SUPPORT_AI.md` - the product idea behind the prototype.
 
 ### Run it
 

@@ -1,6 +1,6 @@
 # Real-Time Support Updated Roadmap
 
-This roadmap is the locked plan for taking the current mock-only support-process lab to a completed repo.
+This roadmap is the locked plan for taking the current offline support-copilot prototype to a completed repo.
 
 The project stays text-first until the B2B process is proven. The root experiment harness remains the source of truth. Prototype work stays under `prototype/` unless a later milestone explicitly says to reorganize.
 
@@ -215,7 +215,7 @@ Next gate before product-demo hardening:
 
 ### Milestone 8 - B2B Copilot-Like UI/UX Transformation
 
-Status: In progress
+Status: Completed
 
 Goal: Turn the static HTML report/demo into a crisper support-copilot workspace that demonstrates how a human support agent would use the copilot during a case.
 
@@ -246,6 +246,13 @@ Exit criteria:
 - The prototype can be described honestly as built and demonstrable, but not battle-tested or integrated with real support systems.
 - The visual pass from Claude Design is incorporated without changing the root experiment harness.
 
+Result:
+
+- `outputs/support_live_simulator.html` now renders a polished 3-case live simulator.
+- The simulator covers migration access, billing mismatch, and invite delivery.
+- The screen shows case route, next best move, working hypotheses, known facts, unknowns, product/support context, evidence timeline, handoff readiness preview, and raw eval state behind a toggle.
+- Focused tests lock the curated cases so final outcomes remain withheld until evidence arrives.
+
 ### Milestone 8.5 - Real Model Feasibility Check
 
 Status: Isolated branch
@@ -257,13 +264,16 @@ Current evidence:
 - Branch `codex/llm-live-replay-orchestration` adds Ollama/MLX adapters and an offline replay runner.
 - `ollama:qwen2.5:7b` can return valid JSON for the replay, but scored only 8/18 checks on the first smoke case and missed the next-check standard.
 - `gemma4:e4b`, `gemma4:12b-it-qat`, and MLX Qwen3-4B timed out in bounded smoke runs.
+- `gpt-5.5` completed the full 10-fixture benchmark at 189/216 checks, 87.5% pass rate, with 0 premature final-cause errors. This proves the architecture is credible with a strong cloud model, but not yet polished enough to make real-model output the default demo behavior.
 
 Next gate:
 
 - Do not merge local-model replay into `main` as core product behavior yet.
-- Run one strong cloud-model benchmark through the same harness to determine whether the behavior is achievable by a real model before spending more time on local-model tuning.
-- If a strong model passes, treat local models as an optimization problem.
-- If a strong model fails, improve the prompt/state contract before adding more UI or domains.
+- Tune the cloud-model prompt/state contract before local-model tuning.
+- Add a smaller benchmark mode for one curated case and the 3-case simulator set.
+- Improve next-check scoring so useful support actions are not penalized only because the wording differs.
+- Compare another strong cloud model after GPT-5.5 prompt/scoring improvements.
+- Treat local models as an optimization problem after the cloud path is stable.
 
 Exit criteria:
 
