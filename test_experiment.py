@@ -19,7 +19,7 @@ from prototype.generated_review import (
 )
 from prototype.import_generated import import_cases
 from prototype.leader_demo import render_support_leader_demo, write_support_leader_demo
-from prototype.live_simulator import build_simulator_data
+from prototype.live_simulator import CASES, NOT_READY, build_simulator_data, render_live_simulator
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
 from prototype.support_language import (
@@ -149,6 +149,45 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertEqual(steps[0]["state"]["raw"]["final_cause"], "")
         self.assertEqual(steps[-1]["state"]["raw"]["final_cause"], "stale_entitlement_cache")
         self.assertIn("supported outcome", final_readiness["status"])
+
+    def test_live_simulator_embeds_three_curated_cases(self):
+        self.assertEqual(set(CASES), {"migration", "billing", "invite"})
+        for case_id, case in CASES.items():
+            with self.subTest(case_id=case_id):
+                self.assertGreaterEqual(len(case["steps"]), 4)
+                self.assertTrue(case["chip"])
+                self.assertTrue(case["title"])
+                self.assertTrue(case["scenario"])
+
+    def test_live_simulator_curated_cases_wait_for_evidence_before_outcome(self):
+        for case_id, case in CASES.items():
+            with self.subTest(case_id=case_id):
+                saw_supported_outcome = False
+                for step in case["steps"]:
+                    state = step["state"]
+                    self.assertTrue(state["known_facts"])
+                    self.assertTrue(state["possible_causes"])
+                    self.assertTrue(state["next_best_action"])
+                    if state["evidence_seen"]:
+                        saw_supported_outcome = True
+                        self.assertTrue(state["final_cause_text"])
+                        self.assertIn("Evidence supports", state["final_outcome"])
+                    else:
+                        self.assertEqual(state["final_cause_text"], "")
+                        self.assertEqual(state["final_outcome"], NOT_READY)
+                self.assertTrue(saw_supported_outcome)
+
+    def test_live_simulator_curated_invite_case_marks_irrelevant_context_as_noise(self):
+        invite_steps = CASES["invite"]["steps"]
+        self.assertTrue(any(
+            context["relevant"] is False
+            for step in invite_steps
+            for context in step["new_context"]
+        ))
+        html = render_live_simulator(CASES)
+        self.assertIn("NOISE", html)
+        self.assertIn("Handoff readiness", html)
+        self.assertIn("Evidence &amp; context timeline", html)
 
     def test_generated_fixture_importer_stages_valid_case(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
