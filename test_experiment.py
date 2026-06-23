@@ -19,6 +19,7 @@ from prototype.generated_review import (
 )
 from prototype.import_generated import import_cases
 from prototype.leader_demo import render_support_leader_demo, write_support_leader_demo
+from prototype.live_simulator import build_simulator_data
 from prototype.report import case_verdict, render_report, select_case_ids
 from prototype.replay import build_replay
 from prototype.support_language import (
@@ -127,6 +128,27 @@ class SupportProcessExperimentTest(unittest.TestCase):
         html = render_report(["level2_unresolved_workspace_handoff"])
         self.assertIn("Post-Case Handoff", html)
         self.assertIn("Unresolved; hand off", html)
+
+    def test_live_simulator_adds_case_route_and_timeline(self):
+        data = build_simulator_data()
+        steps = data["steps"]
+        self.assertEqual(
+            [step["route_stage"] for step in steps],
+            ["Intake", "Clarify issue", "Check context", "Narrow cause", "Resolve or hand off"],
+        )
+        final_events = steps[-1]["evidence_timeline"]
+        self.assertTrue(any(event["kind"] == "Product context" for event in final_events))
+        self.assertTrue(any(event["kind"] == "Ruled out" for event in final_events))
+        self.assertTrue(any(event["kind"] == "Final outcome" for event in final_events))
+
+    def test_live_simulator_handoff_preview_does_not_overclaim_final_cause(self):
+        steps = build_simulator_data()["steps"]
+        first_readiness = steps[0]["handoff_readiness"]
+        final_readiness = steps[-1]["handoff_readiness"]
+        self.assertIn("Not ready", first_readiness["status"])
+        self.assertEqual(steps[0]["state"]["raw"]["final_cause"], "")
+        self.assertEqual(steps[-1]["state"]["raw"]["final_cause"], "stale_entitlement_cache")
+        self.assertIn("supported outcome", final_readiness["status"])
 
     def test_generated_fixture_importer_stages_valid_case(self):
         fixture = json.loads((ROOT / "fixtures" / "access_after_migration.json").read_text())
