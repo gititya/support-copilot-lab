@@ -205,18 +205,19 @@ Latest result:
 - The remaining new-batch miss is a next-check wording issue, not premature final-cause prediction.
 - Older historical generator cases mostly fail on final-cause mismatch or incomplete probable/resolved outcome details, so they should not be promoted without review.
 
-Next gate before UI/UX:
+Next gate before product-demo hardening:
 
 - Human-review the ready generated cases for support usefulness.
 - Promote only strong cases into `fixtures/`.
 - Keep weak generated cases in staging or send feedback back to `support-call-generator`.
-- Do not begin Copilot-like UI/UX until at least one promoted generated batch passes the root harness.
+- Treat the current simulator as the B2B prototype surface, not only as a report artifact.
+- Keep generated-case promotion separate from UI polish. The prototype can be demonstrated with curated cases, but fixture promotion remains the standard for expanding the accepted test set.
 
 ### Milestone 8 - B2B Copilot-Like UI/UX Transformation
 
-Status: Not started
+Status: In progress
 
-Goal: After B2B testing is strong, turn the static HTML report into a crisper support-copilot experience that Adi can judge like a product surface.
+Goal: Turn the static HTML report/demo into a crisper support-copilot workspace that demonstrates how a human support agent would use the copilot during a case.
 
 Deliverables:
 
@@ -224,6 +225,10 @@ Deliverables:
 - Keep it mock-only and local unless explicitly changed.
 - Preserve every audit field: facts, unknowns, active branches, ruled-out branches, next check, final cause timing, and handoff.
 - Make case navigation, turn progression, and state changes easier to scan.
+- Show the case route: intake, clarify issue, check context, narrow cause, resolve or hand off.
+- Show the evidence timeline so the reviewer can see what changed the case and when.
+- Show handoff readiness as a preview only, not a pass/block quality gate.
+- Expand the demonstrable prototype from one strong case to a small set of three curated cases: access after migration, billing correction, and invite/email noise resistance.
 - Do not add voice, real integrations, or customer-facing chat.
 
 Checks:
@@ -232,27 +237,57 @@ Checks:
 - It does not hide the evidence trail.
 - It still makes premature final-cause prediction obvious.
 - It works across the accepted B2B fixture set.
+- A support agent could watch the replay and understand what to ask or check next.
+- A support leader could see why the copilot would help agents work cases more safely.
 
 Exit criteria:
 
 - B2B prototype is usable enough to test as a product experience before deciding whether B2C is worth adding.
+- The prototype can be described honestly as built and demonstrable, but not battle-tested or integrated with real support systems.
+- The visual pass from Claude Design is incorporated without changing the root experiment harness.
+
+### Milestone 8.5 - Real Model Feasibility Check
+
+Status: Isolated branch
+
+Goal: Keep real/local model feasibility separate from the product prototype until a model can reliably produce useful Live Support State.
+
+Current evidence:
+
+- Branch `codex/llm-live-replay-orchestration` adds Ollama/MLX adapters and an offline replay runner.
+- `ollama:qwen2.5:7b` can return valid JSON for the replay, but scored only 8/18 checks on the first smoke case and missed the next-check standard.
+- `gemma4:e4b`, `gemma4:12b-it-qat`, and MLX Qwen3-4B timed out in bounded smoke runs.
+
+Next gate:
+
+- Do not merge local-model replay into `main` as core product behavior yet.
+- Run one strong cloud-model benchmark through the same harness to determine whether the behavior is achievable by a real model before spending more time on local-model tuning.
+- If a strong model passes, treat local models as an optimization problem.
+- If a strong model fails, improve the prompt/state contract before adding more UI or domains.
+
+Exit criteria:
+
+- A real model can produce useful Live Support State across a curated B2B case set without premature final-cause guesses.
+- Saved model timelines can be loaded into the static simulator only after they are useful enough to compare with the reference trace.
 
 ### Milestone 9 - Decide Whether To Add B2C
 
 Status: Not started
 
-Goal: Decide if B2C belongs in this repo after B2B has been proven.
+Goal: Decide if B2C belongs in this repo after the B2B prototype is demonstrable and at least one real-model feasibility check is understood.
 
 Deliverables:
 
 - Compare B2B and B2C evidence needs.
 - Decide whether B2C is a new fixture pack, a separate repo, or out of scope.
 - If accepted, add B2C domain rules before adding B2C fixtures.
+- Keep the future handoff-agent repo separate. This repo may produce handoff-ready case state; the handoff-agent repo should own pass/block/correct quality gates.
 
 Checks:
 
 - B2C does not dilute the original support-process thesis.
 - B2C cases still require evidence-timed state, not early answer prediction.
+- B2C is not used to avoid finishing the B2B prototype story.
 
 Exit criteria:
 
