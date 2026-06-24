@@ -351,7 +351,9 @@ Support-process rules:
 - Candidate branches are plausible causes still worth checking. Keep multiple branches open when the evidence is not decisive.
 - Ruled-out branches require evidence. Do not rule out a branch just because another branch sounds likely.
 - next_check must be a specific support action or question for the agent, not a summary.
-- If the customer reports access loss, first clarify whether sign-in/login works before moving to workspace-role or cache checks unless the transcript already answered that.
+- If the customer reports access loss after migration and sign-in status is not known yet, keep auth_status and workspace_role_assignment as unknowns.
+- In that same early migration-access state, keep these candidate branches open until evidence narrows them: missing_workspace_role, scim_sync_delay, stale_entitlement_cache.
+- Ask about sign-in/login first in next_check, but do not collapse the candidate branches to login only.
 - If the customer corrects the issue surface, revise the state and rule out the old surface only when supported.
 - Ignore irrelevant context. Do not add irrelevant context facts to the state.
 - Do not predict a final root cause from transcript symptoms alone.

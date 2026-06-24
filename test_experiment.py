@@ -32,6 +32,7 @@ from prototype.support_language import (
 )
 from run import (
     CASE_SETS,
+    build_llm_prompt,
     compare_state,
     extract_anthropic_text,
     extract_response_text,
@@ -75,6 +76,18 @@ class SupportProcessExperimentTest(unittest.TestCase):
     def test_runner_selects_curated_demo_case_set(self):
         selected = select_fixtures(load_fixtures(), case_set="curated-demo")
         self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["curated-demo"])
+
+    def test_prompt_keeps_early_migration_access_branches_open(self):
+        fixture = next(item for item in load_fixtures() if item["case_id"] == "level2_conflicting_migration_context")
+        prompt = build_llm_prompt(
+            fixture,
+            fixture["transcript_turns"][0],
+            {"case_id": fixture["case_id"], "version": 0},
+            [],
+        )
+        self.assertIn("keep auth_status and workspace_role_assignment as unknowns", prompt)
+        self.assertIn("missing_workspace_role, scim_sync_delay, stale_entitlement_cache", prompt)
+        self.assertIn("do not collapse the candidate branches to login only", prompt)
 
     def test_next_check_equivalents_accept_support_useful_wording(self):
         self.assertEqual(missing_next_check_terms("Confirm whether authentication works for the affected users.", ["sign in"]), [])
