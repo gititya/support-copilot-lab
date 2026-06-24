@@ -255,9 +255,9 @@ Result:
 
 ### Milestone 8.5 - Real Model Feasibility Check
 
-Status: Isolated branch
+Status: Cloud feasibility proven at prototype level
 
-Goal: Keep real/local model feasibility separate from the product prototype until a model can reliably produce useful Live Support State.
+Goal: Keep real/local model feasibility separate from default simulator behavior until model replay comparison is useful enough to judge alongside the reference trace.
 
 Current evidence:
 
@@ -265,15 +265,15 @@ Current evidence:
 - `ollama:qwen2.5:7b` can return valid JSON for the replay, but scored only 8/18 checks on the first smoke case and missed the next-check standard.
 - `gemma4:e4b`, `gemma4:12b-it-qat`, and MLX Qwen3-4B timed out in bounded smoke runs.
 - `gpt-5.5` completed the full 10-fixture benchmark at 189/216 checks, 87.5% pass rate, with 0 premature final-cause errors. This proves the architecture is credible with a strong cloud model, but not yet polished enough to make real-model output the default demo behavior.
+- After cloud prompt tuning, `gpt-5.5` completed the `b2b-five` benchmark at 110/114 checks, 96.5% pass rate, with 0 premature final-cause errors. Saved evidence lives in `outputs/model_replays/`.
 
 Next gate:
 
 - Do not merge local-model replay into `main` as core product behavior yet.
-- Tune the cloud-model prompt/state contract before local-model tuning.
-- Add a smaller benchmark mode for one curated case and the 3-case simulator set.
-- Improve next-check scoring so useful support actions are not penalized only because the wording differs.
-- Compare another strong cloud model after GPT-5.5 prompt/scoring improvements.
-- Treat local models as an optimization problem after the cloud path is stable.
+- Add model replay comparison to the simulator: reference state versus saved GPT-5.5 state.
+- Keep deterministic/reference state as the default demo.
+- Compare another strong cloud model after replay comparison is useful.
+- Start local-model tuning only after the cloud replay comparison path is stable.
 
 Exit criteria:
 

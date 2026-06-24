@@ -100,7 +100,7 @@ Current result:
 deterministic    108/108  100%   premature final causes: 0
 process_mock     108/108  100%   premature final causes: 0
 predictive_mock   96/108   89%   premature final causes: 12
-real_model        opt-in; not faked when no key/model is configured
+gpt-5.5 b2b-five 110/114   96.5% premature final causes: 0
 ```
 
 The predictive mock still gets the final cause right by the end. It fails because it says the answer too early.
@@ -201,6 +201,18 @@ The prompt pack is also written to:
 
 ```text
 outputs/support_process_llm_prompts.jsonl
+```
+
+For a fast cloud-model benchmark, run the accepted five-case B2B set:
+
+```bash
+SSL_CERT_FILE=/etc/ssl/cert.pem python3 run.py --mode real-model --provider openai --model gpt-5.5 --reasoning-effort low --max-output-tokens 4000 --timeout 180 --case-set b2b-five
+```
+
+The saved GPT-5.5 five-case evidence is under:
+
+```text
+outputs/model_replays/
 ```
 
 
