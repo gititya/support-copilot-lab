@@ -30,7 +30,18 @@ from prototype.support_language import (
     translate_outcome,
     translate_unknowns,
 )
-from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
+from run import (
+    CASE_SETS,
+    build_llm_prompt,
+    compare_state,
+    extract_anthropic_text,
+    extract_response_text,
+    generate_prompt_pack,
+    missing_next_check_terms,
+    render_report as render_run_report,
+    run_fixture,
+    select_fixtures,
+)
 
 ROOT = Path(__file__).resolve().parent
 
@@ -57,6 +68,69 @@ class SupportProcessExperimentTest(unittest.TestCase):
         fixtures = load_fixtures()
         expected_turns = sum(len(fixture["transcript_turns"]) for fixture in fixtures)
         self.assertEqual(len(generate_prompt_pack(fixtures)), expected_turns)
+
+    def test_runner_selects_single_case_for_fast_benchmark(self):
+        selected = select_fixtures(load_fixtures(), case_id="level2_conflicting_migration_context")
+        self.assertEqual([fixture["case_id"] for fixture in selected], ["level2_conflicting_migration_context"])
+
+    def test_runner_selects_curated_demo_case_set(self):
+        selected = select_fixtures(load_fixtures(), case_set="curated-demo")
+        self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["curated-demo"])
+
+    def test_runner_selects_b2b_five_case_set(self):
+        selected = select_fixtures(load_fixtures(), case_set="b2b-five")
+        self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["b2b-five"])
+        self.assertEqual(len(selected), 5)
+
+    def test_prompt_keeps_early_migration_access_branches_open(self):
+        fixture = next(item for item in load_fixtures() if item["case_id"] == "level2_conflicting_migration_context")
+        prompt = build_llm_prompt(
+            fixture,
+            fixture["transcript_turns"][0],
+            {"case_id": fixture["case_id"], "version": 0},
+            [],
+        )
+        self.assertIn("keep auth_status and workspace_role_assignment as unknowns", prompt)
+        self.assertIn("missing_workspace_role, scim_sync_delay, stale_entitlement_cache", prompt)
+        self.assertIn("do not collapse the candidate branches to login only", prompt)
+
+    def test_next_check_equivalents_accept_support_useful_wording(self):
+        self.assertEqual(missing_next_check_terms("Confirm whether authentication works for the affected users.", ["sign in"]), [])
+        self.assertEqual(missing_next_check_terms("Inspect recipient-domain policy and email delivery suppression.", ["DMARC", "suppression"]), [])
+        self.assertEqual(missing_next_check_terms("Invalidate or recompute the entitlement cache.", ["Refresh"]), [])
+        self.assertEqual(missing_next_check_terms("", ["cache"]), ["cache"])
+
+    def test_next_check_report_marks_wording_miss_separately(self):
+        state = {
+            "facts": [],
+            "unknowns": [],
+            "candidate_branches": [],
+            "ruled_out_branches": [],
+            "next_check": "Check the workspace role assignment.",
+            "final_cause": "",
+        }
+        expected = {
+            "facts": [],
+            "unknowns": [],
+            "candidate_branches": [],
+            "ruled_out_branches": [],
+            "next_check_contains": ["cache"],
+        }
+        verdict = compare_state(state, expected, root_cause_evidence_available=False)
+        next_check = next(check for check in verdict["checks"] if check["field"] == "next_check")
+        self.assertEqual(next_check["category"], "wording_miss")
+
+        result = {
+            "fixture": {"case_id": "sample", "title": "Sample"},
+            "timeline": [{
+                "turn": {"turn": 1, "speaker": "agent", "text": "Checking now."},
+                "state": state,
+                "verdict": verdict,
+            }],
+            "final_state": state,
+            "root_cause_ok": True,
+        }
+        self.assertIn("next_check (wording_miss): cache", render_run_report([result]))
 
     def test_deterministic_reference_passes(self):
         results = [run_fixture(fixture) for fixture in load_fixtures()]

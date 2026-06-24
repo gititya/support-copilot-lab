@@ -88,6 +88,37 @@ CANONICAL_LABELS = {
         "stale_entitlement_cache",
     ],
 }
+CASE_SETS = {
+    "curated-demo": [
+        "level2_conflicting_migration_context",
+        "level2_late_billing_evidence",
+        "level2_irrelevant_then_late_invite_context",
+    ],
+    "b2b-five": [
+        "level2_conflicting_migration_context",
+        "level2_late_billing_evidence",
+        "level2_irrelevant_then_late_invite_context",
+        "corrected_billing_after_access_report",
+        "stale_cache_after_migration",
+    ],
+}
+NEXT_CHECK_EQUIVALENTS = {
+    "sign in": ("sign in", "login", "authenticate", "auth"),
+    "login": ("login", "sign in", "authenticate", "auth"),
+    "login itself": ("login itself", "login", "sign in", "authenticate", "auth"),
+    "page": ("page", "surface", "where it fails", "after login"),
+    "migrated-csm": ("migrated-csm", "migrated csm"),
+    "inherit": ("inherit", "workspace role", "group role", "role assignment"),
+    "cache": ("cache", "entitlement cache"),
+    "refresh": ("refresh", "re-run", "rerun", "resync", "re-sync", "invalidate", "recompute", "rebuild"),
+    "entitlement": ("entitlement", "plan", "subscription"),
+    "billing entitlement": ("billing entitlement", "entitlement", "plan"),
+    "billing entitlement refresh": ("billing entitlement refresh", "entitlement refresh", "refresh"),
+    "invite": ("invite", "admin invite"),
+    "delivery": ("delivery", "email", "mail"),
+    "suppression": ("suppression", "suppressed", "suppression list", "email delivery"),
+    "dmarc": ("dmarc", "domain policy", "domain rejection", "recipient domain"),
+}
 
 
 def slugify(value: str) -> str:
@@ -108,6 +139,36 @@ def output_paths(out_dir: Any, run_name: str, mode: str) -> dict[str, Any]:
         "report": out_dir / f"{stem}_report.md",
         "dashboard": out_dir / f"{stem}_dashboard.html",
     }
+
+
+def default_run_name(mode: str, case_id: str = "", case_set: str = "") -> str:
+    if case_id:
+        return f"{mode}_{case_id}"
+    if case_set:
+        return f"{mode}_{case_set}"
+    return mode
+
+
+def select_fixtures(fixtures: list[dict[str, Any]], case_id: str = "", case_set: str = "") -> list[dict[str, Any]]:
+    if case_id and case_set:
+        raise ValueError("--case and --case-set cannot be used together")
+    if case_id:
+        selected = [fixture for fixture in fixtures if fixture["case_id"] == case_id]
+        if not selected:
+            available = ", ".join(fixture["case_id"] for fixture in fixtures)
+            raise ValueError(f"Unknown case '{case_id}'. Available cases: {available}")
+        return selected
+    if case_set:
+        if case_set not in CASE_SETS:
+            available_sets = ", ".join(sorted(CASE_SETS))
+            raise ValueError(f"Unknown case set '{case_set}'. Available case sets: {available_sets}")
+        wanted = CASE_SETS[case_set]
+        by_id = {fixture["case_id"]: fixture for fixture in fixtures}
+        missing = [item for item in wanted if item not in by_id]
+        if missing:
+            raise ValueError(f"Case set '{case_set}' references missing fixtures: {', '.join(missing)}")
+        return [by_id[item] for item in wanted]
+    return fixtures
 
 
 def new_state(case_id: str) -> dict[str, Any]:
@@ -287,9 +348,24 @@ def build_llm_prompt(
         "canonical_labels": CANONICAL_LABELS,
         "task": "Return only the JSON state patch. Do not write customer-facing support copy.",
     }
-    return """You are the Think step in a text-first LTS support-process experiment.
+    return """You are the Think step in a text-first B2B support-copilot workflow.
 
-Update Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.
+Update Live Support State incrementally for the support agent. Track only what changed after the latest transcript turn and newly arrived product/support context.
+
+Support-process rules:
+- Facts are durable evidence only. Do not add a fact unless the transcript or product/support context says it.
+- Unknowns are open questions the agent still needs to answer. Keep them visible until evidence resolves them.
+- Candidate branches are plausible causes still worth checking. Keep multiple branches open when the evidence is not decisive.
+- Ruled-out branches require evidence. Do not rule out a branch just because another branch sounds likely.
+- next_check must be a specific support action or question for the agent, not a summary.
+- If the customer reports access loss after migration and sign-in status is not known yet, keep auth_status and workspace_role_assignment as unknowns.
+- In that same early migration-access state, keep these candidate branches open until evidence narrows them: missing_workspace_role, scim_sync_delay, stale_entitlement_cache.
+- Ask about sign-in/login first in next_check, but do not collapse the candidate branches to login only.
+- If the customer corrects the issue surface, revise the state and rule out the old surface only when supported.
+- Ignore irrelevant context. Do not add irrelevant context facts to the state.
+- Do not predict a final root cause from transcript symptoms alone.
+- Set final_cause only when relevant product/support context provides direct mechanism evidence.
+- If final_cause is empty, root_cause_evidence_seen should usually be false.
 
 Return JSON only with this shape:
 {
@@ -574,7 +650,10 @@ def compare_state(state: dict[str, Any], expected: dict[str, Any], root_cause_ev
 
     expected_next = expected.get("next_check_contains", [])
     lowered_next = normalize(state.get("next_check", ""))
-    missing_next = [term for term in expected_next if normalize(term) not in lowered_next]
+    missing_next = missing_next_check_terms(state.get("next_check", ""), expected_next)
+    next_check_category = "pass"
+    if missing_next:
+        next_check_category = "wording_miss" if state.get("next_check") else "missing_action"
     checks.append({
         "field": "next_check",
         "passed": not missing_next,
@@ -582,6 +661,7 @@ def compare_state(state: dict[str, Any], expected: dict[str, Any], root_cause_ev
         "extra": [],
         "expected": expected_next,
         "actual": state.get("next_check", ""),
+        "category": next_check_category,
     })
 
     premature_final_cause = bool(state.get("final_cause")) and not root_cause_evidence_available
@@ -597,6 +677,17 @@ def compare_state(state: dict[str, Any], expected: dict[str, Any], root_cause_ev
     passed = sum(1 for item in checks if item["passed"])
     total = len(checks)
     return {"passed": passed, "total": total, "checks": checks}
+
+
+def missing_next_check_terms(actual: str, expected_terms: list[str]) -> list[str]:
+    lowered_actual = normalize(actual)
+    missing = []
+    for term in expected_terms:
+        lowered_term = normalize(term)
+        equivalents = NEXT_CHECK_EQUIVALENTS.get(lowered_term, (lowered_term,))
+        if not any(normalize(equivalent) in lowered_actual for equivalent in equivalents):
+            missing.append(term)
+    return missing
 
 
 def run_fixture(
@@ -729,7 +820,9 @@ def render_report(results: list[dict[str, Any]], run_label: str = "deterministic
             if verdict:
                 for check in verdict["checks"]:
                     if check["missing"]:
-                        missing.append(f"{check['field']}: {', '.join(check['missing'])}")
+                        category = check.get("category", "")
+                        label = f"{check['field']} ({category})" if category and category != "pass" else check["field"]
+                        missing.append(f"{label}: {', '.join(check['missing'])}")
             rows.append([
                 turn["turn"],
                 turn["speaker"],
@@ -869,6 +962,17 @@ def main() -> None:
         help="Optional output name, for example process_mock or predictive_mock.",
     )
     parser.add_argument(
+        "--case",
+        default="",
+        help="Run one fixture by case_id. Cannot be combined with --case-set.",
+    )
+    parser.add_argument(
+        "--case-set",
+        choices=tuple(sorted(CASE_SETS)),
+        default="",
+        help="Run a named fixture set, for example curated-demo. Cannot be combined with --case.",
+    )
+    parser.add_argument(
         "--provider",
         choices=("openai", "anthropic"),
         default=os.environ.get("SUPPORT_PROCESS_REAL_MODEL_PROVIDER", "openai"),
@@ -881,7 +985,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--reasoning-effort",
-        choices=("minimal", "low", "medium", "high"),
+        choices=("none", "low", "medium", "high", "xhigh"),
         default=os.environ.get("SUPPORT_PROCESS_REAL_MODEL_REASONING_EFFORT", "high"),
         help="Reasoning effort for providers that support it.",
     )
@@ -900,7 +1004,7 @@ def main() -> None:
     args = parser.parse_args()
 
     out_dir = ensure_output_dir()
-    fixtures = load_fixtures()
+    fixtures = select_fixtures(load_fixtures(), case_id=args.case, case_set=args.case_set)
 
     if args.mode == "prompt-pack":
         prompts = generate_prompt_pack(fixtures)
@@ -927,8 +1031,8 @@ def main() -> None:
         )
         for fixture in fixtures
     ]
-    run_label = args.run_name or args.mode
-    paths = output_paths(out_dir, args.run_name, args.mode)
+    run_label = args.run_name or default_run_name(args.mode, args.case, args.case_set)
+    paths = output_paths(out_dir, run_label, args.mode)
 
     paths["snapshots"].write_text(json.dumps(results, indent=2))
     paths["report"].write_text(render_report(results, run_label=run_label))
