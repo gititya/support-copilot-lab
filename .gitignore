@@ -2,3 +2,9 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .pytest_cache/
+.env
+.env.*
+*serviceaccount*
+*.pem
+*.p12
+copilot_claude-design/

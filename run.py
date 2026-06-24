@@ -52,33 +52,72 @@ CANONICAL_LABELS = {
         "workspace_role_missing:Migrated-CSM",
         "workspace_role:present",
         "entitlement_cache:stale",
+        "affected_scope:all_workspace_users",
+        "billing:entitled",
+        "failure_scope:legacy_worker",
+        "handoff_need:implementation_owner_update",
+        "new_worker:callbacks_succeed",
+        "normal_api_reads:work",
+        "payment:clear",
+        "plan_upgrade:complete",
+        "provisioning:not_ready",
+        "quota:under_limit",
+        "recent_change:partner_deploy",
+        "recent_change:traffic_scale",
+        "renewal:active",
+        "renewal:completed",
+        "surface:api_delivery",
+        "surface:entitlement_access",
+        "surface:webhook_callbacks",
+        "symptom:entitlement_block",
+        "symptom:rate_limit_errors",
+        "traffic_scope:subset",
+        "webhook_auth:legacy_secret",
+        "webhook_signing_secret:rotated",
     ],
     "unknowns": [
         "actual_surface",
         "auth_status",
         "billing_entitlement_status",
+        "affected_scope",
+        "entitlement_cache_status",
         "email_delivery_status",
         "invite_created",
         "cache_status",
+        "payment_status",
+        "provisioning_job_status",
+        "provisioning_status",
+        "quota_status",
+        "traffic_scope",
+        "webhook_auth_status",
         "workspace_role_assignment",
     ],
     "candidate_branches": [
         "billing_entitlement_refresh_pending",
+        "billing_entitlement_gap",
         "domain_policy_rejection",
         "email_delivery_suppressed",
+        "entitlement_cache_delay",
         "invite_not_created",
         "invoice_app_mismatch",
         "login_failure",
         "missing_workspace_role",
         "missing_workspace_role_inheritance",
+        "payment_failure",
+        "provisioning_state_mismatch",
+        "quota_exhaustion",
         "scim_sync_delay",
         "upstream_service_incident",
         "stale_entitlement_cache",
+        "webhook_auth_rotation",
     ],
     "ruled_out_branches": [
+        "billing_entitlement_gap",
         "invite_not_created",
         "login_block",
         "login_failure",
+        "payment_failure",
+        "quota_exhaustion",
         "scim_sync_delay",
     ],
     "final_cause": [
@@ -86,6 +125,7 @@ CANONICAL_LABELS = {
         "domain_policy_rejection",
         "missing_workspace_role_inheritance",
         "stale_entitlement_cache",
+        "webhook_auth_rotation",
     ],
 }
 CASE_SETS = {
@@ -294,6 +334,74 @@ def process_turn(state: dict[str, Any], turn: dict[str, Any]) -> None:
     if "never arrives" in text or "email" in text:
         add_fact(state, "symptom:invite_email_not_received")
         set_next_check(state, "Inspect invite delivery status, suppression list, and domain policy results.")
+
+    if "api calls" in text or "rate-limited" in text or "rate limited" in text:
+        add_fact(state, "surface:api_delivery")
+        add_fact(state, "symptom:rate_limit_errors")
+        add_unknown(state, "traffic_scope")
+        add_unknown(state, "quota_status")
+        add_unknown(state, "webhook_auth_status")
+        add_branch(state, "quota_exhaustion")
+        add_branch(state, "webhook_auth_rotation")
+        set_next_check(state, "Confirm whether every API route is failing or only one integration path.")
+
+    if "scaled traffic" in text:
+        add_fact(state, "recent_change:traffic_scale")
+
+    if "not every route" in text or "subset of webhook" in text:
+        add_fact(state, "traffic_scope:subset")
+        add_fact(state, "surface:webhook_callbacks")
+        add_fact(state, "normal_api_reads:work")
+        resolve_unknown(state, "traffic_scope")
+        set_next_check(state, "Compare quota counters with webhook auth status for the failing callback path.")
+
+    if "partner service rolled a new deployment" in text:
+        add_fact(state, "recent_change:partner_deploy")
+        set_next_check(state, "Compare webhook auth status for the failing service before naming a final cause.")
+
+    if "legacy worker fails" in text or "new worker callbacks succeed" in text:
+        add_fact(state, "failure_scope:legacy_worker")
+        add_fact(state, "new_worker:callbacks_succeed")
+        set_next_check(state, "Compare webhook auth status for the legacy worker before naming a final cause.")
+
+    if "old webhook auth config" in text:
+        add_fact(state, "failure_scope:legacy_worker")
+        set_next_check(state, "Update the legacy worker signing secret and replay one failed webhook callback.")
+
+    if "not entitled" in text or "entitlement block" in text:
+        add_fact(state, "surface:entitlement_access")
+        add_fact(state, "symptom:entitlement_block")
+        add_unknown(state, "affected_scope")
+        add_unknown(state, "billing_entitlement_status")
+        add_unknown(state, "provisioning_status")
+        add_branch(state, "billing_entitlement_gap")
+        add_branch(state, "provisioning_state_mismatch")
+        add_branch(state, "entitlement_cache_delay")
+        set_next_check(state, "Confirm whether all users see the entitlement block or only a few seats.")
+
+    if "renewal completed" in text:
+        add_fact(state, "renewal:completed")
+
+    if "all users" in text and "entitlement block" in text:
+        add_fact(state, "affected_scope:all_workspace_users")
+        resolve_unknown(state, "affected_scope")
+        set_next_check(state, "Check billing entitlement and provisioning state side by side.")
+
+    if "renewal is active" in text:
+        add_fact(state, "renewal:active")
+        add_fact(state, "billing:entitled")
+        if "provisioning:not_ready" in state["facts"]:
+            set_next_check(state, "Escalate with provisioning job status and entitlement cache status still open.")
+
+    if "provisioning still disagrees" in text:
+        add_fact(state, "provisioning:not_ready")
+        set_next_check(state, "Escalate with provisioning job status and entitlement cache status still open.")
+
+    if "implementation owner" in text:
+        add_fact(state, "handoff_need:implementation_owner_update")
+
+    if "handing this to product support" in text:
+        set_next_check(state, "Escalate with provisioning job status and entitlement cache status still open.")
 
     refresh_handoff(state)
 

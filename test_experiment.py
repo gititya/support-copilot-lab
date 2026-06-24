@@ -203,6 +203,50 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertIn("Post-Case Handoff", html)
         self.assertIn("Unresolved; hand off", html)
 
+    def test_level3_webhook_case_waits_for_late_mechanism_evidence(self):
+        fixture = next(
+            item for item in load_fixtures()
+            if item["case_id"] == "level3_misrouted_ratelimit_actually_webhook_auth"
+        )
+        result = run_fixture(fixture)
+        for item in result["timeline"][:-1]:
+            self.assertEqual(item["state"]["final_cause"], "")
+        self.assertEqual(result["final_state"]["final_cause"], "webhook_auth_rotation")
+        self.assertIn("quota_exhaustion", result["final_state"]["ruled_out_branches"])
+
+    def test_process_mock_passes_level3_cases_without_premature_final_cause(self):
+        command = f"{shlex.quote(sys.executable)} {shlex.quote(str(ROOT / 'mock_llm.py'))} --profile process"
+        fixtures = [fixture for fixture in load_fixtures() if fixture["case_id"].startswith("level3_")]
+        results = [run_fixture(fixture, mode="llm", llm_command=command) for fixture in fixtures]
+        passed, checks, premature = aggregate(results)
+        self.assertEqual(passed, checks)
+        self.assertEqual(premature, 0)
+
+    def test_predictive_mock_fails_level3_webhook_case_prematurely(self):
+        command = f"{shlex.quote(sys.executable)} {shlex.quote(str(ROOT / 'mock_llm.py'))} --profile predictive"
+        fixture = next(
+            item for item in load_fixtures()
+            if item["case_id"] == "level3_misrouted_ratelimit_actually_webhook_auth"
+        )
+        result = run_fixture(fixture, mode="llm", llm_command=command)
+        premature_turns = [
+            item["turn"]["turn"]
+            for item in result["timeline"]
+            for check in item["verdict"]["checks"]
+            if check["field"] == "final_cause_timing" and not check["passed"]
+        ]
+        self.assertIn(1, premature_turns)
+
+    def test_level3_conflicting_systems_remains_handoff(self):
+        fixture = next(
+            item for item in load_fixtures()
+            if item["case_id"] == "level3_conflicting_systems_unresolved_handoff"
+        )
+        result = run_fixture(fixture)
+        self.assertEqual(result["final_state"]["final_cause"], "")
+        self.assertIn("provisioning_job_status", result["final_state"]["unknowns"])
+        self.assertIn("product support provisioning owner", fixture["next_owner"])
+
     def test_live_simulator_adds_case_route_and_timeline(self):
         data = build_simulator_data()
         steps = data["steps"]

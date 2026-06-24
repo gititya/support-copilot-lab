@@ -1,0 +1,21 @@
+{
+  "run": "gpt55_design_benchmark",
+  "model": "gpt-5.5",
+  "provider": "openai",
+  "key_source": "keychain",
+  "case_ids": [
+    "level2_conflicting_migration_context",
+    "level2_irrelevant_then_late_invite_context",
+    "level2_late_billing_evidence"
+  ],
+  "started_at": "2026-06-23T18:51:48.083853+00:00",
+  "results": [
+    {
+      "case_id": "level2_conflicting_migration_context",
+      "status": "failed",
+      "error": "OpenAI request failed: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1006)"
+    }
+  ],
+  "status": "failed",
+  "finished_at": "2026-06-23T18:51:48.129232+00:00"
+}

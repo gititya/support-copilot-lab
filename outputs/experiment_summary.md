@@ -4,9 +4,9 @@ This is the end-to-end offline experiment for text-first LTS support-process beh
 
 | run | cases | checks | pass_rate | final_cause_ok | premature_final_cause_turns | status |
 | --- | --- | --- | --- | --- | --- | --- |
-| deterministic | 10 | 216/216 | 100% | 10/10 | 0 | ran |
-| process_mock | 10 | 216/216 | 100% | 10/10 | 0 | ran |
-| predictive_mock | 10 | 189/216 | 88% | 10/10 | 23 | ran |
+| deterministic | 12 | 318/318 | 100% | 12/12 | 0 | ran |
+| process_mock | 12 | 318/318 | 100% | 12/12 | 0 | ran |
+| predictive_mock | 12 | 275/318 | 86% | 12/12 | 29 | ran |
 | real_model | - | - | - | - | - | not run; set SUPPORT_PROCESS_RUN_REAL_MODEL=1, SUPPORT_PROCESS_REAL_MODEL_NAME, and the provider API key |
 
 

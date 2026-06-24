@@ -118,6 +118,72 @@ def process_patch(payload: dict[str, Any]) -> dict[str, Any]:
         add(out["facts_add"], "symptom:invite_email_not_received")
         out["next_check"] = "Inspect invite delivery status, suppression list, and domain policy results."
 
+    if "api calls" in text or "rate-limited" in text or "rate limited" in text:
+        add(out["facts_add"], "surface:api_delivery")
+        add(out["facts_add"], "symptom:rate_limit_errors")
+        for unknown in ["traffic_scope", "quota_status", "webhook_auth_status"]:
+            add(out["unknowns_add"], unknown)
+        for branch in ["quota_exhaustion", "webhook_auth_rotation"]:
+            add(out["candidate_branches_add"], branch)
+        out["next_check"] = "Confirm whether every API route is failing or only one integration path."
+
+    if "scaled traffic" in text:
+        add(out["facts_add"], "recent_change:traffic_scale")
+
+    if "not every route" in text or "subset of webhook" in text:
+        add(out["facts_add"], "traffic_scope:subset")
+        add(out["facts_add"], "surface:webhook_callbacks")
+        add(out["facts_add"], "normal_api_reads:work")
+        remove(out["unknowns_remove"], "traffic_scope")
+        out["next_check"] = "Compare quota counters with webhook auth status for the failing callback path."
+
+    if "partner service rolled a new deployment" in text:
+        add(out["facts_add"], "recent_change:partner_deploy")
+        out["next_check"] = "Compare webhook auth status for the failing service before naming a final cause."
+
+    if "legacy worker fails" in text or "new worker callbacks succeed" in text:
+        add(out["facts_add"], "failure_scope:legacy_worker")
+        add(out["facts_add"], "new_worker:callbacks_succeed")
+        out["next_check"] = "Compare webhook auth status for the legacy worker before naming a final cause."
+
+    if "old webhook auth config" in text:
+        add(out["facts_add"], "failure_scope:legacy_worker")
+        out["next_check"] = "Update the legacy worker signing secret and replay one failed webhook callback."
+
+    if "not entitled" in text or "entitlement block" in text:
+        add(out["facts_add"], "surface:entitlement_access")
+        add(out["facts_add"], "symptom:entitlement_block")
+        for unknown in ["affected_scope", "billing_entitlement_status", "provisioning_status"]:
+            add(out["unknowns_add"], unknown)
+        for branch in ["billing_entitlement_gap", "provisioning_state_mismatch", "entitlement_cache_delay"]:
+            add(out["candidate_branches_add"], branch)
+        out["next_check"] = "Confirm whether all users see the entitlement block or only a few seats."
+
+    if "renewal completed" in text:
+        add(out["facts_add"], "renewal:completed")
+
+    if "all users" in text and "entitlement block" in text:
+        add(out["facts_add"], "affected_scope:all_workspace_users")
+        remove(out["unknowns_remove"], "affected_scope")
+        out["next_check"] = "Check billing entitlement and provisioning state side by side."
+
+    if "renewal is active" in text:
+        add(out["facts_add"], "renewal:active")
+        add(out["facts_add"], "billing:entitled")
+        previous_facts = payload["previous_live_support_state"].get("facts", [])
+        if "provisioning:not_ready" in previous_facts:
+            out["next_check"] = "Escalate with provisioning job status and entitlement cache status still open."
+
+    if "provisioning still disagrees" in text:
+        add(out["facts_add"], "provisioning:not_ready")
+        out["next_check"] = "Escalate with provisioning job status and entitlement cache status still open."
+
+    if "implementation owner" in text:
+        add(out["facts_add"], "handoff_need:implementation_owner_update")
+
+    if "handing this to product support" in text:
+        out["next_check"] = "Escalate with provisioning job status and entitlement cache status still open."
+
     if context_facts:
         out["root_cause_evidence_seen"] = True
         for fact in context_facts:
@@ -169,6 +235,33 @@ def process_patch(payload: dict[str, Any]) -> dict[str, Any]:
             out["final_cause"] = "domain_policy_rejection"
             out["next_check"] = "Inspect email suppression and DMARC policy for the recipient domain."
 
+        if "quota:under_limit" in context_facts:
+            remove(out["unknowns_remove"], "quota_status")
+            remove(out["candidate_branches_remove"], "quota_exhaustion")
+            add(out["ruled_out_branches_add"], "quota_exhaustion")
+            add(out["candidate_branches_add"], "webhook_auth_rotation")
+            out["next_check"] = "Compare webhook auth status for the failing service before naming a final cause."
+
+        if "webhook_auth:legacy_secret" in context_facts:
+            remove(out["unknowns_remove"], "webhook_auth_status")
+            remove(out["candidate_branches_remove"], "quota_exhaustion")
+            add(out["ruled_out_branches_add"], "quota_exhaustion")
+            add(out["candidate_branches_add"], "webhook_auth_rotation")
+            out["final_cause"] = "webhook_auth_rotation"
+            out["next_check"] = "Update the legacy worker signing secret and replay one failed webhook callback."
+
+        if "billing:entitled" in context_facts and "provisioning:not_ready" in context_facts:
+            for unknown in ["billing_entitlement_status", "payment_status"]:
+                remove(out["unknowns_remove"], unknown)
+            for unknown in ["provisioning_job_status", "entitlement_cache_status"]:
+                add(out["unknowns_add"], unknown)
+            for branch in ["billing_entitlement_gap", "payment_failure"]:
+                remove(out["candidate_branches_remove"], branch)
+                add(out["ruled_out_branches_add"], branch)
+            for branch in ["provisioning_state_mismatch", "entitlement_cache_delay"]:
+                add(out["candidate_branches_add"], branch)
+            out["next_check"] = "Escalate with provisioning job status and entitlement cache status still open."
+
     return out
 
 
@@ -179,9 +272,17 @@ def predictive_patch(payload: dict[str, Any]) -> dict[str, Any]:
         out["final_cause"] = "missing_workspace_role_inheritance"
         add(out["candidate_branches_add"], "missing_workspace_role_inheritance")
         out["handoff_note"] = "Predicted migration role inheritance issue before system evidence."
+    elif "rate-limited" in text or "rate limited" in text or "api calls" in text:
+        out["final_cause"] = "quota_exhaustion"
+        add(out["candidate_branches_add"], "quota_exhaustion")
+        out["handoff_note"] = "Predicted quota exhaustion before traffic scope or webhook auth evidence."
     elif "cannot log in" in text:
         out["final_cause"] = "login_failure"
         out["handoff_note"] = "Predicted login failure from the first symptom."
+    elif "not entitled" in text or "entitlement block" in text:
+        out["final_cause"] = "billing_entitlement_gap"
+        add(out["candidate_branches_add"], "billing_entitlement_gap")
+        out["handoff_note"] = "Predicted billing entitlement gap before provisioning evidence."
     elif "invite" in text:
         out["final_cause"] = "domain_policy_rejection"
         out["handoff_note"] = "Predicted email policy rejection before delivery evidence."

@@ -4,6 +4,8 @@ This roadmap is the locked plan for taking the current offline support-copilot p
 
 The project stays text-first until the B2B process is proven. The root experiment harness remains the source of truth. Prototype work stays under `prototype/` unless a later milestone explicitly says to reorganize.
 
+Closeout status: thesis proven. The repo is complete as a B2B proof-of-work: the accepted fixture set includes 12 cases, the level3 cases force sustained uncertainty, the process mock passes without premature final causes, and the predictive mock visibly fails on early answers.
+
 ## Completion Rule
 
 At the end of every milestone, check off the milestone status below and confirm:
@@ -194,7 +196,7 @@ Exit criteria:
 
 ### B2B Real-Testing Checkpoint
 
-Status: In progress
+Status: Completed for this proof-of-work
 
 Latest result:
 
@@ -205,17 +207,17 @@ Latest result:
 - The remaining new-batch miss is a next-check wording issue, not premature final-cause prediction.
 - Older historical generator cases mostly fail on final-cause mismatch or incomplete probable/resolved outcome details, so they should not be promoted without review.
 
-Next gate before product-demo hardening:
+Closeout decision:
 
-- Human-review the ready generated cases for support usefulness.
-- Promote only strong cases into `fixtures/`.
-- Keep weak generated cases in staging or send feedback back to `support-call-generator`.
-- Treat the current simulator as the B2B prototype surface, not only as a report artifact.
-- Keep generated-case promotion separate from UI polish. The prototype can be demonstrated with curated cases, but fixture promotion remains the standard for expanding the accepted test set.
+- No additional generated-case promotion is required for closeout.
+- The accepted hand-authored B2B fixtures are the source-of-truth proof set.
+- Generated-case staging remains documented, but it is not the completion gate.
 
 ### Milestone 8 - B2B Copilot-Like UI/UX Transformation
 
 Status: Completed
+
+Closeout decision: no further UI rebuild is in scope for this proof-of-work. The simulator is enough to demonstrate the B2B support-process trace; broader UI work would turn a closing pass into product expansion.
 
 Goal: Turn the static HTML report/demo into a crisper support-copilot workspace that demonstrates how a human support agent would use the copilot during a case.
 
@@ -255,7 +257,7 @@ Result:
 
 ### Milestone 8.5 - Real Model Feasibility Check
 
-Status: Cloud feasibility proven at prototype level
+Status: Cloud feasibility proven at prototype level; local-model tuning parked
 
 Goal: Keep real/local model feasibility separate from default simulator behavior until model replay comparison is useful enough to judge alongside the reference trace.
 
@@ -267,13 +269,12 @@ Current evidence:
 - `gpt-5.5` completed the full 10-fixture benchmark at 189/216 checks, 87.5% pass rate, with 0 premature final-cause errors. This proves the architecture is credible with a strong cloud model, but not yet polished enough to make real-model output the default demo behavior.
 - After cloud prompt tuning, `gpt-5.5` completed the `b2b-five` benchmark at 110/114 checks, 96.5% pass rate, with 0 premature final-cause errors. Saved evidence lives in `outputs/model_replays/`.
 
-Next gate:
+Closeout decision:
 
 - Do not merge local-model replay into `main` as core product behavior yet.
-- Add model replay comparison to the simulator: reference state versus saved GPT-5.5 state.
 - Keep deterministic/reference state as the default demo.
-- Compare another strong cloud model after replay comparison is useful.
-- Start local-model tuning only after the cloud replay comparison path is stable.
+- Do not merge `codex/model-replay-comparison` for closeout; simulator comparison UI is outside the final proof.
+- Leave local-model work parked unless this repo is explicitly reopened.
 
 Exit criteria:
 
@@ -282,7 +283,9 @@ Exit criteria:
 
 ### Milestone 9 - Decide Whether To Add B2C
 
-Status: Not started
+Status: Intentionally out of scope for this proof-of-work
+
+Closeout decision: this repo stays B2B. B2C is demonstrated separately by Signal and by the future Handoff Quality Gate using this repo's engine shape, not by adding a B2C mode here.
 
 Goal: Decide if B2C belongs in this repo after the B2B prototype is demonstrable and at least one real-model feasibility check is understood.
 
@@ -305,7 +308,7 @@ Exit criteria:
 
 ### Milestone 10 - Completion Gate
 
-Status: Not started
+Status: Completed
 
 Goal: Decide that this repo is complete as a support-process evaluation and prototype lab.
 
@@ -330,3 +333,4 @@ Checks:
 Exit criteria:
 
 - The repo can answer: "Did the support assistant work the case correctly as evidence arrived?"
+- Closeout answer: yes. The final accepted proof set is 12 B2B fixtures, including 2 level3 cases, with deterministic and process mock lanes at 100% and predictive mock failing on premature final-cause timing.

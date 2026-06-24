@@ -1,0 +1,260 @@
+{
+  "case_id": "level3_conflicting_systems_unresolved_handoff",
+  "title": "Level 3 Conflicting Systems Unresolved Handoff",
+  "scenario": "Customer has an entitlement failure where billing says the account is entitled but provisioning disagrees. The session never receives enough mechanism evidence, so the correct outcome is a handoff with open unknowns.",
+  "expected_outcome": "handoff",
+  "handoff_summary": "Billing shows the workspace is entitled, but provisioning still marks access not ready. Quota and payment failure are ruled out. Product support needs to inspect the provisioning job and entitlement cache before naming a cause.",
+  "next_owner": "product support provisioning owner",
+  "safe_customer_summary": "Your account appears entitled in billing, but the product provisioning state has not caught up. We need a product support owner to inspect the provisioning job before confirming the cause.",
+  "transcript_turns": [
+    {
+      "turn": 1,
+      "speaker": "customer",
+      "text": "Our enterprise workspace still says we are not entitled even though the renewal completed."
+    },
+    {
+      "turn": 2,
+      "speaker": "agent",
+      "text": "Do all users see the entitlement block, or only a few seats?"
+    },
+    {
+      "turn": 3,
+      "speaker": "customer",
+      "text": "All users in the workspace see the entitlement block."
+    },
+    {
+      "turn": 4,
+      "speaker": "agent",
+      "text": "I am checking billing entitlement and provisioning state side by side."
+    },
+    {
+      "turn": 5,
+      "speaker": "customer",
+      "text": "Billing sent us a receipt and the admin page says the renewal is active."
+    },
+    {
+      "turn": 6,
+      "speaker": "agent",
+      "text": "Provisioning still disagrees, so I need the job status before I call a root cause."
+    },
+    {
+      "turn": 7,
+      "speaker": "customer",
+      "text": "We need an update for our implementation owner today."
+    },
+    {
+      "turn": 8,
+      "speaker": "agent",
+      "text": "I am handing this to product support with billing entitled, provisioning blocked, and the job status still open."
+    }
+  ],
+  "context_events": [
+    {
+      "after_turn": 4,
+      "description": "Billing service reports entitlement active and payment clear, while provisioning reports workspace not ready.",
+      "facts": [
+        "billing:entitled",
+        "payment:clear",
+        "provisioning:not_ready"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "resolved_unknowns": [
+        "billing_entitlement_status",
+        "payment_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check": "Escalate with provisioning job status and entitlement cache status still open."
+    }
+  ],
+  "expected_by_turn": [
+    {
+      "after_turn": 1,
+      "facts": [
+        "surface:entitlement_access",
+        "symptom:entitlement_block",
+        "renewal:completed"
+      ],
+      "unknowns": [
+        "affected_scope",
+        "billing_entitlement_status",
+        "provisioning_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_gap",
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "all users"
+      ]
+    },
+    {
+      "after_turn": 2,
+      "facts": [
+        "affected_scope:all_workspace_users",
+        "surface:entitlement_access",
+        "symptom:entitlement_block"
+      ],
+      "unknowns": [
+        "billing_entitlement_status",
+        "provisioning_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_gap",
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "billing",
+        "provisioning"
+      ]
+    },
+    {
+      "after_turn": 3,
+      "facts": [
+        "affected_scope:all_workspace_users"
+      ],
+      "unknowns": [
+        "billing_entitlement_status",
+        "provisioning_status"
+      ],
+      "candidate_branches": [
+        "billing_entitlement_gap",
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [],
+      "next_check_contains": [
+        "billing",
+        "provisioning"
+      ]
+    },
+    {
+      "after_turn": 4,
+      "facts": [
+        "billing:entitled",
+        "payment:clear",
+        "provisioning:not_ready"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check_contains": [
+        "provisioning job",
+        "entitlement cache"
+      ]
+    },
+    {
+      "after_turn": 5,
+      "facts": [
+        "renewal:active",
+        "billing:entitled"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check_contains": [
+        "provisioning job",
+        "entitlement cache"
+      ]
+    },
+    {
+      "after_turn": 6,
+      "facts": [
+        "provisioning:not_ready"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check_contains": [
+        "provisioning job",
+        "entitlement cache"
+      ]
+    },
+    {
+      "after_turn": 7,
+      "facts": [
+        "handoff_need:implementation_owner_update"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check_contains": [
+        "provisioning job",
+        "entitlement cache"
+      ]
+    },
+    {
+      "after_turn": 8,
+      "facts": [
+        "billing:entitled",
+        "provisioning:not_ready"
+      ],
+      "unknowns": [
+        "provisioning_job_status",
+        "entitlement_cache_status"
+      ],
+      "candidate_branches": [
+        "provisioning_state_mismatch",
+        "entitlement_cache_delay"
+      ],
+      "ruled_out_branches": [
+        "payment_failure",
+        "billing_entitlement_gap"
+      ],
+      "next_check_contains": [
+        "provisioning job",
+        "entitlement cache"
+      ]
+    }
+  ],
+  "final_cause": ""
+}

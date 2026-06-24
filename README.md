@@ -1,6 +1,10 @@
 # Real-Time Support - Updated
 
-My corrected take on real-time support intelligence. The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? This version asks the support question that actually matters: can the AI work the case properly as evidence arrives?
+Finished proof-of-work: a text-first B2B support-process evaluation lab.
+
+The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? It failed for the right reason. Early support turns usually contain symptoms, not mechanism.
+
+This repo reframes the problem: can an AI work the case properly as evidence arrives? The proof is the trace, not the pitch. The harness scores facts, unknowns, active branches, ruled-out paths, next checks, handoff, and the exact moment a final cause becomes justified.
 
 This repo is now a working offline prototype with an evaluation harness underneath. The prototype shows a support copilot working one case turn by turn, while the harness proves whether the copilot keeps facts, unknowns, possible causes, ruled-out paths, next checks, and final outcomes in the right order.
 
@@ -21,6 +25,17 @@ To run the evaluation harness:
 ```bash
 python3 run_all.py
 ```
+
+Current proof:
+
+```text
+deterministic    12 cases   318/318  100%   premature final causes: 0
+process_mock     12 cases   318/318  100%   premature final causes: 0
+predictive_mock  12 cases   275/318   86%   premature final causes: 29
+real_model       opt-in; GPT-5.5 benchmark artifacts are committed separately
+```
+
+The predictive mock still reaches the right final cause by the end. It fails because it says the answer too early.
 
 ## The one idea
 
@@ -65,7 +80,7 @@ final cause only after mechanism evidence appears
 
 ## The cases
 
-The harness uses ten support cases, including simple fixtures and harder B2B cases:
+The harness uses twelve B2B support cases, including simple fixtures and harder evidence-timing cases:
 
 1. `access_after_migration` - three users lost access after migration.
 2. `billing_plan_mismatch` - customer starts with a login complaint, then corrects to billing plan mismatch.
@@ -77,6 +92,8 @@ The harness uses ten support cases, including simple fixtures and harder B2B cas
 8. `level2_late_billing_evidence` - billing case where final cause waits for late product context.
 9. `level2_irrelevant_then_late_invite_context` - invite case with irrelevant context before useful delivery evidence.
 10. `level2_unresolved_workspace_handoff` - unresolved workspace case that should hand off instead of inventing a final cause.
+11. `level3_misrouted_ratelimit_actually_webhook_auth` - quota is the tempting story, but late webhook auth evidence proves the cause.
+12. `level3_conflicting_systems_unresolved_handoff` - billing and provisioning conflict, so the case stays unresolved and moves to a named owner.
 
 Each case has:
 
@@ -97,13 +114,19 @@ real_model      = optional provider-backed run over the same fixtures
 Current result:
 
 ```
-deterministic    108/108  100%   premature final causes: 0
-process_mock     108/108  100%   premature final causes: 0
-predictive_mock   96/108   89%   premature final causes: 12
-gpt-5.5 b2b-five 110/114   96.5% premature final causes: 0
+deterministic     318/318  100%   premature final causes: 0
+process_mock      318/318  100%   premature final causes: 0
+predictive_mock   275/318   86%   premature final causes: 29
+gpt-5.5 b2b-five  110/114   96.5% premature final causes: 0
 ```
 
 The predictive mock still gets the final cause right by the end. It fails because it says the answer too early.
+
+## What this proves
+
+1. **Builds with AI and builds AI systems.** The repo includes a real-model adapter, committed GPT-5.5 benchmark artifacts, gold-trace scoring, and a premature-answer penalty that catches the old failure mode.
+2. **Understands modern support workflows.** Good support work is not just a final answer. The trace keeps next-best-check, evidence timing, open unknowns, ruled-out paths, and handoff as first-class outcomes.
+3. **Built B2B, with a reusable engine.** The accepted fixtures are SaaS/B2B support cases, but the engine is the incremental Live Support State plus evidence-timed final-cause gating. A B2C proof should swap the domain fixtures, not fork the reasoning discipline into this repo.
 
 ## What this is not
 
@@ -127,6 +150,37 @@ It is a working offline prototype for one narrow product question: can a support
 7. `prototype/live_simulator.py` - static 3-case live replay simulator for judging the support-agent experience.
 8. `outputs/` - generated simulator, reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
 9. `AUDITABLE_SUPPORT_AI.md` - the product idea behind the prototype.
+
+## Reusable engine vs. domain layer
+
+The reusable engine is in `run.py`, `mock_llm.py`, and the fixture contract: incremental Live Support State, evidence-timed final-cause gating, and a penalty for premature answers. The B2B domain layer is the accepted fixture set in `fixtures/`, with SaaS support surfaces like SCIM, workspace roles, entitlements, billing refresh, invite delivery, provisioning, and webhook auth. To flip this engine from B2B to B2C, keep the harness and timing discipline, then replace `fixtures/` with consumer-support cases and domain labels. Do not add a B2C mode here; the B2C proof belongs in the sibling support/handoff work.
+
+## Run it on your own support cases
+
+This repo is built on synthetic fixtures. To try your own support case, hand-write one JSON file in `fixtures/` using the existing contract:
+
+```text
+case_id
+title
+scenario
+transcript_turns
+context_events
+expected_by_turn
+final_cause
+```
+
+Then run:
+
+```bash
+python3 validate_fixtures.py
+python3 run_all.py
+```
+
+Read the generated reports in `outputs/`, especially `outputs/experiment_summary.md`, `outputs/support_process_process_mock_report.md`, and `outputs/support_process_predictive_mock_report.md`.
+
+For generated synthetic cases, use the existing staging seam in `prototype/import_generated.py` and the contract documented in `prototype/IMPORT_CONTRACT.md`. Do not build a new importer for closeout.
+
+Real transcripts are customer data. Do not commit them. Keep them outside git or behind `.gitignore`, and remember that `--mode real-model` / `--llm-command` can send case text to the configured model process or API.
 
 ### Run it
 

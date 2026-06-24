@@ -17,6 +17,8 @@ Offline test of transcript + mock-system support process state.
 | level2_irrelevant_then_late_invite_context | 24/24 | 100% | yes | domain_policy_rejection |
 | level2_late_billing_evidence | 30/30 | 100% | yes | billing_entitlement_refresh_pending |
 | level2_unresolved_workspace_handoff | 24/24 | 100% | yes |  |
+| level3_conflicting_systems_unresolved_handoff | 48/48 | 100% | yes |  |
+| level3_misrouted_ratelimit_actually_webhook_auth | 54/54 | 100% | yes | webhook_auth_rotation |
 | stale_cache_after_migration | 18/18 | 100% | yes | stale_entitlement_cache |
 
 ## Access After Migration
@@ -426,6 +428,120 @@ Offline test of transcript + mock-system support process state.
     "Next check: Check entitlement cache status or product incident signals before naming a final cause."
   ],
   "final_cause": "",
+  "root_cause_evidence_seen": true
+}
+```
+
+## Level 3 Conflicting Systems Unresolved Handoff
+
+| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | customer | Our enterprise workspace still says we are not entitled even though the renewal completed. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed | affected_scope; billing_entitlement_status; provisioning_status | billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay | Confirm whether all users see the entitlement block or only a few seats. | pass | - |
+| 2 | agent | Do all users see the entitlement block, or only a few seats? | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users | billing_entitlement_status; provisioning_status; affected_scope | billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay | Check billing entitlement and provisioning state side by side. | pass | - |
+| 3 | customer | All users in the workspace see the entitlement block. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users | billing_entitlement_status; provisioning_status; affected_scope | billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay | Check billing entitlement and provisioning state side by side. | pass | - |
+| 4 | agent | I am checking billing entitlement and provisioning state side by side. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready | provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status | provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch | Escalate with provisioning job status and entitlement cache status still open. | pass | - |
+| 5 | customer | Billing sent us a receipt and the admin page says the renewal is active. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active | provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status; billing_entitlement_status | provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch | Escalate with provisioning job status and entitlement cache status still open. | pass | - |
+| 6 | agent | Provisioning still disagrees, so I need the job status before I call a root cause. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active | provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status; billing_entitlement_status | provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch | Escalate with provisioning job status and entitlement cache status still open. | pass | - |
+| 7 | customer | We need an update for our implementation owner today. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update | provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status; billing_entitlement_status | provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch | Escalate with provisioning job status and entitlement cache status still open. | pass | - |
+| 8 | agent | I am handing this to product support with billing entitled, provisioning blocked, and the job status still open. | surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update | provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status; billing_entitlement_status | provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch | Escalate with provisioning job status and entitlement cache status still open. | pass | - |
+
+### Final State
+
+```json
+{
+  "case_id": "level3_conflicting_systems_unresolved_handoff",
+  "version": 8,
+  "facts": [
+    "surface:workspace_access",
+    "surface:entitlement_access",
+    "symptom:entitlement_block",
+    "renewal:completed",
+    "affected_scope:all_workspace_users",
+    "surface:billing_plan",
+    "symptom:wrong_plan_shown",
+    "billing:entitled",
+    "payment:clear",
+    "provisioning:not_ready",
+    "renewal:active",
+    "handoff_need:implementation_owner_update"
+  ],
+  "unknowns": [
+    "provisioning_status",
+    "affected_scope",
+    "provisioning_job_status",
+    "entitlement_cache_status",
+    "billing_entitlement_status"
+  ],
+  "candidate_branches": [
+    "provisioning_state_mismatch",
+    "entitlement_cache_delay",
+    "billing_entitlement_refresh_pending",
+    "invoice_app_mismatch"
+  ],
+  "ruled_out_branches": [
+    "billing_entitlement_gap",
+    "payment_failure"
+  ],
+  "next_check": "Escalate with provisioning job status and entitlement cache status still open.",
+  "handoff_notes": [
+    "Known: payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update",
+    "Unknowns: provisioning_status; affected_scope; provisioning_job_status; entitlement_cache_status",
+    "Branches: provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch",
+    "Next check: Escalate with provisioning job status and entitlement cache status still open."
+  ],
+  "final_cause": "",
+  "root_cause_evidence_seen": true
+}
+```
+
+## Level 3 Misrouted Rate Limit Actually Webhook Auth
+
+| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | customer | Our API calls are getting rate-limited after we scaled traffic this week. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale | traffic_scope; quota_status; webhook_auth_status | quota_exhaustion; webhook_auth_rotation | Confirm whether every API route is failing or only one integration path. | pass | - |
+| 2 | agent | Is every API route failing, or only one integration path? | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale | traffic_scope; quota_status; webhook_auth_status | quota_exhaustion; webhook_auth_rotation | Confirm whether every API route is failing or only one integration path. | pass | - |
+| 3 | customer | It is not every route. A subset of webhook callbacks fails, but normal API reads still work. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work | quota_status; webhook_auth_status | quota_exhaustion; webhook_auth_rotation | Compare quota counters with webhook auth status for the failing callback path. | pass | - |
+| 4 | agent | I am checking quota usage and webhook authentication for that service. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit | webhook_auth_status | webhook_auth_rotation | Compare webhook auth status for the failing service before naming a final cause. | pass | - |
+| 5 | customer | The failures started right after the partner service rolled a new deployment. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy | webhook_auth_status | webhook_auth_rotation | Compare webhook auth status for the failing service before naming a final cause. | pass | - |
+| 6 | agent | Do successful and failed callbacks use the same signing secret? | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy | webhook_auth_status | webhook_auth_rotation | Compare webhook auth status for the failing service before naming a final cause. | pass | - |
+| 7 | customer | Only the legacy worker fails. The new worker callbacks succeed. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed | webhook_auth_status | webhook_auth_rotation | Compare webhook auth status for the legacy worker before naming a final cause. | pass | - |
+| 8 | agent | I am comparing webhook signing-secret rotation and quota counters now. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed | webhook_auth_status | webhook_auth_rotation | Compare webhook auth status for the legacy worker before naming a final cause. | pass | - |
+| 9 | customer | That matches what our service owner suspected: the legacy worker still has old webhook auth config. | surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret |  | webhook_auth_rotation | Update the legacy worker signing secret and replay one failed webhook callback. | pass | - |
+
+### Final State
+
+```json
+{
+  "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+  "version": 9,
+  "facts": [
+    "surface:api_delivery",
+    "symptom:rate_limit_errors",
+    "recent_change:traffic_scale",
+    "traffic_scope:subset",
+    "surface:webhook_callbacks",
+    "normal_api_reads:work",
+    "quota:under_limit",
+    "recent_change:partner_deploy",
+    "failure_scope:legacy_worker",
+    "new_worker:callbacks_succeed",
+    "webhook_signing_secret:rotated",
+    "webhook_auth:legacy_secret"
+  ],
+  "unknowns": [],
+  "candidate_branches": [
+    "webhook_auth_rotation"
+  ],
+  "ruled_out_branches": [
+    "quota_exhaustion"
+  ],
+  "next_check": "Update the legacy worker signing secret and replay one failed webhook callback.",
+  "handoff_notes": [
+    "Known: failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret",
+    "Branches: webhook_auth_rotation",
+    "Next check: Update the legacy worker signing secret and replay one failed webhook callback."
+  ],
+  "final_cause": "webhook_auth_rotation",
   "root_cause_evidence_seen": true
 }
 ```
