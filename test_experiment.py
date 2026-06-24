@@ -77,6 +77,11 @@ class SupportProcessExperimentTest(unittest.TestCase):
         selected = select_fixtures(load_fixtures(), case_set="curated-demo")
         self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["curated-demo"])
 
+    def test_runner_selects_b2b_five_case_set(self):
+        selected = select_fixtures(load_fixtures(), case_set="b2b-five")
+        self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["b2b-five"])
+        self.assertEqual(len(selected), 5)
+
     def test_prompt_keeps_early_migration_access_branches_open(self):
         fixture = next(item for item in load_fixtures() if item["case_id"] == "level2_conflicting_migration_context")
         prompt = build_llm_prompt(
@@ -92,6 +97,7 @@ class SupportProcessExperimentTest(unittest.TestCase):
     def test_next_check_equivalents_accept_support_useful_wording(self):
         self.assertEqual(missing_next_check_terms("Confirm whether authentication works for the affected users.", ["sign in"]), [])
         self.assertEqual(missing_next_check_terms("Inspect recipient-domain policy and email delivery suppression.", ["DMARC", "suppression"]), [])
+        self.assertEqual(missing_next_check_terms("Invalidate or recompute the entitlement cache.", ["Refresh"]), [])
         self.assertEqual(missing_next_check_terms("", ["cache"]), ["cache"])
 
     def test_next_check_report_marks_wording_miss_separately(self):

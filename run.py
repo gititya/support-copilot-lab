@@ -94,6 +94,13 @@ CASE_SETS = {
         "level2_late_billing_evidence",
         "level2_irrelevant_then_late_invite_context",
     ],
+    "b2b-five": [
+        "level2_conflicting_migration_context",
+        "level2_late_billing_evidence",
+        "level2_irrelevant_then_late_invite_context",
+        "corrected_billing_after_access_report",
+        "stale_cache_after_migration",
+    ],
 }
 NEXT_CHECK_EQUIVALENTS = {
     "sign in": ("sign in", "login", "authenticate", "auth"),
@@ -103,7 +110,7 @@ NEXT_CHECK_EQUIVALENTS = {
     "migrated-csm": ("migrated-csm", "migrated csm"),
     "inherit": ("inherit", "workspace role", "group role", "role assignment"),
     "cache": ("cache", "entitlement cache"),
-    "refresh": ("refresh", "re-run", "rerun", "resync", "re-sync"),
+    "refresh": ("refresh", "re-run", "rerun", "resync", "re-sync", "invalidate", "recompute", "rebuild"),
     "entitlement": ("entitlement", "plan", "subscription"),
     "billing entitlement": ("billing entitlement", "entitlement", "plan"),
     "billing entitlement refresh": ("billing entitlement refresh", "entitlement refresh", "refresh"),
