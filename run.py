@@ -141,6 +141,10 @@ CASE_SETS = {
         "corrected_billing_after_access_report",
         "stale_cache_after_migration",
     ],
+    "level3-closeout": [
+        "level3_misrouted_ratelimit_actually_webhook_auth",
+        "level3_conflicting_systems_unresolved_handoff",
+    ],
 }
 NEXT_CHECK_EQUIVALENTS = {
     "sign in": ("sign in", "login", "authenticate", "auth"),

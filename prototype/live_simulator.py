@@ -32,46 +32,81 @@ FACT_TEXT = {
     "domain_policy:dmarc_reject": "The recipient domain rejected the message by DMARC policy.",
     "email_delivery:suppressed": "Email delivery was suppressed.",
     "entitlement_cache:stale": "The entitlement cache is stale for the affected users.",
+    "affected_scope:all_workspace_users": "All users in the workspace are affected.",
+    "billing:entitled": "Billing shows the workspace is entitled.",
+    "failure_scope:legacy_worker": "Only the legacy worker is failing.",
     "flow:admin_invite": "This is an admin invite flow.",
     "group_membership:Migrated-CSM": "The affected users are in the Migrated-CSM group.",
+    "handoff_need:implementation_owner_update": "The customer needs an implementation-owner update.",
     "invite_status:created": "The invite exists in the admin system.",
     "invoice_plan:pro": "The invoice shows the Pro plan.",
+    "new_worker:callbacks_succeed": "The new worker callbacks succeed.",
+    "normal_api_reads:work": "Normal API reads still work.",
+    "payment:clear": "Payment is clear.",
+    "provisioning:not_ready": "Provisioning says the workspace is not ready.",
+    "quota:under_limit": "Aggregate quota is under the customer limit.",
     "recent_change:migration": "The issue appeared after a migration.",
+    "recent_change:partner_deploy": "The failures started after a partner service deployment.",
+    "recent_change:traffic_scale": "The issue appeared after traffic scaled.",
     "recent_change:upgrade": "The issue appeared after an upgrade.",
     "reported_issue:login": "The customer initially described the issue as login failure.",
+    "renewal:active": "The renewal is active.",
+    "renewal:completed": "The renewal completed.",
     "scim_sync:complete": "SCIM sync has completed.",
+    "surface:api_delivery": "The visible issue is API delivery.",
     "surface:billing_plan": "The visible issue is on the billing page.",
+    "surface:entitlement_access": "The visible issue is entitlement access.",
+    "surface:webhook_callbacks": "The visible issue is webhook callbacks.",
+    "symptom:entitlement_block": "The customer sees an entitlement block.",
     "surface:workspace_access": "The visible issue is workspace access.",
     "symptom:invite_email_not_received": "The invite email is not arriving.",
+    "symptom:rate_limit_errors": "The customer reports rate-limit errors.",
     "symptom:workspace_access_loss": "The customer reports workspace access loss.",
     "symptom:wrong_plan_shown": "The customer sees the wrong plan.",
+    "traffic_scope:subset": "Only a subset of calls fail.",
+    "webhook_auth:legacy_secret": "The legacy worker still uses the old webhook secret.",
+    "webhook_signing_secret:rotated": "The webhook signing secret rotated.",
     "workspace_role_missing:Migrated-CSM": "Migrated-CSM is missing the workspace role.",
     "workspace_role:present": "The workspace role is present.",
 }
 
 UNKNOWN_TEXT = {
     "actual_surface": "Which product surface is actually failing?",
+    "affected_scope": "Who is affected?",
     "auth_status": "Can the affected users sign in?",
     "billing_entitlement_status": "Has the billing entitlement refresh completed?",
     "cache_status": "Is cached entitlement state still blocking access?",
     "email_delivery_status": "Did the invite email actually reach the recipient?",
+    "entitlement_cache_status": "Is entitlement cache state current?",
     "invite_created": "Was the invite created successfully?",
+    "payment_status": "Is payment clear?",
+    "provisioning_job_status": "What is the provisioning job status?",
+    "provisioning_status": "What does provisioning show?",
+    "quota_status": "Is the account actually over quota?",
+    "traffic_scope": "Is every route failing or only a subset?",
+    "webhook_auth_status": "Does the failing service have valid webhook auth?",
     "workspace_role_assignment": "Do affected users have the right workspace role?",
 }
 
 CAUSE_TEXT = {
     "billing_entitlement_refresh_pending": "billing entitlement refresh is still pending",
+    "billing_entitlement_gap": "billing entitlement is missing",
     "domain_policy_rejection": "recipient-domain policy is rejecting the email",
     "email_delivery_suppressed": "email delivery is suppressed",
+    "entitlement_cache_delay": "entitlement cache is delayed",
     "invite_not_created": "the invite was not created",
     "invoice_app_mismatch": "invoice and app entitlement do not match",
     "login_block": "login is blocked",
     "login_failure": "login is failing",
     "missing_workspace_role": "the workspace role is missing",
     "missing_workspace_role_inheritance": "the migrated group did not inherit the workspace role",
+    "payment_failure": "payment failure is blocking entitlement",
+    "provisioning_state_mismatch": "billing and provisioning disagree",
+    "quota_exhaustion": "quota is exhausted",
     "scim_sync_delay": "SCIM sync has not completed",
     "stale_entitlement_cache": "stale entitlement cache",
     "upstream_service_incident": "an upstream service issue",
+    "webhook_auth_rotation": "webhook signing-secret rotation broke auth",
 }
 
 ROUTE_STAGES = [
@@ -305,6 +340,59 @@ def build_simulator_data(case_id: str = CASE_ID) -> dict[str, Any]:
 
 # Withheld-outcome copy shared by every locked turn.
 NOT_READY = "Holding the diagnosis. The final root cause stays withheld until product or support evidence supports it."
+
+SIMULATOR_FIXTURE_META = {
+    "level3_misrouted_ratelimit_actually_webhook_auth": {
+        "chip": "Webhook auth",
+        "title": "Rate-limit report, webhook auth cause",
+        "scenario": "The customer reports rate limiting after scale, but the case narrows to webhook callbacks and only late signing-secret evidence supports the cause.",
+    },
+    "level3_conflicting_systems_unresolved_handoff": {
+        "chip": "Provisioning handoff",
+        "title": "Conflicting systems handoff",
+        "scenario": "Billing says the workspace is entitled, provisioning says it is not ready, and the right outcome is handoff instead of a guessed cause.",
+    },
+}
+
+
+def simulator_case_from_fixture(case_id: str) -> dict[str, Any]:
+    fixture = load_fixture(case_id)
+    result = run_fixture(fixture, mode="deterministic")
+    meta = SIMULATOR_FIXTURE_META[case_id]
+    steps = []
+    conversation_so_far: list[dict[str, str]] = []
+    for item in result["timeline"]:
+        turn = item["turn"]
+        state = item["state"]
+        conversation_so_far.append({
+            "speaker": turn.get("speaker", "speaker"),
+            "text": turn.get("text", ""),
+        })
+        final_cause = state.get("final_cause", "")
+        expected_handoff = fixture.get("expected_outcome") == "handoff"
+        final_text = readable_label(final_cause) if final_cause else ""
+        if final_cause:
+            outcome = f"Evidence supports the final cause: {final_text}."
+        elif expected_handoff and int(turn.get("turn", 0)) == len(fixture.get("transcript_turns", [])):
+            outcome = "Unresolved; hand off with billing/provisioning conflict, open unknowns, and next owner attached."
+        else:
+            outcome = NOT_READY
+        steps.append({
+            "turn": turn.get("turn"),
+            "conversation": list(conversation_so_far),
+            "new_context": context_summary(item.get("context_applied", [])),
+            "state": {
+                "known_facts": translate_list(state.get("facts", [])),
+                "still_unknown": translate_list(state.get("unknowns", [])),
+                "possible_causes": translate_list(state.get("candidate_branches", [])),
+                "ruled_out": translate_list(state.get("ruled_out_branches", [])),
+                "next_best_action": state.get("next_check", ""),
+                "final_outcome": outcome,
+                "final_cause_text": final_text,
+                "evidence_seen": bool(state.get("root_cause_evidence_seen")),
+            },
+        })
+    return {**meta, "steps": steps}
 
 # Three cases, transcribed verbatim from the kora design reference
 # (copilot_claude-design/Support Copilot Live.dc.html data island). The per-turn
@@ -585,6 +673,11 @@ CASES: dict[str, Any] = {
         ],
     },
 }
+
+CASES.update({
+    "level3_webhook": simulator_case_from_fixture("level3_misrouted_ratelimit_actually_webhook_auth"),
+    "level3_handoff": simulator_case_from_fixture("level3_conflicting_systems_unresolved_handoff"),
+})
 
 DEFAULT_CASE = "migration"
 

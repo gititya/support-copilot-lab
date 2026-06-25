@@ -82,6 +82,11 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["b2b-five"])
         self.assertEqual(len(selected), 5)
 
+    def test_runner_selects_level3_closeout_case_set(self):
+        selected = select_fixtures(load_fixtures(), case_set="level3-closeout")
+        self.assertEqual([fixture["case_id"] for fixture in selected], CASE_SETS["level3-closeout"])
+        self.assertEqual(len(selected), 2)
+
     def test_prompt_keeps_early_migration_access_branches_open(self):
         fixture = next(item for item in load_fixtures() if item["case_id"] == "level2_conflicting_migration_context")
         prompt = build_llm_prompt(
@@ -268,14 +273,20 @@ class SupportProcessExperimentTest(unittest.TestCase):
         self.assertEqual(steps[-1]["state"]["raw"]["final_cause"], "stale_entitlement_cache")
         self.assertIn("supported outcome", final_readiness["status"])
 
-    def test_live_simulator_embeds_three_curated_cases(self):
-        self.assertEqual(set(CASES), {"migration", "billing", "invite"})
+    def test_live_simulator_embeds_curated_and_level3_cases(self):
+        self.assertEqual(set(CASES), {"migration", "billing", "invite", "level3_webhook", "level3_handoff"})
         for case_id, case in CASES.items():
             with self.subTest(case_id=case_id):
                 self.assertGreaterEqual(len(case["steps"]), 4)
                 self.assertTrue(case["chip"])
                 self.assertTrue(case["title"])
                 self.assertTrue(case["scenario"])
+
+    def test_live_simulator_includes_level3_closeout_cases(self):
+        self.assertEqual(CASES["level3_webhook"]["title"], "Rate-limit report, webhook auth cause")
+        self.assertEqual(CASES["level3_handoff"]["title"], "Conflicting systems handoff")
+        self.assertEqual(CASES["level3_webhook"]["steps"][-1]["state"]["final_cause_text"], "webhook signing-secret rotation broke auth")
+        self.assertEqual(CASES["level3_handoff"]["steps"][-1]["state"]["final_cause_text"], "")
 
     def test_live_simulator_curated_cases_wait_for_evidence_before_outcome(self):
         for case_id, case in CASES.items():
@@ -290,10 +301,14 @@ class SupportProcessExperimentTest(unittest.TestCase):
                         saw_supported_outcome = True
                         self.assertTrue(state["final_cause_text"])
                         self.assertIn("Evidence supports", state["final_outcome"])
+                    elif case_id == "level3_handoff" and step is case["steps"][-1]:
+                        self.assertEqual(state["final_cause_text"], "")
+                        self.assertIn("Unresolved; hand off", state["final_outcome"])
                     else:
                         self.assertEqual(state["final_cause_text"], "")
                         self.assertEqual(state["final_outcome"], NOT_READY)
-                self.assertTrue(saw_supported_outcome)
+                if case_id != "level3_handoff":
+                    self.assertTrue(saw_supported_outcome)
 
     def test_live_simulator_curated_invite_case_marks_irrelevant_context_as_noise(self):
         invite_steps = CASES["invite"]["steps"]

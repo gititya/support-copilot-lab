@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Support Process Lab</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#101318; color:#e5e7eb; margin:0; padding:32px; }
+h1 { font-size:24px; margin-bottom:8px; }
+p { color:#9ca3af; max-width:860px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:24px 0 34px; }
+.card { border:1px solid #2f3746; background:#161b24; border-radius:8px; padding:14px 16px; }
+.card.good { border-color:#166534; }
+.card.warn { border-color:#92400e; }
+.card-title { font-weight:700; margin-bottom:8px; }
+.metric { font-size:22px; color:#f8fafc; }
+.muted, .context { color:#94a3b8; font-size:12px; margin-top:4px; }
+section { border-top:1px solid #2f3746; padding-top:28px; margin-top:34px; }
+h2 { font-size:18px; margin-bottom:6px; }
+h3 { font-size:13px; color:#cbd5e1; text-transform:uppercase; letter-spacing:.08em; margin-top:18px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { color:#94a3b8; text-align:left; border-bottom:1px solid #374151; padding:8px; white-space:nowrap; }
+td { border-bottom:1px solid #222b38; padding:8px; vertical-align:top; min-width:110px; }
+td.text { min-width:260px; color:#f8fafc; }
+.pass { color:#22c55e; font-weight:700; }
+.fail { color:#f59e0b; font-weight:700; }
+.observed { color:#94a3b8; font-weight:700; }
+pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:14px; overflow:auto; color:#cbd5e1; }
+</style>
+</head>
+<body>
+<h1>Support Process Lab</h1>
+<p><strong>Run:</strong> gpt55_level3_closeout</p>
+<p>Offline test of LTS-style support process state. Transcript-only replay proves plumbing; transcript plus mock system context is the product-relevant mode.</p>
+<div class="summary">
+        <div class="card warn">
+          <div class="card-title">Level 3 Misrouted Rate Limit Actually Webhook Auth</div>
+          <div class="metric">43/54 checks</div>
+          <div class="muted">Final cause: webhook_auth_rotation</div>
+        </div>
+        <div class="card warn">
+          <div class="card-title">Level 3 Conflicting Systems Unresolved Handoff</div>
+          <div class="metric">40/48 checks</div>
+          <div class="muted">Final cause: </div>
+        </div></div>
+
+        <section>
+          <h2>Level 3 Misrouted Rate Limit Actually Webhook Auth</h2>
+          <p>Customer opens with a rate-limit complaint after scaling. A plan-upgrade context event is noise, the symptom narrows to a subset of webhook deliveries, and only late signing-secret evidence justifies the final cause.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: Our API calls are getting rate-limited after we scaled traffic this week.<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors</td>
+              <td>quota_status; traffic_scope</td>
+              <td>quota_exhaustion; upstream_service_incident</td>
+              <td>Ask the customer for example rate-limit error responses, timestamps, affected endpoints, request IDs, and current request volume so quota_status and traffic_scope can be checked.</td>
+              <td class="fail">needs attention</td>
+              <td>unknowns: webhook_auth_status; candidate_branches: webhook_auth_rotation; next_check: every API route</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>agent</strong>: Is every API route failing, or only one integration path?<div class="context">Commercial context shows the customer upgraded plan last week, but quota has not been inspected yet.</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors</td>
+              <td>quota_status; traffic_scope</td>
+              <td>quota_exhaustion; upstream_service_incident</td>
+              <td>Wait for the customer to answer whether every API route is failing or only one integration path, then use their response to update traffic_scope.</td>
+              <td class="fail">needs attention</td>
+              <td>unknowns: webhook_auth_status; candidate_branches: webhook_auth_rotation</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="text"><strong>customer</strong>: It is not every route. A subset of webhook callbacks fails, but normal API reads still work.<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work</td>
+              <td>quota_status; webhook_auth_status</td>
+              <td>quota_exhaustion; upstream_service_incident; webhook_auth_rotation</td>
+              <td>Check the failed webhook callback delivery logs for the exact response/error and whether signature/auth validation is failing on the affected callbacks.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: quota</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td class="text"><strong>agent</strong>: I am checking quota usage and webhook authentication for that service.<div class="context">API telemetry shows aggregate quota is below the customer limit, but webhook auth status is not yet known.</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit</td>
+              <td>webhook_auth_status</td>
+              <td>upstream_service_incident; webhook_auth_rotation</td>
+              <td>Check webhook_auth_status in the failed webhook callback delivery logs, including whether signature validation is failing on the affected subset.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: webhook auth</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td class="text"><strong>customer</strong>: The failures started right after the partner service rolled a new deployment.<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy</td>
+              <td>webhook_auth_status</td>
+              <td>upstream_service_incident; webhook_auth_rotation</td>
+              <td>Ask the customer whether the partner deployment changed webhook signature validation or signing-secret configuration, and check failed webhook callback logs for webhook_auth_status on the affected subset.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: webhook auth</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td class="text"><strong>agent</strong>: Do successful and failed callbacks use the same signing secret?<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy</td>
+              <td>webhook_auth_status</td>
+              <td>upstream_service_incident; webhook_auth_rotation</td>
+              <td>Wait for the customer&#x27;s answer on whether successful and failed callbacks use the same signing secret, and check failed webhook callback logs for webhook_auth_status on the affected subset.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: webhook auth</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td class="text"><strong>customer</strong>: Only the legacy worker fails. The new worker callbacks succeed.<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed</td>
+              <td>webhook_auth_status</td>
+              <td>upstream_service_incident; webhook_auth_rotation</td>
+              <td>Check failed webhook callback logs for the legacy worker and compare its configured signing secret against the new worker&#x27;s signing secret.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: webhook auth</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td class="text"><strong>agent</strong>: I am comparing webhook signing-secret rotation and quota counters now.<div class="context">-</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed</td>
+              <td>webhook_auth_status</td>
+              <td>upstream_service_incident; webhook_auth_rotation</td>
+              <td>Review the failed webhook callback logs and signing-secret comparison results for the legacy worker versus the new worker.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: webhook auth</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td class="text"><strong>customer</strong>: That matches what our service owner suspected: the legacy worker still has old webhook auth config.<div class="context">Webhook audit shows the signing secret rotated, and the legacy worker still validates with the old secret.</div></td>
+              <td>recent_change:traffic_scale; surface:api_delivery; symptom:rate_limit_errors; surface:webhook_callbacks; traffic_scope:subset; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret</td>
+              <td>-</td>
+              <td>webhook_auth_rotation</td>
+              <td>Have the implementation owner update the legacy worker to validate against the current webhook signing secret, then replay or verify the failed callback deliveries.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;level3_misrouted_ratelimit_actually_webhook_auth&quot;,
+  &quot;version&quot;: 9,
+  &quot;facts&quot;: [
+    &quot;recent_change:traffic_scale&quot;,
+    &quot;surface:api_delivery&quot;,
+    &quot;symptom:rate_limit_errors&quot;,
+    &quot;surface:webhook_callbacks&quot;,
+    &quot;traffic_scope:subset&quot;,
+    &quot;normal_api_reads:work&quot;,
+    &quot;quota:under_limit&quot;,
+    &quot;recent_change:partner_deploy&quot;,
+    &quot;failure_scope:legacy_worker&quot;,
+    &quot;new_worker:callbacks_succeed&quot;,
+    &quot;webhook_signing_secret:rotated&quot;,
+    &quot;webhook_auth:legacy_secret&quot;
+  ],
+  &quot;unknowns&quot;: [],
+  &quot;candidate_branches&quot;: [
+    &quot;webhook_auth_rotation&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;quota_exhaustion&quot;
+  ],
+  &quot;next_check&quot;: &quot;Have the implementation owner update the legacy worker to validate against the current webhook signing secret, then replay or verify the failed callback deliveries.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret&quot;,
+    &quot;Branches: webhook_auth_rotation&quot;,
+    &quot;Next check: Have the implementation owner update the legacy worker to validate against the current webhook signing secret, then replay or verify the failed callback deliveries.&quot;,
+    &quot;Direct mechanism evidence is now available: webhook_signing_secret:rotated and webhook_auth:legacy_secret. Customer confirms the legacy worker still has old webhook auth config. Final cause is webhook_auth_rotation; next step is to update the legacy worker config and verify/replay failed callbacks.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;webhook_auth_rotation&quot;,
+  &quot;root_cause_evidence_seen&quot;: true
+}</pre>
+        </section>
+        <section>
+          <h2>Level 3 Conflicting Systems Unresolved Handoff</h2>
+          <p>Customer has an entitlement failure where billing says the account is entitled but provisioning disagrees. The session never receives enough mechanism evidence, so the correct outcome is a handoff with open unknowns.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: Our enterprise workspace still says we are not entitled even though the renewal completed.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block</td>
+              <td>billing_entitlement_status; provisioning_status; entitlement_cache_status; payment_status; affected_scope</td>
+              <td>billing_entitlement_refresh_pending; billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache; payment_failure</td>
+              <td>Check the billing/renewal record for this workspace and confirm whether the entitlement service currently shows an active entitlement or a provisioning/not-ready state.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: all users</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>agent</strong>: Do all users see the entitlement block, or only a few seats?<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block</td>
+              <td>billing_entitlement_status; provisioning_status; entitlement_cache_status; payment_status; affected_scope</td>
+              <td>billing_entitlement_refresh_pending; billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache; payment_failure</td>
+              <td>Wait for the customer to confirm affected_scope: whether all workspace users see the entitlement block or only a few seats.</td>
+              <td class="fail">needs attention</td>
+              <td>facts: affected_scope:all_workspace_users; next_check: billing, provisioning</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="text"><strong>customer</strong>: All users in the workspace see the entitlement block.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users</td>
+              <td>billing_entitlement_status; provisioning_status; entitlement_cache_status; payment_status</td>
+              <td>billing_entitlement_refresh_pending; billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache; payment_failure</td>
+              <td>Check internal billing entitlement status and provisioning_status for the workspace to see whether billing shows entitlement while provisioning is not ready or mismatched.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td class="text"><strong>agent</strong>: I am checking billing entitlement and provisioning state side by side.<div class="context">Billing service reports entitlement active and payment clear, while provisioning reports workspace not ready.</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users; billing:entitled; payment:clear; provisioning:not_ready</td>
+              <td>entitlement_cache_status; provisioning_job_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache</td>
+              <td>Check the provisioning job/status details for why the workspace is not ready despite billing:entitled and payment:clear.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: entitlement cache</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td class="text"><strong>customer</strong>: Billing sent us a receipt and the admin page says the renewal is active.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users; billing:entitled; payment:clear; provisioning:not_ready; renewal:active</td>
+              <td>entitlement_cache_status; provisioning_job_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache</td>
+              <td>Check the provisioning job/status details for why the workspace is not ready despite billing:entitled, payment:clear, and renewal:active.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: entitlement cache</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td class="text"><strong>agent</strong>: Provisioning still disagrees, so I need the job status before I call a root cause.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users; billing:entitled; payment:clear; provisioning:not_ready; renewal:active</td>
+              <td>entitlement_cache_status; provisioning_job_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache</td>
+              <td>Check the provisioning_job_status details for why provisioning still disagrees despite billing:entitled, payment:clear, and renewal:active.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: provisioning job, entitlement cache</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td class="text"><strong>customer</strong>: We need an update for our implementation owner today.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update</td>
+              <td>entitlement_cache_status; provisioning_job_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache</td>
+              <td>Prepare a same-day implementation-owner update noting billing:entitled, payment:clear, renewal:active, provisioning:not_ready, and that entitlement_cache_status and provisioning_job_status are still being checked.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: provisioning job, entitlement cache</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td class="text"><strong>agent</strong>: I am handing this to product support with billing entitled, provisioning blocked, and the job status still open.<div class="context">-</div></td>
+              <td>renewal:completed; surface:entitlement_access; symptom:entitlement_block; affected_scope:all_workspace_users; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update</td>
+              <td>entitlement_cache_status; provisioning_job_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache</td>
+              <td>Ask product support to check provisioning_job_status and entitlement_cache_status for the entitled account where provisioning:not_ready is blocking entitlement access.</td>
+              <td class="fail">needs attention</td>
+              <td>next_check: provisioning job, entitlement cache</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;level3_conflicting_systems_unresolved_handoff&quot;,
+  &quot;version&quot;: 8,
+  &quot;facts&quot;: [
+    &quot;renewal:completed&quot;,
+    &quot;surface:entitlement_access&quot;,
+    &quot;symptom:entitlement_block&quot;,
+    &quot;affected_scope:all_workspace_users&quot;,
+    &quot;billing:entitled&quot;,
+    &quot;payment:clear&quot;,
+    &quot;provisioning:not_ready&quot;,
+    &quot;renewal:active&quot;,
+    &quot;handoff_need:implementation_owner_update&quot;
+  ],
+  &quot;unknowns&quot;: [
+    &quot;entitlement_cache_status&quot;,
+    &quot;provisioning_job_status&quot;
+  ],
+  &quot;candidate_branches&quot;: [
+    &quot;provisioning_state_mismatch&quot;,
+    &quot;entitlement_cache_delay&quot;,
+    &quot;stale_entitlement_cache&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;billing_entitlement_gap&quot;,
+    &quot;payment_failure&quot;
+  ],
+  &quot;next_check&quot;: &quot;Ask product support to check provisioning_job_status and entitlement_cache_status for the entitled account where provisioning:not_ready is blocking entitlement access.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update&quot;,
+    &quot;Unknowns: entitlement_cache_status; provisioning_job_status&quot;,
+    &quot;Branches: provisioning_state_mismatch; entitlement_cache_delay; stale_entitlement_cache&quot;,
+    &quot;Next check: Ask product support to check provisioning_job_status and entitlement_cache_status for the entitled account where provisioning:not_ready is blocking entitlement access.&quot;,
+    &quot;Agent has handed the case to product support with billing:entitled, payment:clear, renewal:active, provisioning:not_ready, and provisioning_job_status still open. Keep entitlement_cache_status and provisioning_job_status open; candidate branches remain provisioning_state_mismatch, entitlement_cache_delay, and stale_entitlement_cache.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;&quot;,
+  &quot;root_cause_evidence_seen&quot;: true
+}</pre>
+        </section>
+</body>
+</html>

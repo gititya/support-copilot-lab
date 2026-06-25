@@ -20,6 +20,8 @@ Then open:
 outputs/support_live_simulator.html
 ```
 
+The simulator includes the three original curated demos plus both level3 closeout cases.
+
 To run the evaluation harness:
 
 ```bash
@@ -118,6 +120,7 @@ deterministic     318/318  100%   premature final causes: 0
 process_mock      318/318  100%   premature final causes: 0
 predictive_mock   275/318   86%   premature final causes: 29
 gpt-5.5 b2b-five  110/114   96.5% premature final causes: 0
+gpt-5.5 level3     83/102   81%   premature final causes: 0
 ```
 
 The predictive mock still gets the final cause right by the end. It fails because it says the answer too early.
@@ -263,10 +266,26 @@ For a fast cloud-model benchmark, run the accepted five-case B2B set:
 SSL_CERT_FILE=/etc/ssl/cert.pem python3 run.py --mode real-model --provider openai --model gpt-5.5 --reasoning-effort low --max-output-tokens 4000 --timeout 180 --case-set b2b-five
 ```
 
+For the level3 closeout cases:
+
+```bash
+SSL_CERT_FILE=/etc/ssl/cert.pem python3 run.py --mode real-model --provider openai --model gpt-5.5 --reasoning-effort low --max-output-tokens 4000 --timeout 180 --case-set level3-closeout --run-name gpt55_level3_closeout
+```
+
+Saved result: `83/102` checks, final outcomes correct on both level3 cases, and `0` premature final-cause turns. The misses are mostly next-check wording/process-label strictness, not early diagnosis.
+
 The saved GPT-5.5 five-case evidence is under:
 
 ```text
 outputs/model_replays/
+```
+
+The saved GPT-5.5 level3 evidence is under:
+
+```text
+outputs/support_process_gpt55_level3_closeout_report.md
+outputs/support_process_gpt55_level3_closeout_dashboard.html
+outputs/support_process_gpt55_level3_closeout_snapshots.json
 ```
 
 

@@ -250,10 +250,10 @@ Exit criteria:
 
 Result:
 
-- `outputs/support_live_simulator.html` now renders a polished 3-case live simulator.
-- The simulator covers migration access, billing mismatch, and invite delivery.
+- `outputs/support_live_simulator.html` now renders a polished 5-case live simulator.
+- The simulator covers migration access, billing mismatch, invite delivery, level3 webhook-auth narrowing, and level3 unresolved handoff.
 - The screen shows case route, next best move, working hypotheses, known facts, unknowns, product/support context, evidence timeline, handoff readiness preview, and raw eval state behind a toggle.
-- Focused tests lock the curated cases so final outcomes remain withheld until evidence arrives.
+- Focused tests lock the curated and level3 cases so final outcomes remain withheld until evidence arrives, except the unresolved level3 handoff case, which remains final-cause empty and shows handoff as the correct outcome.
 
 ### Milestone 8.5 - Real Model Feasibility Check
 
@@ -268,6 +268,7 @@ Current evidence:
 - `gemma4:e4b`, `gemma4:12b-it-qat`, and MLX Qwen3-4B timed out in bounded smoke runs.
 - `gpt-5.5` completed the full 10-fixture benchmark at 189/216 checks, 87.5% pass rate, with 0 premature final-cause errors. This proves the architecture is credible with a strong cloud model, but not yet polished enough to make real-model output the default demo behavior.
 - After cloud prompt tuning, `gpt-5.5` completed the `b2b-five` benchmark at 110/114 checks, 96.5% pass rate, with 0 premature final-cause errors. Saved evidence lives in `outputs/model_replays/`.
+- The level3 closeout GPT pass is separate from the older 10-case benchmark: `gpt-5.5` scored 83/102 checks across the two level3 fixtures, got both final outcomes right, and had 0 premature final-cause errors. Saved evidence lives in `outputs/support_process_gpt55_level3_closeout_*`.
 
 Closeout decision:
 
