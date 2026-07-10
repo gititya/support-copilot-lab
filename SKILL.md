@@ -7,6 +7,6 @@ things_to_know:
   - "The repo intentionally excludes B2C mode, local-model tuning, and a broader UI rebuild."
 ---
 
-# real-time_support_Updated — SKILL.md
+# support-copilot — SKILL.md
 
 This repo is the finished B2B support-process evaluation lab for proving that an AI can work a support case as evidence arrives instead of guessing a final root cause early. Keep changes small, standard-library only, and centered on the accepted fixture harness: `fixtures/`, `run.py`, `mock_llm.py`, `test_experiment.py`, and generated evidence under `outputs/`. The closeout stance is deliberate: B2C belongs in sibling support/handoff work, local-model tuning stays parked, and the reusable part is the engine shape of incremental Live Support State plus evidence-timed final-cause gating.

@@ -1,4 +1,4 @@
-# Real-Time Support - Updated
+# support-copilot — realtime B2B support-process copilot (formerly real-time_support_Updated)
 
 Finished proof-of-work: a text-first B2B support-process evaluation lab.
 
