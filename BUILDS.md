@@ -1,7 +1,7 @@
 ---
 status: "complete"
-current_state: "Canonical finished B2B support-process proof-of-work, now pinned as M4 evidence for the customer-support-ai-os front door."
-next_action: "Use customer-support-ai-os/FRONT_DOOR.md as the current cross-repo reviewer entrypoint."
+current_state: "Canonical finished B2B support-process proof-of-work, merged on main and pinned as M4 evidence for the customer-support-ai-os front door."
+next_action: "Use customer-support-ai-os/FRONT_DOOR.md as the current cross-repo reviewer entrypoint; re-proof after any consumed-repo commit."
 things_to_know:
   - "Roadmap source: /Users/aditya/Documents/Projects/SUPPORT_MASTER_PLAN.md."
   - "M4 front door: /Users/aditya/Documents/Projects/customer-support-ai-os/FRONT_DOOR.md."
@@ -21,7 +21,7 @@ agent_notes:
   - "Reuse the run.py stdin/stdout JSON patch seam if another repo imports the engine shape."
   - "Validate through consumer replay, not schema checks alone."
 safe_first_action: "Run python3 validate_fixtures.py, python3 -m unittest test_experiment.py, and python3 run_all.py before trusting changes."
-updated_at: "2026-07-08"
+updated_at: "2026-07-10"
 updated_by: "codex"
 ---
 
