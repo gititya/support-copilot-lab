@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Support Process Lab</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#101318; color:#e5e7eb; margin:0; padding:32px; }
+h1 { font-size:24px; margin-bottom:8px; }
+p { color:#9ca3af; max-width:860px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:24px 0 34px; }
+.card { border:1px solid #2f3746; background:#161b24; border-radius:8px; padding:14px 16px; }
+.card.good { border-color:#166534; }
+.card.warn { border-color:#92400e; }
+.card-title { font-weight:700; margin-bottom:8px; }
+.metric { font-size:22px; color:#f8fafc; }
+.muted, .context { color:#94a3b8; font-size:12px; margin-top:4px; }
+section { border-top:1px solid #2f3746; padding-top:28px; margin-top:34px; }
+h2 { font-size:18px; margin-bottom:6px; }
+h3 { font-size:13px; color:#cbd5e1; text-transform:uppercase; letter-spacing:.08em; margin-top:18px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { color:#94a3b8; text-align:left; border-bottom:1px solid #374151; padding:8px; white-space:nowrap; }
+td { border-bottom:1px solid #222b38; padding:8px; vertical-align:top; min-width:110px; }
+td.text { min-width:260px; color:#f8fafc; }
+.pass { color:#22c55e; font-weight:700; }
+.fail { color:#f59e0b; font-weight:700; }
+.observed { color:#94a3b8; font-weight:700; }
+pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:14px; overflow:auto; color:#cbd5e1; }
+</style>
+</head>
+<body>
+<h1>Support Process Lab</h1>
+<p><strong>Run:</strong> deterministic_level3_conflicting_systems_unresolved_handoff</p>
+<p>Offline test of LTS-style support process state. Transcript-only replay proves plumbing; transcript plus mock system context is the product-relevant mode.</p>
+<div class="summary">
+        <div class="card good">
+          <div class="card-title">Level 3 Conflicting Systems Unresolved Handoff</div>
+          <div class="metric">48/48 checks</div>
+          <div class="muted">Final cause: </div>
+        </div></div>
+
+        <section>
+          <h2>Level 3 Conflicting Systems Unresolved Handoff</h2>
+          <p>Customer has an entitlement failure where billing says the account is entitled but provisioning disagrees. The session never receives enough mechanism evidence, so the correct outcome is a handoff with open unknowns.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
+            <tbody>
+            <tr>
+              <td>1</td>
+              <td class="text"><strong>customer</strong>: Our enterprise workspace still says we are not entitled even though the renewal completed.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed</td>
+              <td>affected_scope; billing_entitlement_status; provisioning_status</td>
+              <td>billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay</td>
+              <td>Confirm whether all users see the entitlement block or only a few seats.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td class="text"><strong>agent</strong>: Do all users see the entitlement block, or only a few seats?<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users</td>
+              <td>billing_entitlement_status; provisioning_status</td>
+              <td>billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay</td>
+              <td>Check billing entitlement and provisioning state side by side.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td class="text"><strong>customer</strong>: All users in the workspace see the entitlement block.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users</td>
+              <td>billing_entitlement_status; provisioning_status</td>
+              <td>billing_entitlement_gap; provisioning_state_mismatch; entitlement_cache_delay</td>
+              <td>Check billing entitlement and provisioning state side by side.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td class="text"><strong>agent</strong>: I am checking billing entitlement and provisioning state side by side.<div class="context">Billing service reports entitlement active and payment clear, while provisioning reports workspace not ready.</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready</td>
+              <td>provisioning_status; provisioning_job_status; entitlement_cache_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Escalate with provisioning job status and entitlement cache status still open.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td class="text"><strong>customer</strong>: Billing sent us a receipt and the admin page says the renewal is active.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active</td>
+              <td>provisioning_status; provisioning_job_status; entitlement_cache_status; billing_entitlement_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Escalate with provisioning job status and entitlement cache status still open.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td class="text"><strong>agent</strong>: Provisioning still disagrees, so I need the job status before I call a root cause.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active</td>
+              <td>provisioning_status; provisioning_job_status; entitlement_cache_status; billing_entitlement_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Escalate with provisioning job status and entitlement cache status still open.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td class="text"><strong>customer</strong>: We need an update for our implementation owner today.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update</td>
+              <td>provisioning_status; provisioning_job_status; entitlement_cache_status; billing_entitlement_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Escalate with provisioning job status and entitlement cache status still open.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td class="text"><strong>agent</strong>: I am handing this to product support with billing entitled, provisioning blocked, and the job status still open.<div class="context">-</div></td>
+              <td>surface:workspace_access; surface:entitlement_access; symptom:entitlement_block; renewal:completed; affected_scope:all_workspace_users; surface:billing_plan; symptom:wrong_plan_shown; billing:entitled; payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update</td>
+              <td>provisioning_status; provisioning_job_status; entitlement_cache_status; billing_entitlement_status</td>
+              <td>provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch</td>
+              <td>Escalate with provisioning job status and entitlement cache status still open.</td>
+              <td class="pass">pass</td>
+              <td>-</td>
+            </tr></tbody>
+          </table></div>
+          <h3>Final State</h3>
+          <pre>{
+  &quot;case_id&quot;: &quot;level3_conflicting_systems_unresolved_handoff&quot;,
+  &quot;version&quot;: 9,
+  &quot;facts&quot;: [
+    &quot;surface:workspace_access&quot;,
+    &quot;surface:entitlement_access&quot;,
+    &quot;symptom:entitlement_block&quot;,
+    &quot;renewal:completed&quot;,
+    &quot;affected_scope:all_workspace_users&quot;,
+    &quot;surface:billing_plan&quot;,
+    &quot;symptom:wrong_plan_shown&quot;,
+    &quot;billing:entitled&quot;,
+    &quot;payment:clear&quot;,
+    &quot;provisioning:not_ready&quot;,
+    &quot;renewal:active&quot;,
+    &quot;handoff_need:implementation_owner_update&quot;
+  ],
+  &quot;unknowns&quot;: [
+    &quot;provisioning_status&quot;,
+    &quot;provisioning_job_status&quot;,
+    &quot;entitlement_cache_status&quot;,
+    &quot;billing_entitlement_status&quot;
+  ],
+  &quot;candidate_branches&quot;: [
+    &quot;provisioning_state_mismatch&quot;,
+    &quot;entitlement_cache_delay&quot;,
+    &quot;billing_entitlement_refresh_pending&quot;,
+    &quot;invoice_app_mismatch&quot;
+  ],
+  &quot;ruled_out_branches&quot;: [
+    &quot;payment_failure&quot;,
+    &quot;billing_entitlement_gap&quot;
+  ],
+  &quot;next_check&quot;: &quot;Escalate with provisioning job status and entitlement cache status still open.&quot;,
+  &quot;handoff_notes&quot;: [
+    &quot;Known: payment:clear; provisioning:not_ready; renewal:active; handoff_need:implementation_owner_update&quot;,
+    &quot;Unknowns: provisioning_status; provisioning_job_status; entitlement_cache_status; billing_entitlement_status&quot;,
+    &quot;Branches: provisioning_state_mismatch; entitlement_cache_delay; billing_entitlement_refresh_pending; invoice_app_mismatch&quot;,
+    &quot;Next check: Escalate with provisioning job status and entitlement cache status still open.&quot;
+  ],
+  &quot;final_cause&quot;: &quot;&quot;,
+  &quot;root_cause_evidence_seen&quot;: false
+}</pre>
+        </section>
+</body>
+</html>

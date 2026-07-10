@@ -1,0 +1,1703 @@
+[
+  {
+    "fixture": {
+      "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+      "title": "Level 3 Misrouted Rate Limit Actually Webhook Auth",
+      "scenario": "Customer opens with a rate-limit complaint after scaling. A plan-upgrade context event is noise, the symptom narrows to a subset of webhook deliveries, and only late signing-secret evidence justifies the final cause.",
+      "transcript_turns": [
+        {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Our API calls are getting rate-limited after we scaled traffic this week."
+        },
+        {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Is every API route failing, or only one integration path?"
+        },
+        {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "It is not every route. A subset of webhook callbacks fails, but normal API reads still work."
+        },
+        {
+          "turn": 4,
+          "speaker": "agent",
+          "text": "I am checking quota usage and webhook authentication for that service."
+        },
+        {
+          "turn": 5,
+          "speaker": "customer",
+          "text": "The failures started right after the partner service rolled a new deployment."
+        },
+        {
+          "turn": 6,
+          "speaker": "agent",
+          "text": "Do successful and failed callbacks use the same signing secret?"
+        },
+        {
+          "turn": 7,
+          "speaker": "customer",
+          "text": "Only the legacy worker fails. The new worker callbacks succeed."
+        },
+        {
+          "turn": 8,
+          "speaker": "agent",
+          "text": "I am comparing webhook signing-secret rotation and quota counters now."
+        },
+        {
+          "turn": 9,
+          "speaker": "customer",
+          "text": "That matches what our service owner suspected: the legacy worker still has old webhook auth config."
+        }
+      ],
+      "context_events": [
+        {
+          "after_turn": 2,
+          "description": "Commercial context shows the customer upgraded plan last week, but quota has not been inspected yet.",
+          "facts": [
+            "recent_change:upgrade",
+            "plan_upgrade:complete"
+          ],
+          "relevant": false
+        },
+        {
+          "after_turn": 4,
+          "description": "API telemetry shows aggregate quota is below the customer limit, but webhook auth status is not yet known.",
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "resolved_unknowns": [
+            "quota_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the failing service before naming a final cause."
+        },
+        {
+          "after_turn": 9,
+          "description": "Webhook audit shows the signing secret rotated, and the legacy worker still validates with the old secret.",
+          "facts": [
+            "webhook_signing_secret:rotated",
+            "webhook_auth:legacy_secret"
+          ],
+          "resolved_unknowns": [
+            "webhook_auth_status"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "final_cause": "webhook_auth_rotation",
+          "next_check": "Update the legacy worker signing secret and replay one failed webhook callback."
+        }
+      ],
+      "expected_by_turn": [
+        {
+          "after_turn": 1,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "every API route"
+          ]
+        },
+        {
+          "after_turn": 2,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "every API route"
+          ]
+        },
+        {
+          "after_turn": 3,
+          "facts": [
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work"
+          ],
+          "unknowns": [
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "quota",
+            "webhook"
+          ]
+        },
+        {
+          "after_turn": 4,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        {
+          "after_turn": 5,
+          "facts": [
+            "recent_change:partner_deploy"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        {
+          "after_turn": 6,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        {
+          "after_turn": 7,
+          "facts": [
+            "failure_scope:legacy_worker",
+            "new_worker:callbacks_succeed"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        {
+          "after_turn": 8,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        {
+          "after_turn": 9,
+          "facts": [
+            "webhook_signing_secret:rotated",
+            "webhook_auth:legacy_secret"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "legacy worker",
+            "signing secret"
+          ]
+        }
+      ],
+      "final_cause": "webhook_auth_rotation"
+    },
+    "timeline": [
+      {
+        "turn": {
+          "turn": 1,
+          "speaker": "customer",
+          "text": "Our API calls are getting rate-limited after we scaled traffic this week."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 1,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Confirm whether every API route is failing or only one integration path.",
+          "handoff_notes": [
+            "Known: surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale",
+            "Unknowns: traffic_scope; quota_status; webhook_auth_status",
+            "Branches: quota_exhaustion; webhook_auth_rotation",
+            "Next check: Confirm whether every API route is failing or only one integration path."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 1,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "every API route"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "symptom:rate_limit_errors"
+              ],
+              "actual": [
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "symptom:rate_limit_errors"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_status",
+                "traffic_scope",
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "quota_status",
+                "traffic_scope",
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "every API route"
+              ],
+              "actual": "Confirm whether every API route is failing or only one integration path.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 2,
+          "speaker": "agent",
+          "text": "Is every API route failing, or only one integration path?"
+        },
+        "context_applied": [
+          {
+            "after_turn": 2,
+            "description": "Commercial context shows the customer upgraded plan last week, but quota has not been inspected yet.",
+            "facts": [
+              "recent_change:upgrade",
+              "plan_upgrade:complete"
+            ],
+            "relevant": false
+          }
+        ],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 2,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Confirm whether every API route is failing or only one integration path.",
+          "handoff_notes": [
+            "Known: surface:api_delivery; symptom:rate_limit_errors; recent_change:traffic_scale",
+            "Unknowns: traffic_scope; quota_status; webhook_auth_status",
+            "Branches: quota_exhaustion; webhook_auth_rotation",
+            "Next check: Confirm whether every API route is failing or only one integration path."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 2,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors"
+          ],
+          "unknowns": [
+            "traffic_scope",
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "every API route"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "recent_change:traffic_scale"
+              ],
+              "expected": [
+                "surface:api_delivery",
+                "symptom:rate_limit_errors"
+              ],
+              "actual": [
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "symptom:rate_limit_errors"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_status",
+                "traffic_scope",
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "quota_status",
+                "traffic_scope",
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "every API route"
+              ],
+              "actual": "Confirm whether every API route is failing or only one integration path.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 3,
+          "speaker": "customer",
+          "text": "It is not every route. A subset of webhook callbacks fails, but normal API reads still work."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 3,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work"
+          ],
+          "unknowns": [
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check": "Compare quota counters with webhook auth status for the failing callback path.",
+          "handoff_notes": [
+            "Known: recent_change:traffic_scale; traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work",
+            "Unknowns: quota_status; webhook_auth_status",
+            "Branches: quota_exhaustion; webhook_auth_rotation",
+            "Next check: Compare quota counters with webhook auth status for the failing callback path."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 3,
+          "facts": [
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work"
+          ],
+          "unknowns": [
+            "quota_status",
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "quota_exhaustion",
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [],
+          "next_check_contains": [
+            "quota",
+            "webhook"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "symptom:rate_limit_errors"
+              ],
+              "expected": [
+                "normal_api_reads:work",
+                "surface:webhook_callbacks",
+                "traffic_scope:subset"
+              ],
+              "actual": [
+                "normal_api_reads:work",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_status",
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "quota_status",
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "quota_exhaustion",
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota",
+                "webhook"
+              ],
+              "actual": "Compare quota counters with webhook auth status for the failing callback path.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 4,
+          "speaker": "agent",
+          "text": "I am checking quota usage and webhook authentication for that service."
+        },
+        "context_applied": [
+          {
+            "after_turn": 4,
+            "description": "API telemetry shows aggregate quota is below the customer limit, but webhook auth status is not yet known.",
+            "facts": [
+              "quota:under_limit"
+            ],
+            "unknowns": [
+              "webhook_auth_status"
+            ],
+            "resolved_unknowns": [
+              "quota_status"
+            ],
+            "candidate_branches": [
+              "webhook_auth_rotation"
+            ],
+            "ruled_out_branches": [
+              "quota_exhaustion"
+            ],
+            "next_check": "Compare webhook auth status for the failing service before naming a final cause."
+          }
+        ],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 5,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the failing service before naming a final cause.",
+          "handoff_notes": [
+            "Known: traffic_scope:subset; surface:webhook_callbacks; normal_api_reads:work; quota:under_limit",
+            "Unknowns: webhook_auth_status",
+            "Branches: webhook_auth_rotation",
+            "Next check: Compare webhook auth status for the failing service before naming a final cause."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 4,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "normal_api_reads:work",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "quota:under_limit"
+              ],
+              "actual": [
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook auth"
+              ],
+              "actual": "Compare webhook auth status for the failing service before naming a final cause.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 5,
+          "speaker": "customer",
+          "text": "The failures started right after the partner service rolled a new deployment."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 6,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit",
+            "recent_change:partner_deploy"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the failing service before naming a final cause.",
+          "handoff_notes": [
+            "Known: surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy",
+            "Unknowns: webhook_auth_status",
+            "Branches: webhook_auth_rotation",
+            "Next check: Compare webhook auth status for the failing service before naming a final cause."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 5,
+          "facts": [
+            "recent_change:partner_deploy"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "recent_change:partner_deploy"
+              ],
+              "actual": [
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook auth"
+              ],
+              "actual": "Compare webhook auth status for the failing service before naming a final cause.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 6,
+          "speaker": "agent",
+          "text": "Do successful and failed callbacks use the same signing secret?"
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 7,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit",
+            "recent_change:partner_deploy"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the failing service before naming a final cause.",
+          "handoff_notes": [
+            "Known: surface:webhook_callbacks; normal_api_reads:work; quota:under_limit; recent_change:partner_deploy",
+            "Unknowns: webhook_auth_status",
+            "Branches: webhook_auth_rotation",
+            "Next check: Compare webhook auth status for the failing service before naming a final cause."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 6,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "normal_api_reads:work",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "quota:under_limit"
+              ],
+              "actual": [
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook auth"
+              ],
+              "actual": "Compare webhook auth status for the failing service before naming a final cause.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 7,
+          "speaker": "customer",
+          "text": "Only the legacy worker fails. The new worker callbacks succeed."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 8,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit",
+            "recent_change:partner_deploy",
+            "failure_scope:legacy_worker",
+            "new_worker:callbacks_succeed"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the legacy worker before naming a final cause.",
+          "handoff_notes": [
+            "Known: quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed",
+            "Unknowns: webhook_auth_status",
+            "Branches: webhook_auth_rotation",
+            "Next check: Compare webhook auth status for the legacy worker before naming a final cause."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 7,
+          "facts": [
+            "failure_scope:legacy_worker",
+            "new_worker:callbacks_succeed"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed"
+              ],
+              "actual": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed",
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook auth"
+              ],
+              "actual": "Compare webhook auth status for the legacy worker before naming a final cause.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 8,
+          "speaker": "agent",
+          "text": "I am comparing webhook signing-secret rotation and quota counters now."
+        },
+        "context_applied": [],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 9,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit",
+            "recent_change:partner_deploy",
+            "failure_scope:legacy_worker",
+            "new_worker:callbacks_succeed"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Compare webhook auth status for the legacy worker before naming a final cause.",
+          "handoff_notes": [
+            "Known: quota:under_limit; recent_change:partner_deploy; failure_scope:legacy_worker; new_worker:callbacks_succeed",
+            "Unknowns: webhook_auth_status",
+            "Branches: webhook_auth_rotation",
+            "Next check: Compare webhook auth status for the legacy worker before naming a final cause."
+          ],
+          "final_cause": "",
+          "root_cause_evidence_seen": false
+        },
+        "expected": {
+          "after_turn": 8,
+          "facts": [
+            "quota:under_limit"
+          ],
+          "unknowns": [
+            "webhook_auth_status"
+          ],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "webhook auth"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed",
+                "normal_api_reads:work",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "quota:under_limit"
+              ],
+              "actual": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed",
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_status"
+              ],
+              "actual": [
+                "webhook_auth_status"
+              ]
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook auth"
+              ],
+              "actual": "Compare webhook auth status for the legacy worker before naming a final cause.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": ""
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      },
+      {
+        "turn": {
+          "turn": 9,
+          "speaker": "customer",
+          "text": "That matches what our service owner suspected: the legacy worker still has old webhook auth config."
+        },
+        "context_applied": [
+          {
+            "after_turn": 9,
+            "description": "Webhook audit shows the signing secret rotated, and the legacy worker still validates with the old secret.",
+            "facts": [
+              "webhook_signing_secret:rotated",
+              "webhook_auth:legacy_secret"
+            ],
+            "resolved_unknowns": [
+              "webhook_auth_status"
+            ],
+            "ruled_out_branches": [
+              "quota_exhaustion"
+            ],
+            "candidate_branches": [
+              "webhook_auth_rotation"
+            ],
+            "final_cause": "webhook_auth_rotation",
+            "next_check": "Update the legacy worker signing secret and replay one failed webhook callback."
+          }
+        ],
+        "state": {
+          "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+          "version": 11,
+          "facts": [
+            "surface:api_delivery",
+            "symptom:rate_limit_errors",
+            "recent_change:traffic_scale",
+            "traffic_scope:subset",
+            "surface:webhook_callbacks",
+            "normal_api_reads:work",
+            "quota:under_limit",
+            "recent_change:partner_deploy",
+            "failure_scope:legacy_worker",
+            "new_worker:callbacks_succeed",
+            "webhook_signing_secret:rotated",
+            "webhook_auth:legacy_secret"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check": "Update the legacy worker signing secret and replay one failed webhook callback.",
+          "handoff_notes": [
+            "Known: failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret",
+            "Branches: webhook_auth_rotation",
+            "Next check: Update the legacy worker signing secret and replay one failed webhook callback."
+          ],
+          "final_cause": "webhook_auth_rotation",
+          "root_cause_evidence_seen": true
+        },
+        "expected": {
+          "after_turn": 9,
+          "facts": [
+            "webhook_signing_secret:rotated",
+            "webhook_auth:legacy_secret"
+          ],
+          "unknowns": [],
+          "candidate_branches": [
+            "webhook_auth_rotation"
+          ],
+          "ruled_out_branches": [
+            "quota_exhaustion"
+          ],
+          "next_check_contains": [
+            "legacy worker",
+            "signing secret"
+          ]
+        },
+        "verdict": {
+          "passed": 6,
+          "total": 6,
+          "checks": [
+            {
+              "field": "facts",
+              "passed": true,
+              "missing": [],
+              "extra": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed",
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset"
+              ],
+              "expected": [
+                "webhook_auth:legacy_secret",
+                "webhook_signing_secret:rotated"
+              ],
+              "actual": [
+                "failure_scope:legacy_worker",
+                "new_worker:callbacks_succeed",
+                "normal_api_reads:work",
+                "quota:under_limit",
+                "recent_change:partner_deploy",
+                "recent_change:traffic_scale",
+                "surface:api_delivery",
+                "surface:webhook_callbacks",
+                "symptom:rate_limit_errors",
+                "traffic_scope:subset",
+                "webhook_auth:legacy_secret",
+                "webhook_signing_secret:rotated"
+              ]
+            },
+            {
+              "field": "unknowns",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [],
+              "actual": []
+            },
+            {
+              "field": "candidate_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "webhook_auth_rotation"
+              ],
+              "actual": [
+                "webhook_auth_rotation"
+              ]
+            },
+            {
+              "field": "ruled_out_branches",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "quota_exhaustion"
+              ],
+              "actual": [
+                "quota_exhaustion"
+              ]
+            },
+            {
+              "field": "next_check",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": [
+                "legacy worker",
+                "signing secret"
+              ],
+              "actual": "Update the legacy worker signing secret and replay one failed webhook callback.",
+              "category": "pass"
+            },
+            {
+              "field": "final_cause_timing",
+              "passed": true,
+              "missing": [],
+              "extra": [],
+              "expected": "empty until context evidence exists",
+              "actual": "webhook_auth_rotation"
+            }
+          ]
+        },
+        "llm_prompt": "",
+        "llm_patch": null,
+        "llm_raw": ""
+      }
+    ],
+    "final_state": {
+      "case_id": "level3_misrouted_ratelimit_actually_webhook_auth",
+      "version": 11,
+      "facts": [
+        "surface:api_delivery",
+        "symptom:rate_limit_errors",
+        "recent_change:traffic_scale",
+        "traffic_scope:subset",
+        "surface:webhook_callbacks",
+        "normal_api_reads:work",
+        "quota:under_limit",
+        "recent_change:partner_deploy",
+        "failure_scope:legacy_worker",
+        "new_worker:callbacks_succeed",
+        "webhook_signing_secret:rotated",
+        "webhook_auth:legacy_secret"
+      ],
+      "unknowns": [],
+      "candidate_branches": [
+        "webhook_auth_rotation"
+      ],
+      "ruled_out_branches": [
+        "quota_exhaustion"
+      ],
+      "next_check": "Update the legacy worker signing secret and replay one failed webhook callback.",
+      "handoff_notes": [
+        "Known: failure_scope:legacy_worker; new_worker:callbacks_succeed; webhook_signing_secret:rotated; webhook_auth:legacy_secret",
+        "Branches: webhook_auth_rotation",
+        "Next check: Update the legacy worker signing secret and replay one failed webhook callback."
+      ],
+      "final_cause": "webhook_auth_rotation",
+      "root_cause_evidence_seen": true
+    },
+    "root_cause_ok": true,
+    "mode": "deterministic"
+  }
+]
