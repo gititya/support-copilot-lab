@@ -4,8 +4,8 @@ current_state: "Canonical finished B2B support-process proof-of-work, merged on 
 next_action: "Use customer-support-ai-os/FRONT_DOOR.md as the current cross-repo reviewer entrypoint; re-proof after any consumed-repo commit."
 things_to_know:
   - "Roadmap source: /Users/aditya/Documents/Projects/SUPPORT_MASTER_PLAN.md."
-  - "M4 front door: /Users/aditya/Documents/Projects/customer-support-ai-os/FRONT_DOOR.md."
-  - "M4 Flow 0 trace: /Users/aditya/Documents/Projects/customer-support-ai-os/outputs/flow0_H1.json."
+  - "M4 front door: /Users/aditya/Documents/Projects/support/customer-support-ai-os/FRONT_DOOR.md."
+  - "M4 Flow 0 trace: /Users/aditya/Documents/Projects/support/customer-support-ai-os/outputs/flow0_H1.json."
   - "This is the canonical continuation of the original real-time support experiment."
   - "The repo is intentionally closed around B2B support-process evaluation, not B2C, local-model tuning, or a broader UI rebuild."
   - "Real transcripts are customer data; do not commit them."

@@ -1,4 +1,4 @@
-# AGENTS.md - real-time_support_Updated
+# AGENTS.md - support-copilot
 
 ## What this repo is
 
