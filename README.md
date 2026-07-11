@@ -152,7 +152,7 @@ It is a working offline prototype for one narrow product question: can a support
 6. `fixtures/` - support-process cases with expected turn-by-turn state.
 7. `prototype/live_simulator.py` - static 3-case live replay simulator for judging the support-agent experience.
 8. `outputs/` - generated simulator, reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
-9. `AUDITABLE_SUPPORT_AI.md` - the product idea behind the prototype.
+9. `../Old_files/archived-docs/AUDITABLE_SUPPORT_AI.md` (archived) - the product idea behind the prototype.
 
 ## Reusable engine vs. domain layer
 

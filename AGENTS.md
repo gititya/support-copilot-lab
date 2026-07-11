@@ -26,7 +26,7 @@ python3 run_all.py
 ## File map
 
 - `README.md` - human-facing thesis and usage.
-- `AUDITABLE_SUPPORT_AI.md` - product idea and support-language explanation.
+- `../Old_files/archived-docs/AUDITABLE_SUPPORT_AI.md` (archived) - product idea and support-language explanation.
 - `run.py` - replay runner, LLM command adapter, evaluator, report/dashboard renderer.
 - `run_all.py` - complete experiment runner.
 - `mock_llm.py` - process and predictive mock model behaviors.
