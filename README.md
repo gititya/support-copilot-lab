@@ -82,7 +82,7 @@ final cause only after mechanism evidence appears
 
 ## The cases
 
-The harness uses twelve B2B support cases, including simple fixtures and harder evidence-timing cases:
+The harness uses twelve B2B support cases, including simple fixtures (synthetic data) and harder evidence-timing cases:
 
 1. `access_after_migration` - three users lost access after migration.
 2. `billing_plan_mismatch` - customer starts with a login complaint, then corrects to billing plan mismatch.
