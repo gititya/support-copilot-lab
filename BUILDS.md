@@ -1,7 +1,7 @@
 ---
-status: "complete"
-current_state: "Canonical finished B2B support-process proof-of-work, merged on main and pinned as M4 evidence for the customer-support-ai-os front door."
-next_action: "Use customer-support-ai-os/FRONT_DOOR.md as the current cross-repo reviewer entrypoint; re-proof after any consumed-repo commit."
+status: "shipped"
+current_state: "The B2B support-process proof is shipped and pinned: accepted traces preserve facts, unknowns, branches, next checks, handoff, and evidence-timed final causes."
+next_action: "No pending work for the shipped proof; any new model replay or product domain starts as new scope."
 things_to_know:
   - "Roadmap source: /Users/aditya/Documents/Projects/support/Old_files/archived-docs/SUPPORT_MASTER_PLAN.md (archived)."
   - "M4 front door: /Users/aditya/Documents/Projects/support/customer-support-ai-os/FRONT_DOOR.md."

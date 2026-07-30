@@ -2,6 +2,11 @@
 
 Finished proof-of-work: a text-first B2B support-process evaluation lab.
 
+This is a shipped, separate proof inside the wider Support system. It evaluates the support rep
+side after handoff: facts, unknowns, live branches, ruled-out paths, the next check, and when a
+final cause becomes justified. It does not own customer voice, Screen-Aware guidance, or the
+deterministic B2C decision seat.
+
 The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? It failed for the right reason. Early support turns usually contain symptoms, not mechanism.
 
 This repo reframes the problem: can an AI work the case properly as evidence arrives? The proof is the trace, not the pitch. The harness scores facts, unknowns, active branches, ruled-out paths, next checks, handoff, and the exact moment a final cause becomes justified.
