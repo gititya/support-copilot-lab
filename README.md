@@ -1,10 +1,11 @@
 # support-copilot — realtime B2B support-process copilot (formerly real-time_support_Updated)
 
-Finished proof-of-work: a text-first B2B support-process evaluation lab.
+Active rep-side product/proof: a text-first B2B support-process copilot with a fixed evaluation lab.
 
-This is a shipped, separate proof inside the wider Support system. It evaluates the support rep
-side after handoff: facts, unknowns, live branches, ruled-out paths, the next check, and when a
-final cause becomes justified. It does not own customer voice, Screen-Aware guidance, or the
+This is a shipped, separate product/proof inside the wider Support system. It helps a human support
+representative maintain facts, unknowns, live branches, and ruled-out paths; choose the next check;
+resolve when evidence permits; and avoid unnecessary or premature engineering escalation. Its
+fixed harness proves those behaviors. It does not own customer voice, Screen-Aware guidance, or the
 deterministic B2C decision seat.
 
 The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? It failed for the right reason. Early support turns usually contain symptoms, not mechanism.
