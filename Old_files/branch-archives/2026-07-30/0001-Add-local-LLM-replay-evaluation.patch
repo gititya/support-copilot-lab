@@ -1,0 +1,2270 @@
+From 9bb1378565c42fc10fe103754afb6e59bb5a1c4c Mon Sep 17 00:00:00 2001
+From: gititya <seshadri.aditya@gmail.com>
+Date: Tue, 23 Jun 2026 20:54:18 +0530
+Subject: [PATCH 1/2] Add local LLM replay evaluation
+
+---
+ ...mlx_community_qwen3_4b_4bit_dashboard.html |   1 +
+ .../mlx_mlx_community_qwen3_4b_4bit_report.md |  18 +
+ ...mlx_community_qwen3_4b_4bit_snapshots.json | 124 ++++
+ .../ollama_gemma3_4b_dashboard.html           |   1 +
+ .../model_replays/ollama_gemma3_4b_report.md  |  18 +
+ .../ollama_gemma3_4b_snapshots.json           | 124 ++++
+ .../ollama_gemma4_12b_it_qat_dashboard.html   |   1 +
+ .../ollama_gemma4_12b_it_qat_report.md        |  18 +
+ .../ollama_gemma4_12b_it_qat_snapshots.json   | 124 ++++
+ .../ollama_gemma4_e4b_dashboard.html          |   1 +
+ .../model_replays/ollama_gemma4_e4b_report.md |  18 +
+ .../ollama_gemma4_e4b_snapshots.json          | 124 ++++
+ .../ollama_qwen2_5_7b_dashboard.html          | 109 +++
+ .../model_replays/ollama_qwen2_5_7b_report.md |  66 ++
+ .../ollama_qwen2_5_7b_snapshots.json          | 702 ++++++++++++++++++
+ outputs/model_replays/summary.md              |   9 +
+ prototype/mlx_patch_adapter.py                |  88 +++
+ prototype/model_eval.py                       | 311 ++++++++
+ prototype/ollama_patch_adapter.py             |  90 +++
+ run.py                                        |  23 +-
+ test_experiment.py                            |  72 +-
+ 21 files changed, 2031 insertions(+), 11 deletions(-)
+ create mode 100644 outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_dashboard.html
+ create mode 100644 outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_report.md
+ create mode 100644 outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_snapshots.json
+ create mode 100644 outputs/model_replays/ollama_gemma3_4b_dashboard.html
+ create mode 100644 outputs/model_replays/ollama_gemma3_4b_report.md
+ create mode 100644 outputs/model_replays/ollama_gemma3_4b_snapshots.json
+ create mode 100644 outputs/model_replays/ollama_gemma4_12b_it_qat_dashboard.html
+ create mode 100644 outputs/model_replays/ollama_gemma4_12b_it_qat_report.md
+ create mode 100644 outputs/model_replays/ollama_gemma4_12b_it_qat_snapshots.json
+ create mode 100644 outputs/model_replays/ollama_gemma4_e4b_dashboard.html
+ create mode 100644 outputs/model_replays/ollama_gemma4_e4b_report.md
+ create mode 100644 outputs/model_replays/ollama_gemma4_e4b_snapshots.json
+ create mode 100644 outputs/model_replays/ollama_qwen2_5_7b_dashboard.html
+ create mode 100644 outputs/model_replays/ollama_qwen2_5_7b_report.md
+ create mode 100644 outputs/model_replays/ollama_qwen2_5_7b_snapshots.json
+ create mode 100644 outputs/model_replays/summary.md
+ create mode 100644 prototype/mlx_patch_adapter.py
+ create mode 100644 prototype/model_eval.py
+ create mode 100644 prototype/ollama_patch_adapter.py
+
+diff --git a/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_dashboard.html b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_dashboard.html
+new file mode 100644
+index 0000000..a2a1be8
+--- /dev/null
++++ b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_dashboard.html
+@@ -0,0 +1 @@
++<!doctype html><title>Local Model Replay</title><p>No completed fixture runs.</p>
+\ No newline at end of file
+diff --git a/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_report.md b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_report.md
+new file mode 100644
+index 0000000..d424928
+--- /dev/null
++++ b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_report.md
+@@ -0,0 +1,18 @@
++# Local Model Replay Report
++
++Runtime: `mlx`
++Model: `mlx-community/Qwen3-4B-4bit`
++
++| cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
++
++
++## Drift Summary
++
++- Missing expected state items: -
++- Extra state items: -
++
++## Fixture Failures
++
++- `access_after_migration`: LLM command failed with exit code 1: mlx_patch_adapter: MLX command timed out after 5 seconds
+diff --git a/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_snapshots.json b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_snapshots.json
+new file mode 100644
+index 0000000..1d58e60
+--- /dev/null
++++ b/outputs/model_replays/mlx_mlx_community_qwen3_4b_4bit_snapshots.json
+@@ -0,0 +1,124 @@
++[
++  {
++    "fixture": {
++      "case_id": "access_after_migration",
++      "title": "Access After Migration",
++      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
++      "transcript_turns": [
++        {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        }
++      ],
++      "context_events": [
++        {
++          "after_turn": 3,
++          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++          "facts": [
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "resolved_unknowns": [
++            "workspace_role_assignment"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "final_cause": "missing_workspace_role_inheritance",
++          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++        }
++      ],
++      "expected_by_turn": [
++        {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        }
++      ],
++      "final_cause": "missing_workspace_role_inheritance"
++    },
++    "timeline": [],
++    "final_state": {},
++    "root_cause_ok": false,
++    "mode": "llm",
++    "model_eval_status": "failed",
++    "model_eval_error": "LLM command failed with exit code 1: mlx_patch_adapter: MLX command timed out after 5 seconds",
++    "model_runtime": "mlx",
++    "model_name": "mlx-community/Qwen3-4B-4bit"
++  }
++]
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma3_4b_dashboard.html b/outputs/model_replays/ollama_gemma3_4b_dashboard.html
+new file mode 100644
+index 0000000..a2a1be8
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma3_4b_dashboard.html
+@@ -0,0 +1 @@
++<!doctype html><title>Local Model Replay</title><p>No completed fixture runs.</p>
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma3_4b_report.md b/outputs/model_replays/ollama_gemma3_4b_report.md
+new file mode 100644
+index 0000000..06802c3
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma3_4b_report.md
+@@ -0,0 +1,18 @@
++# Local Model Replay Report
++
++Runtime: `ollama`
++Model: `gemma3:4b`
++
++| cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
++
++
++## Drift Summary
++
++- Missing expected state items: -
++- Extra state items: -
++
++## Fixture Failures
++
++- `access_after_migration`: LLM command timed out after 5 seconds
+diff --git a/outputs/model_replays/ollama_gemma3_4b_snapshots.json b/outputs/model_replays/ollama_gemma3_4b_snapshots.json
+new file mode 100644
+index 0000000..30ef541
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma3_4b_snapshots.json
+@@ -0,0 +1,124 @@
++[
++  {
++    "fixture": {
++      "case_id": "access_after_migration",
++      "title": "Access After Migration",
++      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
++      "transcript_turns": [
++        {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        }
++      ],
++      "context_events": [
++        {
++          "after_turn": 3,
++          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++          "facts": [
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "resolved_unknowns": [
++            "workspace_role_assignment"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "final_cause": "missing_workspace_role_inheritance",
++          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++        }
++      ],
++      "expected_by_turn": [
++        {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        }
++      ],
++      "final_cause": "missing_workspace_role_inheritance"
++    },
++    "timeline": [],
++    "final_state": {},
++    "root_cause_ok": false,
++    "mode": "llm",
++    "model_eval_status": "failed",
++    "model_eval_error": "LLM command timed out after 5 seconds",
++    "model_runtime": "ollama",
++    "model_name": "gemma3:4b"
++  }
++]
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma4_12b_it_qat_dashboard.html b/outputs/model_replays/ollama_gemma4_12b_it_qat_dashboard.html
+new file mode 100644
+index 0000000..a2a1be8
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_12b_it_qat_dashboard.html
+@@ -0,0 +1 @@
++<!doctype html><title>Local Model Replay</title><p>No completed fixture runs.</p>
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma4_12b_it_qat_report.md b/outputs/model_replays/ollama_gemma4_12b_it_qat_report.md
+new file mode 100644
+index 0000000..ce2f500
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_12b_it_qat_report.md
+@@ -0,0 +1,18 @@
++# Local Model Replay Report
++
++Runtime: `ollama`
++Model: `gemma4:12b-it-qat`
++
++| cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
++
++
++## Drift Summary
++
++- Missing expected state items: -
++- Extra state items: -
++
++## Fixture Failures
++
++- `access_after_migration`: LLM command timed out after 15 seconds
+diff --git a/outputs/model_replays/ollama_gemma4_12b_it_qat_snapshots.json b/outputs/model_replays/ollama_gemma4_12b_it_qat_snapshots.json
+new file mode 100644
+index 0000000..86bf447
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_12b_it_qat_snapshots.json
+@@ -0,0 +1,124 @@
++[
++  {
++    "fixture": {
++      "case_id": "access_after_migration",
++      "title": "Access After Migration",
++      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
++      "transcript_turns": [
++        {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        }
++      ],
++      "context_events": [
++        {
++          "after_turn": 3,
++          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++          "facts": [
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "resolved_unknowns": [
++            "workspace_role_assignment"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "final_cause": "missing_workspace_role_inheritance",
++          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++        }
++      ],
++      "expected_by_turn": [
++        {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        }
++      ],
++      "final_cause": "missing_workspace_role_inheritance"
++    },
++    "timeline": [],
++    "final_state": {},
++    "root_cause_ok": false,
++    "mode": "llm",
++    "model_eval_status": "failed",
++    "model_eval_error": "LLM command timed out after 15 seconds",
++    "model_runtime": "ollama",
++    "model_name": "gemma4:12b-it-qat"
++  }
++]
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma4_e4b_dashboard.html b/outputs/model_replays/ollama_gemma4_e4b_dashboard.html
+new file mode 100644
+index 0000000..a2a1be8
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_e4b_dashboard.html
+@@ -0,0 +1 @@
++<!doctype html><title>Local Model Replay</title><p>No completed fixture runs.</p>
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_gemma4_e4b_report.md b/outputs/model_replays/ollama_gemma4_e4b_report.md
+new file mode 100644
+index 0000000..ca003ae
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_e4b_report.md
+@@ -0,0 +1,18 @@
++# Local Model Replay Report
++
++Runtime: `ollama`
++Model: `gemma4:e4b`
++
++| cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
++
++
++## Drift Summary
++
++- Missing expected state items: -
++- Extra state items: -
++
++## Fixture Failures
++
++- `access_after_migration`: LLM command timed out after 15 seconds
+diff --git a/outputs/model_replays/ollama_gemma4_e4b_snapshots.json b/outputs/model_replays/ollama_gemma4_e4b_snapshots.json
+new file mode 100644
+index 0000000..f5a4bc6
+--- /dev/null
++++ b/outputs/model_replays/ollama_gemma4_e4b_snapshots.json
+@@ -0,0 +1,124 @@
++[
++  {
++    "fixture": {
++      "case_id": "access_after_migration",
++      "title": "Access After Migration",
++      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
++      "transcript_turns": [
++        {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        }
++      ],
++      "context_events": [
++        {
++          "after_turn": 3,
++          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++          "facts": [
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "resolved_unknowns": [
++            "workspace_role_assignment"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "final_cause": "missing_workspace_role_inheritance",
++          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++        }
++      ],
++      "expected_by_turn": [
++        {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        }
++      ],
++      "final_cause": "missing_workspace_role_inheritance"
++    },
++    "timeline": [],
++    "final_state": {},
++    "root_cause_ok": false,
++    "mode": "llm",
++    "model_eval_status": "failed",
++    "model_eval_error": "LLM command timed out after 15 seconds",
++    "model_runtime": "ollama",
++    "model_name": "gemma4:e4b"
++  }
++]
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_qwen2_5_7b_dashboard.html b/outputs/model_replays/ollama_qwen2_5_7b_dashboard.html
+new file mode 100644
+index 0000000..4aa658b
+--- /dev/null
++++ b/outputs/model_replays/ollama_qwen2_5_7b_dashboard.html
+@@ -0,0 +1,109 @@
++<!doctype html>
++<html lang="en">
++<head>
++<meta charset="utf-8">
++<title>Support Process Lab</title>
++<style>
++body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#101318; color:#e5e7eb; margin:0; padding:32px; }
++h1 { font-size:24px; margin-bottom:8px; }
++p { color:#9ca3af; max-width:860px; }
++.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:24px 0 34px; }
++.card { border:1px solid #2f3746; background:#161b24; border-radius:8px; padding:14px 16px; }
++.card.good { border-color:#166534; }
++.card.warn { border-color:#92400e; }
++.card-title { font-weight:700; margin-bottom:8px; }
++.metric { font-size:22px; color:#f8fafc; }
++.muted, .context { color:#94a3b8; font-size:12px; margin-top:4px; }
++section { border-top:1px solid #2f3746; padding-top:28px; margin-top:34px; }
++h2 { font-size:18px; margin-bottom:6px; }
++h3 { font-size:13px; color:#cbd5e1; text-transform:uppercase; letter-spacing:.08em; margin-top:18px; }
++.table-wrap { overflow-x:auto; }
++table { width:100%; border-collapse:collapse; font-size:13px; }
++th { color:#94a3b8; text-align:left; border-bottom:1px solid #374151; padding:8px; white-space:nowrap; }
++td { border-bottom:1px solid #222b38; padding:8px; vertical-align:top; min-width:110px; }
++td.text { min-width:260px; color:#f8fafc; }
++.pass { color:#22c55e; font-weight:700; }
++.fail { color:#f59e0b; font-weight:700; }
++.observed { color:#94a3b8; font-weight:700; }
++pre { background:#0b0e13; border:1px solid #2f3746; border-radius:8px; padding:14px; overflow:auto; color:#cbd5e1; }
++</style>
++</head>
++<body>
++<h1>Support Process Lab</h1>
++<p><strong>Run:</strong> ollama:qwen2.5:7b</p>
++<p>Offline test of LTS-style support process state. Transcript-only replay proves plumbing; transcript plus mock system context is the product-relevant mode.</p>
++<div class="summary">
++        <div class="card warn">
++          <div class="card-title">Access After Migration</div>
++          <div class="metric">8/18 checks</div>
++          <div class="muted">Final cause: </div>
++        </div></div>
++
++        <section>
++          <h2>Access After Migration</h2>
++          <p>Three users lost access after migration. They can sign in, but cannot open the new workspace.</p>
++          <div class="table-wrap"><table>
++            <thead><tr><th>Turn</th><th>Input</th><th>Facts</th><th>Unknowns</th><th>Branches</th><th>Next Check</th><th>Status</th><th>Missing</th></tr></thead>
++            <tbody>
++            <tr>
++              <td>1</td>
++              <td class="text"><strong>customer</strong>: Three users lost access after our migration yesterday.<div class="context">-</div></td>
++              <td>affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM</td>
++              <td>auth_status; cache_status; workspace_role_assignment</td>
++              <td>missing_workspace_role_inheritance; stale_entitlement_cache</td>
++              <td>Verify workspace role inheritance and entitlement cache status.</td>
++              <td class="fail">needs attention</td>
++              <td>facts: symptom:workspace_access_loss; candidate_branches: missing_workspace_role, scim_sync_delay; next_check: sign in</td>
++            </tr>
++            <tr>
++              <td>2</td>
++              <td class="text"><strong>agent</strong>: Can they sign in at all, or is login blocked?<div class="context">-</div></td>
++              <td>affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works</td>
++              <td>-</td>
++              <td>login_failure</td>
++              <td>Verify login success and check for any potential blocking factors.</td>
++              <td class="fail">needs attention</td>
++              <td>facts: symptom:workspace_access_loss; unknowns: auth_status, workspace_role_assignment; candidate_branches: missing_workspace_role, scim_sync_delay, stale_entitlement_cache; next_check: sign in</td>
++            </tr>
++            <tr>
++              <td>3</td>
++              <td class="text"><strong>customer</strong>: They can sign in, but they cannot open the new workspace.<div class="context">Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.</div></td>
++              <td>affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works</td>
++              <td>-</td>
++              <td>missing_workspace_role_inheritance</td>
++              <td>Verify workspace role inheritance and check entitlement cache status.</td>
++              <td class="fail">needs attention</td>
++              <td>facts: group_membership:Migrated-CSM, scim_sync:complete, surface:workspace_access; ruled_out_branches: login_block; next_check: Migrated-CSM</td>
++            </tr></tbody>
++          </table></div>
++          <h3>Final State</h3>
++          <pre>{
++  &quot;case_id&quot;: &quot;access_after_migration&quot;,
++  &quot;version&quot;: 3,
++  &quot;facts&quot;: [
++    &quot;affected_scope:three_users&quot;,
++    &quot;recent_change:migration&quot;,
++    &quot;reported_issue:login&quot;,
++    &quot;workspace_role_missing:Migrated-CSM&quot;,
++    &quot;auth:works&quot;
++  ],
++  &quot;unknowns&quot;: [],
++  &quot;candidate_branches&quot;: [
++    &quot;missing_workspace_role_inheritance&quot;
++  ],
++  &quot;ruled_out_branches&quot;: [
++    &quot;scim_sync_delay&quot;,
++    &quot;stale_entitlement_cache&quot;
++  ],
++  &quot;next_check&quot;: &quot;Verify workspace role inheritance and check entitlement cache status.&quot;,
++  &quot;handoff_notes&quot;: [
++    &quot;Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works&quot;,
++    &quot;Branches: missing_workspace_role_inheritance&quot;,
++    &quot;Next check: Verify workspace role inheritance and check entitlement cache status.&quot;
++  ],
++  &quot;final_cause&quot;: &quot;&quot;,
++  &quot;root_cause_evidence_seen&quot;: true
++}</pre>
++        </section>
++</body>
++</html>
+\ No newline at end of file
+diff --git a/outputs/model_replays/ollama_qwen2_5_7b_report.md b/outputs/model_replays/ollama_qwen2_5_7b_report.md
+new file mode 100644
+index 0000000..38e5dae
+--- /dev/null
++++ b/outputs/model_replays/ollama_qwen2_5_7b_report.md
+@@ -0,0 +1,66 @@
++# Local Model Replay Report
++
++Runtime: `ollama`
++Model: `qwen2.5:7b`
++
++| cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | 0 | 3/3 | 100% | 8/18 | 44% | 0 | 0% |
++
++
++## Drift Summary
++
++- Missing expected state items: candidate_branches: 5; facts: 5; next_check: 3; ruled_out_branches: 1; unknowns: 2
++- Extra state items: candidate_branches: 2; facts: 8; ruled_out_branches: 1; unknowns: 1
++
++# Support Process Lab Report
++
++Run: `ollama:qwen2.5:7b`
++
++Offline test of transcript + mock-system support process state.
++
++## Summary
++
++| case | checks | pass_rate | final_cause_ok | final_cause |
++| --- | --- | --- | --- | --- |
++| access_after_migration | 8/18 | 44% | no |  |
++
++## Access After Migration
++
++| turn | speaker | text | facts | unknowns | branches | next_check | status | missing |
++| --- | --- | --- | --- | --- | --- | --- | --- | --- |
++| 1 | customer | Three users lost access after our migration yesterday. | affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM | auth_status; cache_status; workspace_role_assignment | missing_workspace_role_inheritance; stale_entitlement_cache | Verify workspace role inheritance and entitlement cache status. | needs attention | facts: symptom:workspace_access_loss; candidate_branches: missing_workspace_role, scim_sync_delay; next_check: sign in |
++| 2 | agent | Can they sign in at all, or is login blocked? | affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works |  | login_failure | Verify login success and check for any potential blocking factors. | needs attention | facts: symptom:workspace_access_loss; unknowns: auth_status, workspace_role_assignment; candidate_branches: missing_workspace_role, scim_sync_delay, stale_entitlement_cache; next_check: sign in |
++| 3 | customer | They can sign in, but they cannot open the new workspace. | affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works |  | missing_workspace_role_inheritance | Verify workspace role inheritance and check entitlement cache status. | needs attention | facts: group_membership:Migrated-CSM, scim_sync:complete, surface:workspace_access; ruled_out_branches: login_block; next_check: Migrated-CSM |
++
++### Final State
++
++```json
++{
++  "case_id": "access_after_migration",
++  "version": 3,
++  "facts": [
++    "affected_scope:three_users",
++    "recent_change:migration",
++    "reported_issue:login",
++    "workspace_role_missing:Migrated-CSM",
++    "auth:works"
++  ],
++  "unknowns": [],
++  "candidate_branches": [
++    "missing_workspace_role_inheritance"
++  ],
++  "ruled_out_branches": [
++    "scim_sync_delay",
++    "stale_entitlement_cache"
++  ],
++  "next_check": "Verify workspace role inheritance and check entitlement cache status.",
++  "handoff_notes": [
++    "Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works",
++    "Branches: missing_workspace_role_inheritance",
++    "Next check: Verify workspace role inheritance and check entitlement cache status."
++  ],
++  "final_cause": "",
++  "root_cause_evidence_seen": true
++}
++```
+diff --git a/outputs/model_replays/ollama_qwen2_5_7b_snapshots.json b/outputs/model_replays/ollama_qwen2_5_7b_snapshots.json
+new file mode 100644
+index 0000000..09c2499
+--- /dev/null
++++ b/outputs/model_replays/ollama_qwen2_5_7b_snapshots.json
+@@ -0,0 +1,702 @@
++[
++  {
++    "fixture": {
++      "case_id": "access_after_migration",
++      "title": "Access After Migration",
++      "scenario": "Three users lost access after migration. They can sign in, but cannot open the new workspace.",
++      "transcript_turns": [
++        {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        }
++      ],
++      "context_events": [
++        {
++          "after_turn": 3,
++          "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++          "facts": [
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "resolved_unknowns": [
++            "workspace_role_assignment"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "final_cause": "missing_workspace_role_inheritance",
++          "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++        }
++      ],
++      "expected_by_turn": [
++        {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        }
++      ],
++      "final_cause": "missing_workspace_role_inheritance"
++    },
++    "timeline": [
++      {
++        "turn": {
++          "turn": 1,
++          "speaker": "customer",
++          "text": "Three users lost access after our migration yesterday."
++        },
++        "context_applied": [],
++        "state": {
++          "case_id": "access_after_migration",
++          "version": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "reported_issue:login",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [
++            "auth_status",
++            "cache_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check": "Verify workspace role inheritance and entitlement cache status.",
++          "handoff_notes": [
++            "Known: affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM",
++            "Unknowns: auth_status; cache_status; workspace_role_assignment",
++            "Branches: missing_workspace_role_inheritance; stale_entitlement_cache",
++            "Next check: Verify workspace role inheritance and entitlement cache status."
++          ],
++          "final_cause": "",
++          "root_cause_evidence_seen": false
++        },
++        "expected": {
++          "after_turn": 1,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        "verdict": {
++          "passed": 3,
++          "total": 6,
++          "checks": [
++            {
++              "field": "facts",
++              "passed": false,
++              "missing": [
++                "symptom:workspace_access_loss"
++              ],
++              "extra": [
++                "reported_issue:login",
++                "workspace_role_missing:Migrated-CSM"
++              ],
++              "expected": [
++                "affected_scope:three_users",
++                "recent_change:migration",
++                "symptom:workspace_access_loss"
++              ],
++              "actual": [
++                "affected_scope:three_users",
++                "recent_change:migration",
++                "reported_issue:login",
++                "workspace_role_missing:Migrated-CSM"
++              ]
++            },
++            {
++              "field": "unknowns",
++              "passed": true,
++              "missing": [],
++              "extra": [
++                "cache_status"
++              ],
++              "expected": [
++                "auth_status",
++                "workspace_role_assignment"
++              ],
++              "actual": [
++                "auth_status",
++                "cache_status",
++                "workspace_role_assignment"
++              ]
++            },
++            {
++              "field": "candidate_branches",
++              "passed": false,
++              "missing": [
++                "missing_workspace_role",
++                "scim_sync_delay"
++              ],
++              "extra": [
++                "missing_workspace_role_inheritance"
++              ],
++              "expected": [
++                "missing_workspace_role",
++                "scim_sync_delay",
++                "stale_entitlement_cache"
++              ],
++              "actual": [
++                "missing_workspace_role_inheritance",
++                "stale_entitlement_cache"
++              ]
++            },
++            {
++              "field": "ruled_out_branches",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": [],
++              "actual": []
++            },
++            {
++              "field": "next_check",
++              "passed": false,
++              "missing": [
++                "sign in"
++              ],
++              "extra": [],
++              "expected": [
++                "sign in"
++              ],
++              "actual": "Verify workspace role inheritance and entitlement cache status."
++            },
++            {
++              "field": "final_cause_timing",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": "empty until context evidence exists",
++              "actual": ""
++            }
++          ]
++        },
++        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 0,\n    \"facts\": [],\n    \"unknowns\": [],\n    \"candidate_branches\": [],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"\",\n    \"handoff_notes\": [],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 1,\n    \"speaker\": \"customer\",\n    \"text\": \"Three users lost access after our migration yesterday.\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"cache_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"upstream_service_incident\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
++        "llm_patch": {
++          "facts_add": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "reported_issue:login",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "facts_remove": [],
++          "unknowns_add": [
++            "auth_status",
++            "cache_status",
++            "workspace_role_assignment"
++          ],
++          "unknowns_remove": [],
++          "candidate_branches_add": [
++            "missing_workspace_role_inheritance",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches_remove": [],
++          "ruled_out_branches_add": [],
++          "ruled_out_branches_remove": [],
++          "next_check": "Verify workspace role inheritance and entitlement cache status.",
++          "final_cause": "",
++          "root_cause_evidence_seen": false,
++          "handoff_note": ""
++        },
++        "llm_raw": "{\"facts_add\":[\"affected_scope:three_users\",\"recent_change:migration\",\"reported_issue:login\",\"workspace_role_missing:Migrated-CSM\"],\"facts_remove\":[],\"unknowns_add\":[\"auth_status\",\"cache_status\",\"workspace_role_assignment\"],\"unknowns_remove\":[],\"candidate_branches_add\":[\"missing_workspace_role_inheritance\",\"stale_entitlement_cache\"],\"candidate_branches_remove\":[],\"ruled_out_branches_add\":[],\"ruled_out_branches_remove\":[],\"next_check\":\"Verify workspace role inheritance and entitlement cache status.\",\"final_cause\":\"\",\"root_cause_evidence_seen\":false,\"handoff_note\":\"\"}\n"
++      },
++      {
++        "turn": {
++          "turn": 2,
++          "speaker": "agent",
++          "text": "Can they sign in at all, or is login blocked?"
++        },
++        "context_applied": [],
++        "state": {
++          "case_id": "access_after_migration",
++          "version": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "reported_issue:login",
++            "workspace_role_missing:Migrated-CSM",
++            "auth:works"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "login_failure"
++          ],
++          "ruled_out_branches": [],
++          "next_check": "Verify login success and check for any potential blocking factors.",
++          "handoff_notes": [
++            "Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works",
++            "Branches: login_failure",
++            "Next check: Verify login success and check for any potential blocking factors."
++          ],
++          "final_cause": "",
++          "root_cause_evidence_seen": false
++        },
++        "expected": {
++          "after_turn": 2,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "symptom:workspace_access_loss"
++          ],
++          "unknowns": [
++            "auth_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches": [
++            "missing_workspace_role",
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches": [],
++          "next_check_contains": [
++            "sign in"
++          ]
++        },
++        "verdict": {
++          "passed": 2,
++          "total": 6,
++          "checks": [
++            {
++              "field": "facts",
++              "passed": false,
++              "missing": [
++                "symptom:workspace_access_loss"
++              ],
++              "extra": [
++                "auth:works",
++                "reported_issue:login",
++                "workspace_role_missing:Migrated-CSM"
++              ],
++              "expected": [
++                "affected_scope:three_users",
++                "recent_change:migration",
++                "symptom:workspace_access_loss"
++              ],
++              "actual": [
++                "affected_scope:three_users",
++                "auth:works",
++                "recent_change:migration",
++                "reported_issue:login",
++                "workspace_role_missing:Migrated-CSM"
++              ]
++            },
++            {
++              "field": "unknowns",
++              "passed": false,
++              "missing": [
++                "auth_status",
++                "workspace_role_assignment"
++              ],
++              "extra": [],
++              "expected": [
++                "auth_status",
++                "workspace_role_assignment"
++              ],
++              "actual": []
++            },
++            {
++              "field": "candidate_branches",
++              "passed": false,
++              "missing": [
++                "missing_workspace_role",
++                "scim_sync_delay",
++                "stale_entitlement_cache"
++              ],
++              "extra": [
++                "login_failure"
++              ],
++              "expected": [
++                "missing_workspace_role",
++                "scim_sync_delay",
++                "stale_entitlement_cache"
++              ],
++              "actual": [
++                "login_failure"
++              ]
++            },
++            {
++              "field": "ruled_out_branches",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": [],
++              "actual": []
++            },
++            {
++              "field": "next_check",
++              "passed": false,
++              "missing": [
++                "sign in"
++              ],
++              "extra": [],
++              "expected": [
++                "sign in"
++              ],
++              "actual": "Verify login success and check for any potential blocking factors."
++            },
++            {
++              "field": "final_cause_timing",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": "empty until context evidence exists",
++              "actual": ""
++            }
++          ]
++        },
++        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 1,\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"recent_change:migration\",\n      \"reported_issue:login\",\n      \"workspace_role_missing:Migrated-CSM\"\n    ],\n    \"unknowns\": [\n      \"auth_status\",\n      \"cache_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Verify workspace role inheritance and entitlement cache status.\",\n    \"handoff_notes\": [\n      \"Known: affected_scope:three_users; recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM\",\n      \"Unknowns: auth_status; cache_status; workspace_role_assignment\",\n      \"Branches: missing_workspace_role_inheritance; stale_entitlement_cache\",\n      \"Next check: Verify workspace role inheritance and entitlement cache status.\"\n    ],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 2,\n    \"speaker\": \"agent\",\n    \"text\": \"Can they sign in at all, or is login blocked?\"\n  },\n  \"new_product_support_context\": [],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"cache_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"upstream_service_incident\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
++        "llm_patch": {
++          "facts_add": [
++            "auth:works"
++          ],
++          "facts_remove": [],
++          "unknowns_add": [],
++          "unknowns_remove": [
++            "auth_status",
++            "cache_status",
++            "workspace_role_assignment"
++          ],
++          "candidate_branches_add": [
++            "login_failure"
++          ],
++          "candidate_branches_remove": [
++            "missing_workspace_role_inheritance",
++            "stale_entitlement_cache"
++          ],
++          "ruled_out_branches_add": [],
++          "ruled_out_branches_remove": [
++            "missing_workspace_role_inheritance",
++            "stale_entitlement_cache"
++          ],
++          "next_check": "Verify login success and check for any potential blocking factors.",
++          "final_cause": "",
++          "root_cause_evidence_seen": false,
++          "handoff_note": ""
++        },
++        "llm_raw": "{\"facts_add\":[\"auth:works\"],\"facts_remove\":[],\"unknowns_add\":[],\"unknowns_remove\":[\"auth_status\",\"cache_status\",\"workspace_role_assignment\"],\"candidate_branches_add\":[\"login_failure\"],\"candidate_branches_remove\":[\"missing_workspace_role_inheritance\",\"stale_entitlement_cache\"],\"ruled_out_branches_add\":[],\"ruled_out_branches_remove\":[\"missing_workspace_role_inheritance\",\"stale_entitlement_cache\"],\"next_check\":\"Verify login success and check for any potential blocking factors.\",\"final_cause\":\"\",\"root_cause_evidence_seen\":false,\"handoff_note\":\"\"}\n"
++      },
++      {
++        "turn": {
++          "turn": 3,
++          "speaker": "customer",
++          "text": "They can sign in, but they cannot open the new workspace."
++        },
++        "context_applied": [
++          {
++            "after_turn": 3,
++            "description": "Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.",
++            "facts": [
++              "group_membership:Migrated-CSM",
++              "scim_sync:complete",
++              "workspace_role_missing:Migrated-CSM"
++            ],
++            "resolved_unknowns": [
++              "workspace_role_assignment"
++            ],
++            "ruled_out_branches": [
++              "scim_sync_delay",
++              "stale_entitlement_cache"
++            ],
++            "candidate_branches": [
++              "missing_workspace_role_inheritance"
++            ],
++            "final_cause": "missing_workspace_role_inheritance",
++            "next_check": "Confirm whether Migrated-CSM should inherit Workspace Member after migration."
++          }
++        ],
++        "state": {
++          "case_id": "access_after_migration",
++          "version": 3,
++          "facts": [
++            "affected_scope:three_users",
++            "recent_change:migration",
++            "reported_issue:login",
++            "workspace_role_missing:Migrated-CSM",
++            "auth:works"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "scim_sync_delay",
++            "stale_entitlement_cache"
++          ],
++          "next_check": "Verify workspace role inheritance and check entitlement cache status.",
++          "handoff_notes": [
++            "Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works",
++            "Branches: missing_workspace_role_inheritance",
++            "Next check: Verify workspace role inheritance and check entitlement cache status."
++          ],
++          "final_cause": "",
++          "root_cause_evidence_seen": true
++        },
++        "expected": {
++          "after_turn": 3,
++          "facts": [
++            "auth:works",
++            "surface:workspace_access",
++            "group_membership:Migrated-CSM",
++            "scim_sync:complete",
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "unknowns": [],
++          "candidate_branches": [
++            "missing_workspace_role_inheritance"
++          ],
++          "ruled_out_branches": [
++            "login_block",
++            "scim_sync_delay"
++          ],
++          "next_check_contains": [
++            "Migrated-CSM",
++            "inherit"
++          ]
++        },
++        "verdict": {
++          "passed": 3,
++          "total": 6,
++          "checks": [
++            {
++              "field": "facts",
++              "passed": false,
++              "missing": [
++                "group_membership:Migrated-CSM",
++                "scim_sync:complete",
++                "surface:workspace_access"
++              ],
++              "extra": [
++                "affected_scope:three_users",
++                "recent_change:migration",
++                "reported_issue:login"
++              ],
++              "expected": [
++                "auth:works",
++                "group_membership:Migrated-CSM",
++                "scim_sync:complete",
++                "surface:workspace_access",
++                "workspace_role_missing:Migrated-CSM"
++              ],
++              "actual": [
++                "affected_scope:three_users",
++                "auth:works",
++                "recent_change:migration",
++                "reported_issue:login",
++                "workspace_role_missing:Migrated-CSM"
++              ]
++            },
++            {
++              "field": "unknowns",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": [],
++              "actual": []
++            },
++            {
++              "field": "candidate_branches",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": [
++                "missing_workspace_role_inheritance"
++              ],
++              "actual": [
++                "missing_workspace_role_inheritance"
++              ]
++            },
++            {
++              "field": "ruled_out_branches",
++              "passed": false,
++              "missing": [
++                "login_block"
++              ],
++              "extra": [
++                "stale_entitlement_cache"
++              ],
++              "expected": [
++                "login_block",
++                "scim_sync_delay"
++              ],
++              "actual": [
++                "scim_sync_delay",
++                "stale_entitlement_cache"
++              ]
++            },
++            {
++              "field": "next_check",
++              "passed": false,
++              "missing": [
++                "Migrated-CSM"
++              ],
++              "extra": [],
++              "expected": [
++                "Migrated-CSM",
++                "inherit"
++              ],
++              "actual": "Verify workspace role inheritance and check entitlement cache status."
++            },
++            {
++              "field": "final_cause_timing",
++              "passed": true,
++              "missing": [],
++              "extra": [],
++              "expected": "empty until context evidence exists",
++              "actual": ""
++            }
++          ]
++        },
++        "llm_prompt": "You are the Think step in a text-first LTS support-process experiment.\n\nUpdate Live Support State incrementally. Track facts, unknowns, candidate branches, ruled-out branches, and the next useful check. Do not predict a final root cause from transcript symptoms alone. Set final_cause only when product/support context provides direct mechanism evidence.\n\nReturn JSON only with this shape:\n{\n  \"facts_add\": [],\n  \"facts_remove\": [],\n  \"unknowns_add\": [],\n  \"unknowns_remove\": [],\n  \"candidate_branches_add\": [],\n  \"candidate_branches_remove\": [],\n  \"ruled_out_branches_add\": [],\n  \"ruled_out_branches_remove\": [],\n  \"next_check\": \"\",\n  \"final_cause\": \"\",\n  \"root_cause_evidence_seen\": false,\n  \"handoff_note\": \"\"\n}\n\nUse the canonical_labels from the input whenever a label applies. Do not replace those labels with prose or synonyms. For final_cause, return exactly one canonical final_cause label or an empty string.\n\nInput:\n{\n  \"case_id\": \"access_after_migration\",\n  \"scenario\": \"Three users lost access after migration. They can sign in, but cannot open the new workspace.\",\n  \"previous_live_support_state\": {\n    \"case_id\": \"access_after_migration\",\n    \"version\": 2,\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"recent_change:migration\",\n      \"reported_issue:login\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"auth:works\"\n    ],\n    \"unknowns\": [],\n    \"candidate_branches\": [\n      \"login_failure\"\n    ],\n    \"ruled_out_branches\": [],\n    \"next_check\": \"Verify login success and check for any potential blocking factors.\",\n    \"handoff_notes\": [\n      \"Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works\",\n      \"Branches: login_failure\",\n      \"Next check: Verify login success and check for any potential blocking factors.\"\n    ],\n    \"final_cause\": \"\",\n    \"root_cause_evidence_seen\": false\n  },\n  \"new_transcript_turn\": {\n    \"turn\": 3,\n    \"speaker\": \"customer\",\n    \"text\": \"They can sign in, but they cannot open the new workspace.\"\n  },\n  \"new_product_support_context\": [\n    {\n      \"description\": \"Admin context shows affected users are in Migrated-CSM, SCIM completed, and Migrated-CSM has no workspace role.\",\n      \"facts\": [\n        \"group_membership:Migrated-CSM\",\n        \"scim_sync:complete\",\n        \"workspace_role_missing:Migrated-CSM\"\n      ],\n      \"relevant\": true\n    }\n  ],\n  \"canonical_labels\": {\n    \"facts\": [\n      \"affected_scope:three_users\",\n      \"app_entitlement_plan:starter\",\n      \"auth:works\",\n      \"billing_refresh:pending\",\n      \"correction:login_works\",\n      \"domain_policy:dmarc_reject\",\n      \"email_delivery:suppressed\",\n      \"flow:admin_invite\",\n      \"group_membership:Migrated-CSM\",\n      \"invite_status:created\",\n      \"invoice_plan:pro\",\n      \"recent_change:migration\",\n      \"recent_change:upgrade\",\n      \"reported_issue:login\",\n      \"scim_sync:complete\",\n      \"surface:billing_plan\",\n      \"surface:workspace_access\",\n      \"symptom:invite_email_not_received\",\n      \"symptom:workspace_access_loss\",\n      \"symptom:wrong_plan_shown\",\n      \"workspace_role_missing:Migrated-CSM\",\n      \"workspace_role:present\",\n      \"entitlement_cache:stale\"\n    ],\n    \"unknowns\": [\n      \"actual_surface\",\n      \"auth_status\",\n      \"billing_entitlement_status\",\n      \"email_delivery_status\",\n      \"invite_created\",\n      \"cache_status\",\n      \"workspace_role_assignment\"\n    ],\n    \"candidate_branches\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"email_delivery_suppressed\",\n      \"invite_not_created\",\n      \"invoice_app_mismatch\",\n      \"login_failure\",\n      \"missing_workspace_role\",\n      \"missing_workspace_role_inheritance\",\n      \"scim_sync_delay\",\n      \"upstream_service_incident\",\n      \"stale_entitlement_cache\"\n    ],\n    \"ruled_out_branches\": [\n      \"invite_not_created\",\n      \"login_block\",\n      \"login_failure\",\n      \"scim_sync_delay\"\n    ],\n    \"final_cause\": [\n      \"billing_entitlement_refresh_pending\",\n      \"domain_policy_rejection\",\n      \"missing_workspace_role_inheritance\",\n      \"stale_entitlement_cache\"\n    ]\n  },\n  \"task\": \"Return only the JSON state patch. Do not write customer-facing support copy.\"\n}",
++        "llm_patch": {
++          "facts_add": [
++            "workspace_role_missing:Migrated-CSM"
++          ],
++          "facts_remove": [],
++          "unknowns_add": [],
++          "unknowns_remove": [],
++          "candidate_branches_add": [
++            "missing_workspace_role_inheritance",
++            "stale_entitlement_cache"
++          ],
++          "candidate_branches_remove": [
++            "login_failure"
++          ],
++          "ruled_out_branches_add": [],
++          "ruled_out_branches_remove": [
++            "login_block"
++          ],
++          "next_check": "Verify workspace role inheritance and check entitlement cache status.",
++          "final_cause": "",
++          "root_cause_evidence_seen": false,
++          "handoff_note": ""
++        },
++        "llm_raw": "{\"facts_add\":[\"workspace_role_missing:Migrated-CSM\"],\"facts_remove\":[],\"unknowns_add\":[],\"unknowns_remove\":[],\"candidate_branches_add\":[\"missing_workspace_role_inheritance\",\"stale_entitlement_cache\"],\"candidate_branches_remove\":[\"login_failure\"],\"ruled_out_branches_add\":[],\"ruled_out_branches_remove\":[\"login_block\"],\"next_check\":\"Verify workspace role inheritance and check entitlement cache status.\",\"final_cause\":\"\",\"root_cause_evidence_seen\":false,\"handoff_note\":\"\"}\n"
++      }
++    ],
++    "final_state": {
++      "case_id": "access_after_migration",
++      "version": 3,
++      "facts": [
++        "affected_scope:three_users",
++        "recent_change:migration",
++        "reported_issue:login",
++        "workspace_role_missing:Migrated-CSM",
++        "auth:works"
++      ],
++      "unknowns": [],
++      "candidate_branches": [
++        "missing_workspace_role_inheritance"
++      ],
++      "ruled_out_branches": [
++        "scim_sync_delay",
++        "stale_entitlement_cache"
++      ],
++      "next_check": "Verify workspace role inheritance and check entitlement cache status.",
++      "handoff_notes": [
++        "Known: recent_change:migration; reported_issue:login; workspace_role_missing:Migrated-CSM; auth:works",
++        "Branches: missing_workspace_role_inheritance",
++        "Next check: Verify workspace role inheritance and check entitlement cache status."
++      ],
++      "final_cause": "",
++      "root_cause_evidence_seen": true
++    },
++    "root_cause_ok": false,
++    "mode": "llm",
++    "model_eval_status": "completed",
++    "model_eval_error": "",
++    "model_runtime": "ollama",
++    "model_name": "qwen2.5:7b"
++  }
++]
+\ No newline at end of file
+diff --git a/outputs/model_replays/summary.md b/outputs/model_replays/summary.md
+new file mode 100644
+index 0000000..a75bc3d
+--- /dev/null
++++ b/outputs/model_replays/summary.md
+@@ -0,0 +1,9 @@
++# Local Model Replay Summary
++
++Offline replay of local models over the same Live Support State fixture harness.
++
++| runtime | model | cases | fixture_failures | completed_turns | valid_json_rate | checks | pass_rate | premature_final_cause_turns | next_check_pass_rate |
++| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
++| ollama | qwen2.5:7b | 1 | 0 | 3/3 | 100% | 8/18 | 44% | 0 | 0% |
++| ollama | gemma4:e4b | 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
++| ollama | gemma4:12b-it-qat | 1 | 1 | 0/3 | 0% | 0/0 | 0% | 0 | 0% |
+diff --git a/prototype/mlx_patch_adapter.py b/prototype/mlx_patch_adapter.py
+new file mode 100644
+index 0000000..b7efe92
+--- /dev/null
++++ b/prototype/mlx_patch_adapter.py
+@@ -0,0 +1,88 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import argparse
++import json
++import subprocess
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++if str(ROOT) not in sys.path:
++    sys.path.insert(0, str(ROOT))
++
++from run import parse_json_object
++
++
++DEFAULT_COMMAND = "/Library/Frameworks/Python.framework/Versions/3.11/bin/mlx_lm.generate"
++
++
++def format_patch_output(text: str) -> str:
++    return json.dumps(parse_json_object(text), separators=(",", ":"))
++
++
++def call_mlx_generate(
++    prompt: str,
++    model: str,
++    command: str,
++    timeout: int,
++    temperature: float,
++    max_tokens: int,
++) -> str:
++    args = [
++        command,
++        "--model",
++        model,
++        "--prompt",
++        prompt,
++        "--max-tokens",
++        str(max_tokens),
++        "--temp",
++        str(temperature),
++    ]
++    try:
++        completed = subprocess.run(
++            args,
++            text=True,
++            capture_output=True,
++            timeout=timeout,
++            check=False,
++        )
++    except subprocess.TimeoutExpired as exc:
++        raise RuntimeError(f"MLX command timed out after {exc.timeout} seconds") from exc
++    if completed.returncode != 0:
++        raise RuntimeError(
++            f"MLX command failed with exit code {completed.returncode}: {completed.stderr.strip()}"
++        )
++    if not completed.stdout.strip():
++        raise RuntimeError("MLX command produced no output")
++    return completed.stdout
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description="Call mlx_lm.generate for one Live Support State JSON patch.")
++    parser.add_argument("--model", required=True, help="MLX model id or local path.")
++    parser.add_argument("--command", default=DEFAULT_COMMAND, help="Path to mlx_lm.generate.")
++    parser.add_argument("--timeout", type=int, default=180)
++    parser.add_argument("--temperature", type=float, default=0.0)
++    parser.add_argument("--max-tokens", type=int, default=1200)
++    args = parser.parse_args()
++
++    prompt = sys.stdin.read()
++    try:
++        text = call_mlx_generate(
++            prompt=prompt,
++            model=args.model,
++            command=args.command,
++            timeout=args.timeout,
++            temperature=args.temperature,
++            max_tokens=args.max_tokens,
++        )
++        print(format_patch_output(text))
++    except Exception as exc:
++        print(f"mlx_patch_adapter: {exc}", file=sys.stderr)
++        raise SystemExit(1) from exc
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/prototype/model_eval.py b/prototype/model_eval.py
+new file mode 100644
+index 0000000..fd83bbd
+--- /dev/null
++++ b/prototype/model_eval.py
+@@ -0,0 +1,311 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import argparse
++import json
++import shlex
++import sys
++from pathlib import Path
++from typing import Any
++
++ROOT = Path(__file__).resolve().parents[1]
++if str(ROOT) not in sys.path:
++    sys.path.insert(0, str(ROOT))
++
++from common import OUTPUT_DIR, ensure_output_dir, load_fixtures, markdown_table
++from run import render_dashboard, render_report, run_fixture
++
++MODEL_REPLAY_DIR = OUTPUT_DIR / "model_replays"
++
++RECOMMENDED_MODELS = [
++    {"runtime": "ollama", "model": "gemma4:12b-it-qat"},
++    {"runtime": "ollama", "model": "qwen2.5:7b"},
++    {"runtime": "mlx", "model": "mlx-community/gemma-4-e4b-it-4bit"},
++    {"runtime": "mlx", "model": "mlx-community/Qwen3-4B-4bit"},
++]
++
++
++def slugify(value: str) -> str:
++    safe = []
++    for char in value.lower():
++        if char.isalnum():
++            safe.append(char)
++        elif char in {":", "/", ".", "-", "_"}:
++            safe.append("_")
++    return "_".join("".join(safe).split("_"))
++
++
++def adapter_command(runtime: str, model: str, timeout: int, max_output_tokens: int) -> str:
++    py = shlex.quote(sys.executable)
++    if runtime == "ollama":
++        adapter = ROOT / "prototype" / "ollama_patch_adapter.py"
++        return (
++            f"{py} {shlex.quote(str(adapter))} --model {shlex.quote(model)} "
++            f"--timeout {timeout} --num-predict {max_output_tokens}"
++        )
++    if runtime == "mlx":
++        adapter = ROOT / "prototype" / "mlx_patch_adapter.py"
++        return (
++            f"{py} {shlex.quote(str(adapter))} --model {shlex.quote(model)} "
++            f"--timeout {timeout} --max-tokens {max_output_tokens}"
++        )
++    raise ValueError(f"Unknown runtime: {runtime}")
++
++
++def parse_model_spec(spec: str) -> dict[str, str]:
++    runtime, sep, model = spec.partition(":")
++    if not sep or runtime not in {"ollama", "mlx"} or not model:
++        raise argparse.ArgumentTypeError("Model specs must look like ollama:gemma4:12b-it-qat or mlx:mlx-community/Qwen3-4B-4bit")
++    return {"runtime": runtime, "model": model}
++
++
++def select_fixtures(case_ids: list[str]) -> list[dict[str, Any]]:
++    fixtures = load_fixtures()
++    if not case_ids:
++        return fixtures
++    wanted = set(case_ids)
++    selected = [fixture for fixture in fixtures if fixture["case_id"] in wanted]
++    missing = sorted(wanted - {fixture["case_id"] for fixture in selected})
++    if missing:
++        available = ", ".join(fixture["case_id"] for fixture in fixtures)
++        raise SystemExit(f"Unknown case_id: {', '.join(missing)}. Available cases: {available}")
++    return selected
++
++
++def failed_result(fixture: dict[str, Any], error: Exception) -> dict[str, Any]:
++    message = " ".join(str(error).split())
++    if len(message) > 1200:
++        message = message[:1197] + "..."
++    return {
++        "fixture": fixture,
++        "timeline": [],
++        "final_state": {},
++        "root_cause_ok": False,
++        "mode": "llm",
++        "model_eval_status": "failed",
++        "model_eval_error": message,
++    }
++
++
++def run_model(
++    runtime: str,
++    model: str,
++    fixtures: list[dict[str, Any]],
++    timeout: int,
++    max_output_tokens: int,
++) -> list[dict[str, Any]]:
++    command = adapter_command(runtime, model, timeout, max_output_tokens)
++    results = []
++    for fixture in fixtures:
++        try:
++            result = run_fixture(fixture, mode="llm", llm_command=command, timeout=timeout)
++            result["model_eval_status"] = "completed"
++            result["model_eval_error"] = ""
++        except Exception as exc:
++            result = failed_result(fixture, exc)
++        result["model_runtime"] = runtime
++        result["model_name"] = model
++        results.append(result)
++    return results
++
++
++def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
++    checks = 0
++    passed = 0
++    premature = 0
++    next_checks = 0
++    next_passed = 0
++    expected_turns = 0
++    completed_turns = 0
++    failures = 0
++    field_misses: dict[str, int] = {}
++    field_extras: dict[str, int] = {}
++
++    for result in results:
++        expected_turns += len(result["fixture"].get("transcript_turns", []))
++        if result.get("model_eval_status") != "completed":
++            failures += 1
++            continue
++        completed_turns += len(result["timeline"])
++        for item in result["timeline"]:
++            verdict = item.get("verdict")
++            if not verdict:
++                continue
++            checks += verdict["total"]
++            passed += verdict["passed"]
++            for check in verdict["checks"]:
++                field = check["field"]
++                if field == "next_check":
++                    next_checks += 1
++                    if check["passed"]:
++                        next_passed += 1
++                if field == "final_cause_timing" and not check["passed"]:
++                    premature += 1
++                if check["missing"]:
++                    field_misses[field] = field_misses.get(field, 0) + len(check["missing"])
++                if check["extra"]:
++                    field_extras[field] = field_extras.get(field, 0) + len(check["extra"])
++
++    return {
++        "cases": len(results),
++        "fixture_failures": failures,
++        "expected_turns": expected_turns,
++        "completed_turns": completed_turns,
++        "valid_json_rate": round((completed_turns / expected_turns) * 100) if expected_turns else 0,
++        "checks": checks,
++        "passed": passed,
++        "pass_rate": round((passed / checks) * 100) if checks else 0,
++        "premature_final_cause_turns": premature,
++        "next_check_pass_rate": round((next_passed / next_checks) * 100) if next_checks else 0,
++        "field_misses": field_misses,
++        "field_extras": field_extras,
++    }
++
++
++def render_metric_dict(values: dict[str, int]) -> str:
++    if not values:
++        return "-"
++    return "; ".join(f"{key}: {value}" for key, value in sorted(values.items()))
++
++
++def render_model_eval_report(runtime: str, model: str, results: list[dict[str, Any]]) -> str:
++    summary = summarize_results(results)
++    rows = [[
++        summary["cases"],
++        summary["fixture_failures"],
++        f"{summary['completed_turns']}/{summary['expected_turns']}",
++        f"{summary['valid_json_rate']}%",
++        f"{summary['passed']}/{summary['checks']}",
++        f"{summary['pass_rate']}%",
++        summary["premature_final_cause_turns"],
++        f"{summary['next_check_pass_rate']}%",
++    ]]
++    lines = [
++        "# Local Model Replay Report",
++        "",
++        f"Runtime: `{runtime}`",
++        f"Model: `{model}`",
++        "",
++        markdown_table([
++            "cases",
++            "fixture_failures",
++            "completed_turns",
++            "valid_json_rate",
++            "checks",
++            "pass_rate",
++            "premature_final_cause_turns",
++            "next_check_pass_rate",
++        ], rows),
++        "",
++        "## Drift Summary",
++        "",
++        f"- Missing expected state items: {render_metric_dict(summary['field_misses'])}",
++        f"- Extra state items: {render_metric_dict(summary['field_extras'])}",
++        "",
++    ]
++
++    failures = [result for result in results if result.get("model_eval_status") != "completed"]
++    if failures:
++        lines.extend(["## Fixture Failures", ""])
++        for result in failures:
++            lines.append(f"- `{result['fixture']['case_id']}`: {result.get('model_eval_error', '-')}")
++        lines.append("")
++
++    completed = [result for result in results if result.get("model_eval_status") == "completed"]
++    if completed:
++        lines.append(render_report(completed, run_label=f"{runtime}:{model}"))
++    return "\n".join(lines)
++
++
++def write_model_outputs(runtime: str, model: str, results: list[dict[str, Any]]) -> dict[str, Path]:
++    MODEL_REPLAY_DIR.mkdir(parents=True, exist_ok=True)
++    stem = f"{runtime}_{slugify(model)}"
++    paths = {
++        "snapshots": MODEL_REPLAY_DIR / f"{stem}_snapshots.json",
++        "report": MODEL_REPLAY_DIR / f"{stem}_report.md",
++        "dashboard": MODEL_REPLAY_DIR / f"{stem}_dashboard.html",
++    }
++    paths["snapshots"].write_text(json.dumps(results, indent=2))
++    paths["report"].write_text(render_model_eval_report(runtime, model, results))
++    completed = [result for result in results if result.get("model_eval_status") == "completed"]
++    if completed:
++        paths["dashboard"].write_text(render_dashboard(completed, run_label=f"{runtime}:{model}"))
++    else:
++        paths["dashboard"].write_text("<!doctype html><title>Local Model Replay</title><p>No completed fixture runs.</p>")
++    return paths
++
++
++def render_summary(model_summaries: list[dict[str, Any]]) -> str:
++    rows = []
++    for item in model_summaries:
++        summary = item["summary"]
++        rows.append([
++            item["runtime"],
++            item["model"],
++            summary["cases"],
++            summary["fixture_failures"],
++            f"{summary['completed_turns']}/{summary['expected_turns']}",
++            f"{summary['valid_json_rate']}%",
++            f"{summary['passed']}/{summary['checks']}",
++            f"{summary['pass_rate']}%",
++            summary["premature_final_cause_turns"],
++            f"{summary['next_check_pass_rate']}%",
++        ])
++    return "\n".join([
++        "# Local Model Replay Summary",
++        "",
++        "Offline replay of local models over the same Live Support State fixture harness.",
++        "",
++        markdown_table([
++            "runtime",
++            "model",
++            "cases",
++            "fixture_failures",
++            "completed_turns",
++            "valid_json_rate",
++            "checks",
++            "pass_rate",
++            "premature_final_cause_turns",
++            "next_check_pass_rate",
++        ], rows),
++    ])
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description="Run offline local-model replays against Support Process Lab fixtures.")
++    parser.add_argument(
++        "--model",
++        action="append",
++        type=parse_model_spec,
++        default=[],
++        help="Runtime-prefixed model spec. Repeatable. Example: ollama:gemma4:12b-it-qat",
++    )
++    parser.add_argument("--case", action="append", default=[], help="Optional fixture case_id. Repeatable.")
++    parser.add_argument("--timeout", type=int, default=180)
++    parser.add_argument("--max-output-tokens", type=int, default=1200)
++    args = parser.parse_args()
++
++    ensure_output_dir()
++    fixtures = select_fixtures(args.case)
++    models = args.model or RECOMMENDED_MODELS
++    summaries = []
++
++    for spec in models:
++        runtime = spec["runtime"]
++        model = spec["model"]
++        print(f"Running {runtime}:{model}")
++        results = run_model(runtime, model, fixtures, args.timeout, args.max_output_tokens)
++        paths = write_model_outputs(runtime, model, results)
++        summary = summarize_results(results)
++        summaries.append({"runtime": runtime, "model": model, "summary": summary, "paths": paths})
++        print(f"Wrote {paths['snapshots']}")
++        print(f"Wrote {paths['report']}")
++        print(f"Wrote {paths['dashboard']}")
++
++    summary_path = MODEL_REPLAY_DIR / "summary.md"
++    summary_path.write_text(render_summary(summaries))
++    print(f"Wrote {summary_path}")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/prototype/ollama_patch_adapter.py b/prototype/ollama_patch_adapter.py
+new file mode 100644
+index 0000000..46a17e6
+--- /dev/null
++++ b/prototype/ollama_patch_adapter.py
+@@ -0,0 +1,90 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import argparse
++import json
++import os
++import sys
++import urllib.error
++import urllib.request
++from pathlib import Path
++from typing import Any
++
++ROOT = Path(__file__).resolve().parents[1]
++if str(ROOT) not in sys.path:
++    sys.path.insert(0, str(ROOT))
++
++from run import parse_json_object
++
++
++def format_patch_output(text: str) -> str:
++    return json.dumps(parse_json_object(text), separators=(",", ":"))
++
++
++def call_ollama(
++    prompt: str,
++    model: str,
++    host: str,
++    timeout: int,
++    temperature: float,
++    num_predict: int,
++) -> str:
++    body: dict[str, Any] = {
++        "model": model,
++        "prompt": prompt,
++        "stream": False,
++        "format": "json",
++        "options": {
++            "temperature": temperature,
++            "num_predict": num_predict,
++        },
++    }
++    request = urllib.request.Request(
++        host.rstrip("/") + "/api/generate",
++        data=json.dumps(body).encode("utf-8"),
++        headers={"Content-Type": "application/json"},
++        method="POST",
++    )
++    try:
++        with urllib.request.urlopen(request, timeout=timeout) as response:
++            raw = response.read().decode("utf-8")
++    except urllib.error.HTTPError as exc:
++        detail = exc.read().decode("utf-8", errors="replace")[:800]
++        raise RuntimeError(f"Ollama request failed with HTTP {exc.code}: {detail}") from exc
++    except urllib.error.URLError as exc:
++        raise RuntimeError(f"Ollama request failed: {exc.reason}") from exc
++
++    response_json = json.loads(raw)
++    text = response_json.get("response", "")
++    if not isinstance(text, str) or not text.strip():
++        raise RuntimeError("Ollama response did not include generated text")
++    return text
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description="Call a local Ollama model for one Live Support State JSON patch.")
++    parser.add_argument("--model", required=True, help="Installed Ollama model name, for example gemma4:12b-it-qat.")
++    parser.add_argument("--host", default=os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434"))
++    parser.add_argument("--timeout", type=int, default=180)
++    parser.add_argument("--temperature", type=float, default=0.0)
++    parser.add_argument("--num-predict", type=int, default=1200)
++    args = parser.parse_args()
++
++    prompt = sys.stdin.read()
++    try:
++        text = call_ollama(
++            prompt=prompt,
++            model=args.model,
++            host=args.host,
++            timeout=args.timeout,
++            temperature=args.temperature,
++            num_predict=args.num_predict,
++        )
++        print(format_patch_output(text))
++    except Exception as exc:
++        print(f"ollama_patch_adapter: {exc}", file=sys.stderr)
++        raise SystemExit(1) from exc
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/run.py b/run.py
+index 3f5260c..213de6d 100644
+--- a/run.py
++++ b/run.py
+@@ -327,18 +327,21 @@ def parse_json_object(raw: str) -> dict[str, Any]:
+     return value
+ 
+ 
+-def call_llm_command(command: str, prompt: str) -> tuple[dict[str, Any], str]:
++def call_llm_command(command: str, prompt: str, timeout: int = 180) -> tuple[dict[str, Any], str]:
+     argv = shlex.split(command)
+     if not argv:
+         raise ValueError("--llm-command cannot be empty")
+-    completed = subprocess.run(
+-        argv,
+-        input=prompt,
+-        text=True,
+-        capture_output=True,
+-        timeout=180,
+-        check=False,
+-    )
++    try:
++        completed = subprocess.run(
++            argv,
++            input=prompt,
++            text=True,
++            capture_output=True,
++            timeout=timeout,
++            check=False,
++        )
++    except subprocess.TimeoutExpired as exc:
++        raise RuntimeError(f"LLM command timed out after {exc.timeout} seconds") from exc
+     if completed.returncode != 0:
+         raise RuntimeError(
+             f"LLM command failed with exit code {completed.returncode}: {completed.stderr.strip()}"
+@@ -630,7 +633,7 @@ def run_fixture(
+                 apply_context_event(state, event)
+         elif mode == "llm":
+             prompt = build_llm_prompt(fixture, turn, deepcopy(state), context_applied)
+-            llm_patch, llm_raw = call_llm_command(llm_command, prompt)
++            llm_patch, llm_raw = call_llm_command(llm_command, prompt, timeout=timeout)
+             apply_state_patch(state, llm_patch, context_applied)
+         elif mode == "real-model":
+             prompt = build_llm_prompt(fixture, turn, deepcopy(state), context_applied)
+diff --git a/test_experiment.py b/test_experiment.py
+index 39953a9..6882e71 100644
+--- a/test_experiment.py
++++ b/test_experiment.py
+@@ -2,6 +2,7 @@ from __future__ import annotations
+ 
+ import json
+ import shlex
++import subprocess
+ import sys
+ import tempfile
+ import unittest
+@@ -20,6 +21,10 @@ from prototype.generated_review import (
+ from prototype.import_generated import import_cases
+ from prototype.leader_demo import render_support_leader_demo, write_support_leader_demo
+ from prototype.report import case_verdict, render_report, select_case_ids
++from prototype.model_eval import failed_result, summarize_results
++from prototype.ollama_patch_adapter import format_patch_output as format_ollama_patch_output
++from prototype.mlx_patch_adapter import call_mlx_generate
++from prototype.mlx_patch_adapter import format_patch_output as format_mlx_patch_output
+ from prototype.replay import build_replay
+ from prototype.support_language import (
+     BANNED_SUPPORT_PHRASES,
+@@ -29,7 +34,7 @@ from prototype.support_language import (
+     translate_outcome,
+     translate_unknowns,
+ )
+-from run import extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
++from run import call_llm_command, extract_anthropic_text, extract_response_text, generate_prompt_pack, run_fixture
+ 
+ ROOT = Path(__file__).resolve().parent
+ 
+@@ -357,6 +362,71 @@ class SupportProcessExperimentTest(unittest.TestCase):
+         }
+         self.assertIn("facts_add", extract_anthropic_text(response))
+ 
++    def test_local_adapter_formatters_emit_only_json_patch(self):
++        raw = "debug prefix\n{\"facts_add\": [\"auth:works\"], \"unknowns_add\": []}\ntrailing stats"
++        self.assertEqual(
++            format_ollama_patch_output(raw),
++            "{\"facts_add\":[\"auth:works\"],\"unknowns_add\":[]}",
++        )
++        self.assertEqual(
++            format_mlx_patch_output(raw),
++            "{\"facts_add\":[\"auth:works\"],\"unknowns_add\":[]}",
++        )
++
++    def test_local_adapter_formatters_reject_malformed_json(self):
++        with self.assertRaisesRegex(ValueError, "JSON object"):
++            format_ollama_patch_output("no patch here")
++        with self.assertRaisesRegex(ValueError, "JSON object"):
++            format_mlx_patch_output("no patch here")
++
++    def test_model_eval_counts_premature_final_cause(self):
++        result = {
++            "fixture": {"case_id": "case", "transcript_turns": [{"turn": 1}]},
++            "timeline": [
++                {
++                    "verdict": {
++                        "total": 1,
++                        "passed": 0,
++                        "checks": [
++                            {
++                                "field": "final_cause_timing",
++                                "passed": False,
++                                "missing": ["final cause must wait"],
++                                "extra": [],
++                            }
++                        ],
++                    }
++                }
++            ],
++            "model_eval_status": "completed",
++        }
++        summary = summarize_results([result])
++        self.assertEqual(summary["premature_final_cause_turns"], 1)
++        self.assertEqual(summary["pass_rate"], 0)
++
++    def test_model_eval_counts_failed_fixture_as_incomplete(self):
++        fixture = {"case_id": "case", "transcript_turns": [{"turn": 1}, {"turn": 2}]}
++        result = failed_result(fixture, ValueError("bad json"))
++        summary = summarize_results([result])
++        self.assertEqual(summary["fixture_failures"], 1)
++        self.assertEqual(summary["completed_turns"], 0)
++        self.assertEqual(summary["expected_turns"], 2)
++        self.assertEqual(summary["valid_json_rate"], 0)
++
++    def test_mlx_timeout_error_does_not_include_prompt(self):
++        prompt = "PROMPT_SHOULD_NOT_LEAK"
++        with patch("prototype.mlx_patch_adapter.subprocess.run", side_effect=subprocess.TimeoutExpired(["mlx"], 7)):
++            with self.assertRaisesRegex(RuntimeError, "timed out after 7 seconds") as context:
++                call_mlx_generate(prompt, "model", "mlx", timeout=7, temperature=0.0, max_tokens=10)
++        self.assertNotIn(prompt, str(context.exception))
++
++    def test_llm_command_timeout_error_does_not_include_prompt(self):
++        prompt = "PROMPT_SHOULD_NOT_LEAK"
++        with patch("run.subprocess.run", side_effect=subprocess.TimeoutExpired(["adapter"], 5)):
++            with self.assertRaisesRegex(RuntimeError, "LLM command timed out after 5 seconds") as context:
++                call_llm_command("adapter", prompt, timeout=5)
++        self.assertNotIn(prompt, str(context.exception))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+-- 
+2.50.1 (Apple Git-155)
+
