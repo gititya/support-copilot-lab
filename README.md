@@ -1,5 +1,8 @@
 # support-copilot — realtime B2B support-process copilot (formerly real-time_support_Updated)
 
+This repo is the support-representative organ of **Support Product**. The product map lives at
+`customer-support-ai-os/system-map.json`; read it before assuming this repo stands alone.
+
 Active rep-side product/proof: a text-first B2B support-process copilot with a fixed evaluation lab.
 
 This is a shipped, separate product/proof inside the wider Support system. It helps a human support

@@ -1,5 +1,8 @@
 # AGENTS.md - support-copilot
 
+This repo is the support-representative organ of **Support Product**. The product map lives at
+`customer-support-ai-os/system-map.json`; read it before assuming this repo stands alone.
+
 ## What this repo is
 
 This is a text-first support-process evaluation lab. It is the corrected extension of `gititya/real-time_support`.
