@@ -1,16 +1,12 @@
 ---
-status: "shipped"
-current_state: "The active rep-side B2B product/proof is shipped and pinned: it helps a representative maintain facts, unknowns, branches, next checks, and evidence-timed resolution without premature engineering escalation."
-next_action: "No pending build. Keep the product independently visible; any live-desk presentation integration must use its stable seam and starts as new scope."
+status: "in-progress"
+current_state: "The public README now presents a fixture-driven offline support-process experiment with saved results. No support representative has used it."
+next_action: "Review the public README and historical patch metadata, then decide whether the repository is ready to share."
 things_to_know:
-  - "Roadmap source: /Users/aditya/Documents/Projects/support/Old_files/archived-docs/SUPPORT_MASTER_PLAN.md (archived)."
-  - "M4 front door: /Users/aditya/Documents/Projects/support/customer-support-ai-os/FRONT_DOOR.md."
-  - "M4 Flow 0 trace: /Users/aditya/Documents/Projects/support/customer-support-ai-os/outputs/flow0_H1.json."
-  - "This is the canonical continuation of the original real-time support experiment."
-  - "The product boundary remains B2B rep-side case work; B2C, local-model tuning, and a broader UI rebuild stay outside it."
-  - "Only the superseded early-root-cause premise and archived local-model/comparison branches are historical experiments."
-  - "Real transcripts are customer data; do not commit them."
-what_it_is: "Rep-side support copilot product/proof for evidence-timed case work, backed by a fixed replay and evaluation harness."
+  - "The saved replay separates facts, unknowns, possible causes, ruled-out causes, next checks, and evidence-timed resolution."
+  - "Evidence lives in outputs/experiment_summary.md and outputs/support_process_gpt55_benchmark_report.md."
+  - "Three tracked patch archives contain email-like commit metadata and need owner review before public visibility."
+what_it_is: "Offline support-process experiment for evidence-timed case work, backed by fixed replays and an evaluation harness."
 read_next:
   - "README.md"
   - "SKILL.md"
@@ -18,11 +14,11 @@ read_next:
   - "prototype/model_eval.py"
   - "run.py"
 agent_notes:
-  - "This repo is active as the independently visible B2B rep-side product/proof; the current shipped build has no pending work."
-  - "Reuse the run.py stdin/stdout JSON patch seam if another repo imports the engine shape."
-  - "Validate through consumer replay, not schema checks alone."
-safe_first_action: "Run python3 validate_fixtures.py, python3 -m unittest test_experiment.py, and python3 run_all.py before trusting changes."
-updated_at: "2026-07-30"
+  - "Keep saved model output separate from deterministic and mock lanes."
+  - "Do not describe the precomputed simulator as connected helpdesk input."
+  - "Validate through the stored replay and named report files."
+safe_first_action: "Read README.md and the two named saved reports before making a claim."
+updated_at: "2026-09-04"
 updated_by: "codex"
 ---
 

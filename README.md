@@ -1,18 +1,16 @@
-# support-copilot — realtime B2B support-process copilot (formerly real-time_support_Updated)
+# Copilot Lab — support-process experiment
 
-Active rep-side product/proof: a text-first B2B support-process copilot with a fixed evaluation lab.
+**I stopped scoring whether the AI guessed the cause and started scoring whether it said the cause before the evidence existed. A right answer said too early is a failure.**
 
-This is a shipped, separate product/proof inside the wider Support system. It helps a human support
-representative maintain facts, unknowns, live branches, and ruled-out paths; choose the next check;
-resolve when evidence permits; and avoid unnecessary or premature engineering escalation. Its
-fixed harness proves those behaviors. It does not own customer voice, Screen-Aware guidance, or the
-deterministic B2C decision seat.
+Experiment: can an AI keep an honest investigation state as evidence arrives? This repo uses fixture-driven replay with an offline simulator. No support representative has used it, and the simulator does not accept live helpdesk input.
+
+The prepared B2B replay in `prototype/live_simulator.py` has three steps: an initial report, a customer clarification, then product evidence that supports a cause. The state keeps facts, unknowns, possible and ruled-out causes, and the next check separate while the scripted case unfolds.
 
 The first version asked the wrong question: can an AI predict the specific root cause from the opening turns of a support conversation? It failed for the right reason. Early support turns usually contain symptoms, not mechanism.
 
 This repo reframes the problem: can an AI work the case properly as evidence arrives? The proof is the trace, not the pitch. The harness scores facts, unknowns, active branches, ruled-out paths, next checks, handoff, and the exact moment a final cause becomes justified.
 
-This repo is now a working offline prototype with an evaluation harness underneath. The prototype shows a support copilot working one case turn by turn, while the harness proves whether the copilot keeps facts, unknowns, possible causes, ruled-out paths, next checks, and final outcomes in the right order.
+This repo is an offline experiment with an evaluation harness. Its precomputed HTML replays scripted cases turn by turn; the harness checks whether each stored state keeps facts, unknowns, possible causes, ruled-out paths, next checks, and final outcomes in the expected order.
 
 To try the product surface:
 
@@ -26,7 +24,7 @@ Then open:
 outputs/support_live_simulator.html
 ```
 
-The simulator includes the three original curated demos plus both level3 closeout cases.
+The simulator includes three prepared demos plus two level-3 closeout cases. It is a replay, not a connected support tool.
 
 To run the evaluation harness:
 
@@ -34,14 +32,16 @@ To run the evaluation harness:
 python3 run_all.py
 ```
 
-Current proof:
+Saved results:
 
 ```text
-deterministic    12 cases   318/318  100%   premature final causes: 0
-process_mock     12 cases   318/318  100%   premature final causes: 0
-predictive_mock  12 cases   275/318   86%   premature final causes: 29
-real_model       opt-in; GPT-5.5 benchmark artifacts are committed separately
+deterministic reference   12 fixture cases   318/318 checks (100%)   premature final causes: 0
+process mock              12 fixture cases   318/318 checks (100%)   premature final causes: 0
+predictive mock           12 fixture cases   275/318 checks (86%)    premature final causes: 29
+saved GPT-5.5 run         10 fixture cases   72–96% per case         final outcomes correct: 10/10
 ```
+
+The first three rows are local fixture lanes from `outputs/experiment_summary.md`. The GPT-5.5 row is a saved model run in `outputs/support_process_gpt55_benchmark_report.md`, not a live result.
 
 The predictive mock still reaches the right final cause by the end. It fails because it says the answer too early.
 
@@ -67,7 +67,7 @@ That last point is the whole correction.
 
 This is an updated extension of [`gititya/real-time_support`](https://github.com/gititya/real-time_support).
 
-The original repo was valuable because it killed the first premise cleanly. Its Phase 1 result showed that specific root-cause prediction from the first six turns collapsed: early specific accuracy was 14% overall and 7% on clean calls, while full-transcript accuracy was 92-97%. That means the model and judge were not broken. The early transcript simply did not contain the mechanism yet.
+The original repo was valuable because it killed the first premise cleanly. On 51 synthetic calls, specific root-cause accuracy from the first six turns was 14%; on the 29 clean calls it was 7%. Full-transcript accuracy was 92% on all 51 calls and 97% on the 29 clean calls. The model and judge could find the cause once the transcript contained the mechanism.
 
 The mistake was treating LTS/process thinking as early final-answer prediction.
 
@@ -119,34 +119,24 @@ predictive_mock = behaves like the old failed idea and guesses final cause early
 real_model      = optional provider-backed run over the same fixtures
 ```
 
-Current result:
+The predictive mock still gets the final cause right by the end. It fails because it says the answer too early. The saved model results above remain fixture results; they do not show that a support representative benefited.
 
-```
-deterministic     318/318  100%   premature final causes: 0
-process_mock      318/318  100%   premature final causes: 0
-predictive_mock   275/318   86%   premature final causes: 29
-gpt-5.5 b2b-five  110/114   96.5% premature final causes: 0
-gpt-5.5 level3     83/102   81%   premature final causes: 0
-```
+## What this experiment shows
 
-The predictive mock still gets the final cause right by the end. It fails because it says the answer too early.
-
-## What this proves
-
-1. **Builds with AI and builds AI systems.** The repo includes a real-model adapter, committed GPT-5.5 benchmark artifacts, gold-trace scoring, and a premature-answer penalty that catches the old failure mode.
-2. **Understands modern support workflows.** Good support work is not just a final answer. The trace keeps next-best-check, evidence timing, open unknowns, ruled-out paths, and handoff as first-class outcomes.
-3. **Built B2B, with a reusable engine.** The accepted fixtures are SaaS/B2B support cases, but the engine is the incremental Live Support State plus evidence-timed final-cause gating. A B2C proof should swap the domain fixtures, not fork the reasoning discipline into this repo.
+1. The evaluator distinguishes a process mock that waits for evidence from a predictive mock that names causes too early.
+2. The saved GPT-5.5 run scored between 72% and 96% on each of ten fixture cases, with all ten stored final outcomes correct.
+3. The experiment does not show whether this state would help a support representative on a real case.
 
 ## What this is not
 
 1. NOT a customer-facing support bot.
 2. NOT a voice agent.
 3. NOT a real integration with Zendesk, Intercom, Salesforce, Stripe, or product databases.
-4. NOT battle-tested production automation.
+4. NOT tested with a support representative or customer.
 5. NOT a claim that support AI agents do not already exist.
 6. NOT a root-cause prediction benchmark.
 
-It is a working offline prototype for one narrow product question: can a support copilot help an agent work the case correctly as evidence arrives?
+It is an offline fixture experiment for one narrow question: can an AI keep the case state honest as evidence arrives?
 
 ## What's in here
 
@@ -156,7 +146,7 @@ It is a working offline prototype for one narrow product question: can a support
 4. `validate_fixtures.py` - schema checks for the support fixtures.
 5. `test_experiment.py` - regression tests that prove process passes and predictive fails.
 6. `fixtures/` - support-process cases with expected turn-by-turn state.
-7. `prototype/live_simulator.py` - static 3-case live replay simulator for judging the support-agent experience.
+7. `prototype/live_simulator.py` - precomputed replay data and HTML generator for reviewing the proposed support experience.
 8. `outputs/` - generated simulator, reports, dashboards, snapshots, model-ready prompt records, and real-model error analysis.
 9. `../Old_files/archived-docs/AUDITABLE_SUPPORT_AI.md` (archived) - the product idea behind the prototype.
 
@@ -278,7 +268,7 @@ For the level3 closeout cases:
 SSL_CERT_FILE=/etc/ssl/cert.pem python3 run.py --mode real-model --provider openai --model gpt-5.5 --reasoning-effort low --max-output-tokens 4000 --timeout 180 --case-set level3-closeout --run-name gpt55_level3_closeout
 ```
 
-Saved result: `83/102` checks, final outcomes correct on both level3 cases, and `0` premature final-cause turns. The misses are mostly next-check wording/process-label strictness, not early diagnosis.
+Saved result: `83/102` checks (81% across two cases), final outcomes correct on both level-3 cases, and zero premature final-cause turns. The misses are mostly next-check wording and process-label strictness, not early diagnosis.
 
 The saved GPT-5.5 five-case evidence is under:
 

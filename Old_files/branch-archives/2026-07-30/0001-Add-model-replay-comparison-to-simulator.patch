@@ -1,5 +1,5 @@
 From be8cb29ca8211043dbd88d71d233493718fba787 Mon Sep 17 00:00:00 2001
-From: gititya <seshadri.aditya@gmail.com>
+From: gititya
 Date: Wed, 24 Jun 2026 15:46:10 +0530
 Subject: [PATCH] Add model replay comparison to simulator
 
