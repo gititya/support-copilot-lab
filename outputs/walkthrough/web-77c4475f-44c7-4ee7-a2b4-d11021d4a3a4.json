@@ -1,0 +1,32 @@
+{
+  "kind": "interactive_fictional_walkthrough",
+  "case_id": "C05",
+  "source_hashes": {
+    "rep_walkthrough.py": "dff24f20ed65d4685bcfd6da32ca2588e317174230e44239beb41876a67ccdc6",
+    "case_progress.py": "471ace52f82a206a88aafa3e8ea6d956aed8bd7017e6452b743b98e721fda190",
+    "investigation.py": "d0e23a4312d467556bc4529885b0734e3bc463e427434b7ae110cb64db1b1472",
+    "SUPPORT_RULES.md": "cb1bb968698046d6a43ac618a4ab77a9a5ebdb20313b6a0644f736af84d0bf9d"
+  },
+  "stage": 0,
+  "history": [
+    {
+      "type": "customer_update",
+      "text": "A customer reports that three members lost access after their workspace was migrated.",
+      "facts": {
+        "reported_scope": "three workspace members",
+        "reported_login": "access lost after migration",
+        "reported_impact": "workspace unavailable"
+      }
+    }
+  ],
+  "calls": [],
+  "case_progress": {
+    "proposal_id": null,
+    "proposal": null,
+    "outcome": "unclear",
+    "closed": false,
+    "status": "investigating"
+  },
+  "progress_history": [],
+  "not_a_quality_benchmark": true
+}

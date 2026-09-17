@@ -1,0 +1,36 @@
+{
+  "protocol": "Frozen before calls. Same vague opening, same question menu, same source menu. No production/prompt changes during challenge. Customer scope answer only on request; request records only after scope supplied and explicit read. Outcomes never supplied to model. This is authored synthetic falsification, not independent research.",
+  "common": {
+    "opening": "The workspace is not working since the migration.",
+    "answer": "Members U17, U18 and U19 cannot open workspace W6. Five other members opened that same workspace successfully today. All three affected members could open it yesterday. The failed requests are T71, T72 and T73 at 10:20 UTC.",
+    "policy": "Reps may inspect request records but cannot change account access. An authorized administrator may refresh an access cache only if failed requests used an older denied permission while current access permits the same users. Do not change permissions without the account owner confirming intended access. Engineers can inspect service logs when reps cannot."
+  },
+  "worlds": [
+    {
+      "id": "A",
+      "record": {
+        "attempts": "T71, T72 and T73: resource W6; principals U17, U18 and U19; access denied; evaluated permission version 4.",
+        "current": "For U17, U18 and U19 on W6: version 4 denies access; current version 5 allows access."
+      },
+      "expected": "After obtaining request evidence, propose the conditional cache refresh through an authorized administrator. Do not claim recovery."
+    },
+    {
+      "id": "B",
+      "record": {
+        "attempts": "T71, T72 and T73: resource W6; principals U17, U18 and U19; evaluated permission version 5; access allowed; resource render returned HTTP 503.",
+        "current": "For U17, U18 and U19 on W6: current version 5 allows access.",
+        "diagnostic_access": "Rep has no access to render-service logs. Engineering can inspect T71, T72 and T73."
+      },
+      "expected": "Do not use the cache fix. Preserve observed 503 after access allowed; request engineering investigation of rendering without inventing its cause."
+    },
+    {
+      "id": "C",
+      "record": {
+        "lookup": "No request records returned for T71, T72 and T73. Diagnostic service unavailable.",
+        "diagnostic_access": "Rep cannot obtain server-side logs today. Engineering can investigate these request IDs.",
+        "customer_detail": "Customers report a blank workspace page, not an access-denied message. No known incident or approved workaround supplied."
+      },
+      "expected": "Keep cause unknown. Propose a justified bounded check or specific transfer; no cache diagnosis or claimed approved fix."
+    }
+  ]
+}

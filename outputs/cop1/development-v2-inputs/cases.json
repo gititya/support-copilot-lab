@@ -1,0 +1,260 @@
+[
+  {
+    "id": "C01",
+    "family": "access",
+    "split": "development",
+    "title": "Migration access review",
+    "sources": [
+      {"id": "identity", "description": "Read sign-in status for affected users"},
+      {"id": "workspace_access", "description": "Read workspace permissions for affected users"},
+      {"id": "migration_audit", "description": "Read the migration access-change record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which users are affected?"},
+      {"id": "login", "text": "Can the affected users sign in?"},
+      {"id": "impact", "text": "What action is blocked?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A workspace admin reports that two members lost access after the weekend migration.", "facts": {"reported_scope": "two workspace members", "reported_login": "access lost after migration", "migration_window": "weekend"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service has a status record for the two reported members; the record does not identify an access cause.", "facts": {"login_status": "status record available"}}},
+        "answers": {"scope": {"text": "The report names two workspace members.", "facts": {"reported_scope": "two workspace members"}}, "impact": {"text": "The report only says access was lost.", "facts": {"reported_impact": "workspace access unavailable"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "reported_login"], "avoid_questions": [], "useful_reads": ["identity"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "Both members can now sign in, but each is still blocked from opening the migrated workspace.", "facts": {"reported_scope": "two workspace members", "reported_login": "sign-in succeeds", "reported_impact": "migrated workspace cannot be opened"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service reports successful sign-in for both affected users.", "facts": {"login_status": "both users authenticated"}}, "workspace_access": {"status": "ok", "text": "The access record shows no workspace permission and an access-denied observation for either affected user.", "facts": {"workspace_permission": "missing", "access_denied": "workspace open denied"}}},
+        "answers": {"login": {"text": "Both affected users can sign in.", "facts": {"reported_login": "sign-in succeeds"}}, "impact": {"text": "They report that they cannot open the migrated workspace.", "facts": {"reported_impact": "migrated workspace cannot be opened"}}},
+        "expected": {"kinds": ["resolve"], "cause": "missing_permission", "evidence": {"workspace_permission": "missing", "access_denied": "workspace open denied"}, "required_facts": ["reported_scope", "login_status", "workspace_permission", "access_denied"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access"], "useful_questions": ["scope", "login", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C02",
+    "family": "integration",
+    "split": "development",
+    "title": "Connector sync review",
+    "sources": [
+      {"id": "integration_health", "description": "Read the connector health and recent run state"},
+      {"id": "credential", "description": "Read the connector credential metadata"},
+      {"id": "usage_limits", "description": "Read the connector service usage record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which records or users are affected?"},
+      {"id": "last_success", "text": "When did the connector last succeed?"},
+      {"id": "impact", "text": "What integration action failed?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A representative reports that the directory connector stopped syncing a team after its configuration change.", "facts": {"reported_scope": "one team directory", "reported_sync": "sync stopped after configuration change", "reported_impact": "directory records not updating"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The connector health record confirms a failed run for the reported team; it does not identify a cause.", "facts": {"run_status": "failed"}}},
+        "answers": {"scope": {"text": "The report names one team directory.", "facts": {"reported_scope": "one team directory"}}, "impact": {"text": "Directory records are not updating.", "facts": {"reported_impact": "directory records not updating"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "reported_sync", "run_status"], "avoid_questions": [], "useful_reads": ["integration_health"], "useful_questions": ["scope", "last_success", "impact"]}
+      },
+      {
+        "event": {"text": "The representative confirms that retries are failing for the same team and asks for the next safe step.", "facts": {"reported_scope": "one team directory", "reported_sync": "retries fail", "reported_impact": "directory records not updating"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The connector has failed its recent runs for this team.", "facts": {"run_status": "recent runs failed"}}, "credential": {"status": "ok", "text": "For this connector and account, the failed request has a rejected signature and the credential does not match the current integration configuration.", "facts": {"auth_error": "request signature rejected", "credential_match": "mismatch", "credential_version": "outdated"}}},
+        "answers": {"last_success": {"text": "The health record shows recent runs failing; no exact success time is available in this read.", "facts": {"last_success": "not available in health read"}}, "impact": {"text": "The representative reports that the connector cannot update directory records.", "facts": {"reported_impact": "directory records not updating"}}},
+        "expected": {"kinds": ["resolve"], "cause": "credential_mismatch", "evidence": {"auth_error": "request signature rejected", "credential_match": "mismatch"}, "required_facts": ["reported_scope", "run_status", "auth_error", "credential_match"], "avoid_questions": [], "useful_reads": ["integration_health", "credential"], "useful_questions": ["scope", "last_success", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C03",
+    "family": "access",
+    "split": "heldout",
+    "title": "Access cache review",
+    "sources": [
+      {"id": "identity", "description": "Read sign-in status for affected users"},
+      {"id": "workspace_access", "description": "Read workspace permissions for affected users"},
+      {"id": "access_cache", "description": "Read the access cache refresh state"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which users are affected?"},
+      {"id": "login", "text": "Can the affected users sign in?"},
+      {"id": "impact", "text": "What action is blocked?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A customer says one analyst cannot enter a workspace that was moved during the access migration.", "facts": {"reported_scope": "one analyst", "reported_login": "workspace entry fails after migration", "migration_window": "recent move"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service reports a successful sign-in for the analyst.", "facts": {"login_status": "analyst authenticated"}}},
+        "answers": {"scope": {"text": "The report identifies one analyst.", "facts": {"reported_scope": "one analyst"}}, "login": {"text": "The identity record shows the analyst can sign in.", "facts": {"reported_login": "analyst can sign in"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "login_status"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "The customer corrects the scope: two analysts are affected, not one, and both can sign in.", "facts": {"reported_scope": "two analysts", "reported_login": "both analysts can sign in", "migration_window": "recent move"}},
+        "reads": {"workspace_access": {"status": "ok", "text": "The workspace access record contains permission for both analysts.", "facts": {"workspace_permission": "present"}}},
+        "answers": {"scope": {"text": "The corrected report identifies two analysts.", "facts": {"reported_scope": "two analysts"}}, "impact": {"text": "The customer reports that workspace entry remains blocked.", "facts": {"reported_impact": "workspace entry blocked"}}},
+        "expected": {"kinds": ["wait", "ask"], "cause": null, "evidence": {"workspace_permission": "present"}, "required_facts": ["reported_scope", "workspace_permission"], "avoid_questions": [], "useful_reads": ["workspace_access", "access_cache"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "The customer says the workspace is still blocked after a fresh sign-in and asks whether the migration change has reached the app.", "facts": {"reported_scope": "two analysts", "reported_login": "both analysts can sign in", "reported_impact": "workspace entry still blocked"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service reports successful sign-in for both analysts.", "facts": {"login_status": "both analysts authenticated"}}, "workspace_access": {"status": "ok", "text": "The current workspace access record still contains permission for both analysts.", "facts": {"workspace_permission": "present"}}, "access_cache": {"status": "ok", "text": "The access cache has not refreshed since the migration move.", "facts": {"access_cache_state": "stale"}}},
+        "answers": {"impact": {"text": "The customer reports that workspace entry remains blocked after sign-in.", "facts": {"reported_impact": "workspace entry blocked"}}},
+        "expected": {"kinds": ["resolve"], "cause": "access_cache_stale", "evidence": {"access_cache_state": "stale"}, "required_facts": ["reported_scope", "login_status", "workspace_permission", "access_cache_state"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access", "access_cache"], "useful_questions": ["scope", "login", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C04",
+    "family": "access",
+    "split": "heldout",
+    "title": "Migration evidence handoff",
+    "sources": [
+      {"id": "identity", "description": "Read sign-in status for affected users"},
+      {"id": "workspace_access", "description": "Read workspace permissions for affected users"},
+      {"id": "migration_audit", "description": "Read the migration access-change record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which users are affected?"},
+      {"id": "login", "text": "Can the affected users sign in?"},
+      {"id": "impact", "text": "What action is blocked?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A workspace owner reports that several members cannot open the workspace after a migration.", "facts": {"reported_scope": "several workspace members", "reported_login": "unknown", "reported_impact": "workspace opening fails"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service has a pending status check for the reported members; it does not identify an access cause.", "facts": {"login_status": "pending"}}},
+        "answers": {"scope": {"text": "The owner reports several members, without an exact count.", "facts": {"reported_scope": "several workspace members"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "reported_login"], "avoid_questions": [], "useful_reads": ["identity"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "The owner says the list of affected members is still being checked and asks for an update.", "facts": {"reported_scope": "several workspace members", "reported_login": "unknown", "reported_impact": "workspace opening fails"}},
+        "reads": {"workspace_access": {"status": "unavailable", "text": "The workspace access read is unavailable while the service log is collected.", "facts": {"workspace_permission": "unavailable"}}},
+        "answers": {},
+        "expected": {"kinds": ["wait", "ask"], "cause": null, "evidence": {"workspace_permission": "unavailable"}, "required_facts": ["reported_scope", "reported_login", "workspace_permission"], "avoid_questions": [], "useful_reads": ["workspace_access", "migration_audit"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "The requested log is still being collected; no new result yet", "facts": {"reported_scope": "several workspace members", "reported_login": "unknown", "reported_impact": "workspace opening fails"}},
+        "reads": {"workspace_access": {"status": "unavailable", "text": "The workspace access read is unavailable while the migration record is incomplete.", "facts": {"workspace_permission": "unavailable"}}, "migration_audit": {"status": "unavailable", "text": "The migration access-change record is unavailable.", "facts": {"migration_record": "unavailable"}}},
+        "answers": {},
+        "expected": {"kinds": ["handoff"], "cause": null, "evidence": {"workspace_permission": "unavailable", "migration_record": "unavailable"}, "required_facts": ["reported_scope", "reported_login", "workspace_permission", "migration_record"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access", "migration_audit"], "useful_questions": ["scope", "login", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C05",
+    "family": "access",
+    "split": "heldout",
+    "title": "Contradictory migration scope",
+    "sources": [
+      {"id": "identity", "description": "Read sign-in status for affected users"},
+      {"id": "workspace_access", "description": "Read workspace permissions for affected users"},
+      {"id": "migration_audit", "description": "Read the migration access-change record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which users are affected?"},
+      {"id": "login", "text": "Can the affected users sign in?"},
+      {"id": "impact", "text": "What action is blocked?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A customer reports that three members lost access after their workspace was migrated.", "facts": {"reported_scope": "three workspace members", "reported_login": "access lost after migration", "reported_impact": "workspace unavailable"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service reports successful sign-in for the named members.", "facts": {"login_status": "named members authenticated"}}},
+        "answers": {"scope": {"text": "The first report names three members.", "facts": {"reported_scope": "three workspace members"}}, "login": {"text": "The identity record shows the named members can sign in.", "facts": {"reported_login": "named members can sign in"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "login_status"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access"], "useful_questions": ["scope", "login", "impact"]}
+      },
+      {
+        "event": {"text": "A later representative note says four members are affected, including a member omitted from the first report.", "facts": {"reported_scope": "four workspace members", "reported_login": "sign-in succeeds for reported members", "reported_impact": "workspace unavailable"}},
+        "reads": {"identity": {"status": "ok", "text": "The identity service reports successful sign-in for all four members in the later record.", "facts": {"login_status": "four members authenticated"}}, "migration_audit": {"status": "ok", "text": "The migration record lists four members whose workspace permission change was not applied and records an access-denied observation.", "facts": {"migration_scope": "four members", "permission_change": "not applied", "access_denied": "workspace open denied"}}},
+        "answers": {"scope": {"text": "The later note and migration record supersede the first count: four members are reported affected.", "facts": {"reported_scope": "four workspace members"}}, "impact": {"text": "The representative reports that the four members cannot open the workspace.", "facts": {"reported_impact": "workspace unavailable"}}},
+        "expected": {"kinds": ["resolve", "ask"], "cause": "missing_permission", "evidence": {"permission_change": "not applied", "access_denied": "workspace open denied"}, "required_facts": ["reported_scope", "login_status", "migration_scope", "permission_change", "access_denied"], "avoid_questions": [], "useful_reads": ["identity", "workspace_access", "migration_audit"], "useful_questions": ["scope", "login", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C06",
+    "family": "integration",
+    "split": "heldout",
+    "title": "Connector limit review",
+    "sources": [
+      {"id": "integration_health", "description": "Read the connector health and recent run state"},
+      {"id": "credential", "description": "Read the connector credential metadata"},
+      {"id": "usage_limits", "description": "Read the connector service usage record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which records or users are affected?"},
+      {"id": "last_success", "text": "When did the connector last succeed?"},
+      {"id": "impact", "text": "What integration action failed?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A representative reports that the customer directory connector is returning errors for one account.", "facts": {"reported_scope": "one customer account", "reported_sync": "connector returns errors", "reported_impact": "directory sync unavailable"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The connector health record shows failed runs for the account.", "facts": {"run_status": "failed"}}},
+        "answers": {"scope": {"text": "The report identifies one customer account.", "facts": {"reported_scope": "one customer account"}}, "impact": {"text": "Directory sync is unavailable for that account.", "facts": {"reported_impact": "directory sync unavailable"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "run_status"], "avoid_questions": [], "useful_reads": ["integration_health", "usage_limits"], "useful_questions": ["scope", "last_success", "impact"]}
+      },
+      {
+        "event": {"text": "The representative confirms that the next retry fails immediately and asks whether the account has reached a service limit.", "facts": {"reported_scope": "one customer account", "reported_sync": "retry fails immediately", "reported_impact": "directory sync unavailable"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The current connector health record shows the directory sync run failed for the account.", "facts": {"run_status": "failed"}}, "usage_limits": {"status": "ok", "text": "The service usage record shows the account's directory sync request was rejected because its connector allowance is exceeded.", "facts": {"rejected_request": "directory sync request rejected", "limit_status": "exceeded", "usage_state": "limit exceeded"}}, "credential": {"status": "ok", "text": "The credential metadata is current for the connector.", "facts": {"credential_version": "current"}}},
+        "answers": {"last_success": {"text": "The available records do not provide an exact last-success time.", "facts": {"last_success": "not available"}}, "impact": {"text": "The representative reports that the connector cannot complete the directory sync.", "facts": {"reported_impact": "directory sync unavailable"}}},
+        "expected": {"kinds": ["resolve"], "cause": "usage_limit", "evidence": {"rejected_request": "directory sync request rejected", "limit_status": "exceeded"}, "required_facts": ["reported_scope", "run_status", "rejected_request", "limit_status", "credential_version"], "avoid_questions": [], "useful_reads": ["integration_health", "credential", "usage_limits"], "useful_questions": ["scope", "last_success", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C07",
+    "family": "integration",
+    "split": "heldout",
+    "title": "Integration evidence handoff",
+    "sources": [
+      {"id": "integration_health", "description": "Read the connector health and recent run state"},
+      {"id": "credential", "description": "Read the connector credential metadata"},
+      {"id": "usage_limits", "description": "Read the connector service usage record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which records or users are affected?"},
+      {"id": "last_success", "text": "When did the connector last succeed?"},
+      {"id": "impact", "text": "What integration action failed?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A representative says a billing connector is failing for a group of customer records after a scheduled change.", "facts": {"reported_scope": "a group of customer records", "reported_sync": "billing connector failing", "reported_impact": "billing updates delayed"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The connector health record has a pending check for the reported records; it does not identify a cause.", "facts": {"run_status": "pending"}}},
+        "answers": {"scope": {"text": "The representative reports a group of customer records.", "facts": {"reported_scope": "a group of customer records"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "reported_sync", "run_status"], "avoid_questions": [], "useful_reads": ["integration_health"], "useful_questions": ["scope", "last_success", "impact"]}
+      },
+      {
+        "event": {"text": "The representative says the exact record list and last successful run are still being checked.", "facts": {"reported_scope": "a group of customer records", "reported_sync": "billing connector failing", "reported_impact": "billing updates delayed"}},
+        "reads": {"integration_health": {"status": "unavailable", "text": "The connector health read is unavailable while the service log is being rebuilt.", "facts": {"run_status": "unavailable"}}, "credential": {"status": "unavailable", "text": "The credential metadata read is unavailable.", "facts": {"credential_version": "unavailable"}}, "usage_limits": {"status": "unavailable", "text": "The usage record read is unavailable.", "facts": {"limit_status": "unavailable"}}},
+        "answers": {},
+        "expected": {"kinds": ["wait", "ask"], "cause": null, "evidence": {"credential_version": "unavailable", "limit_status": "unavailable"}, "required_facts": ["reported_scope", "run_status", "credential_version", "limit_status"], "avoid_questions": [], "useful_reads": ["integration_health", "credential", "usage_limits"], "useful_questions": ["scope", "last_success", "impact"]}
+      },
+      {
+        "event": {"text": "The service log remains unavailable, and the representative asks for a specialist to take the case.", "facts": {"reported_scope": "a group of customer records", "reported_sync": "billing connector failing", "reported_impact": "billing updates delayed"}},
+        "reads": {"integration_health": {"status": "unavailable", "text": "The connector health read is unavailable while the service log is being rebuilt.", "facts": {"run_status": "unavailable"}}, "credential": {"status": "unavailable", "text": "The credential metadata read remains unavailable.", "facts": {"credential_version": "unavailable"}}, "usage_limits": {"status": "unavailable", "text": "The usage record remains unavailable for this account.", "facts": {"limit_status": "unavailable"}}},
+        "answers": {},
+        "expected": {"kinds": ["handoff"], "cause": null, "evidence": {"run_status": "unavailable", "credential_version": "unavailable", "limit_status": "unavailable"}, "required_facts": ["reported_scope", "run_status", "credential_version", "limit_status"], "avoid_questions": [], "useful_reads": ["integration_health", "credential", "usage_limits"], "useful_questions": ["scope", "last_success", "impact"]}
+      }
+    ]
+  },
+  {
+    "id": "C08",
+    "family": "integration",
+    "split": "heldout",
+    "title": "Credential correction review",
+    "sources": [
+      {"id": "integration_health", "description": "Read the connector health and recent run state"},
+      {"id": "credential", "description": "Read the connector credential metadata"},
+      {"id": "usage_limits", "description": "Read the connector service usage record"}
+    ],
+    "questions": [
+      {"id": "scope", "text": "Which records or users are affected?"},
+      {"id": "last_success", "text": "When did the connector last succeed?"},
+      {"id": "impact", "text": "What integration action failed?"}
+    ],
+    "stages": [
+      {
+        "event": {"text": "A representative reports that two teams stopped receiving updates from a records connector.", "facts": {"reported_scope": "two teams", "reported_sync": "updates stopped", "reported_impact": "records are stale"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The connector health record shows failed runs for both teams.", "facts": {"run_status": "failed for both teams"}}},
+        "answers": {"scope": {"text": "The report identifies two teams.", "facts": {"reported_scope": "two teams"}}, "impact": {"text": "Records for both teams are stale.", "facts": {"reported_impact": "records are stale"}}},
+        "expected": {"kinds": ["ask", "wait"], "cause": null, "evidence": {}, "required_facts": ["reported_scope", "run_status"], "avoid_questions": [], "useful_reads": ["integration_health", "credential"], "useful_questions": ["scope", "last_success", "impact"]}
+      },
+      {
+        "event": {"text": "The representative corrects the scope: only one team is affected, and a retry still fails after the connector was re-enabled.", "facts": {"reported_scope": "one team", "reported_sync": "retry still fails", "reported_impact": "one team's records are stale"}},
+        "reads": {"integration_health": {"status": "ok", "text": "The current connector health record shows the retry failed for the corrected one-team scope.", "facts": {"run_status": "retry failed"}}, "credential": {"status": "ok", "text": "For the affected team's connector request, the signature is rejected and the credential does not match the current account configuration.", "facts": {"auth_error": "request signature rejected", "credential_match": "mismatch", "credential_version": "mismatched"}}, "usage_limits": {"status": "ok", "text": "The account usage record is within its connector allowance.", "facts": {"usage_state": "within limit"}}},
+        "answers": {"scope": {"text": "The corrected report identifies one team.", "facts": {"reported_scope": "one team"}}, "last_success": {"text": "The available reads do not provide an exact last-success time.", "facts": {"last_success": "not available"}}, "impact": {"text": "The representative reports that the one team's records remain stale.", "facts": {"reported_impact": "one team's records are stale"}}},
+        "expected": {"kinds": ["resolve"], "cause": "credential_mismatch", "evidence": {"auth_error": "request signature rejected", "credential_match": "mismatch"}, "required_facts": ["reported_scope", "run_status", "auth_error", "credential_match", "usage_state"], "avoid_questions": [], "useful_reads": ["integration_health", "credential", "usage_limits"], "useful_questions": ["scope", "last_success", "impact"]}
+      }
+    ]
+  }
+]

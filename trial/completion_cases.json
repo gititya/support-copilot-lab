@@ -1,0 +1,136 @@
+[
+  {
+    "id": "finish",
+    "title": "A supported fix",
+    "family": "access",
+    "split": "development",
+    "sources": [
+      {
+        "id": "access_record",
+        "description": "Read failed request and current entitlement checks"
+      }
+    ],
+    "questions": [
+      {
+        "id": "scope",
+        "text": "Who has tried the same activity, and who succeeded?"
+      }
+    ],
+    "stages": [
+      {
+        "event": {
+          "text": "Three members cannot open their workspace after migration. Other members can. All three are entitled to access.",
+          "facts": {
+            "reported_scope": "Three members cannot open the workspace; other members can.",
+            "entitlement": "Administrator confirms the three members should have access."
+          }
+        },
+        "reads": {
+          "access_record": {
+            "status": "ok",
+            "text": "Failed requests used a cached denied permission. Current entitlement permits access. The approved procedure lets an authorized administrator refresh cached access, then asks each affected member to retry the original task.",
+            "facts": {
+              "failed_request": "Failed workspace requests for all three members used the old denied permission.",
+              "current_permission": "Current permission permits workspace access for all three members.",
+              "approved_fix": "Authorized administrator may refresh cached access; verify each affected member can then open the workspace."
+            }
+          }
+        },
+        "answers": {},
+        "expected": [
+          "suggest_fix"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "disprove",
+    "title": "A diagnostic disproves the first explanation",
+    "family": "access",
+    "split": "development",
+    "sources": [
+      {
+        "id": "report_check",
+        "description": "Read browser and access checks"
+      }
+    ],
+    "questions": [
+      {
+        "id": "scope",
+        "text": "Who has tried the same activity, and who succeeded?"
+      }
+    ],
+    "stages": [
+      {
+        "event": {
+          "text": "The monthly report is blank for three people. Login and other pages work. It is blank in two browsers. We have confirmed these are the only affected people. The report worked yesterday.",
+          "facts": {
+            "scope": "Only three confirmed affected; others loaded the same report successfully.",
+            "symptom": "Monthly report blank in two browsers; login and other pages work.",
+            "last_success": "The same report worked yesterday."
+          }
+        },
+        "reads": {
+          "report_check": {
+            "status": "ok",
+            "text": "Permissions are current and allowed. Rep can test a fresh browser session but cannot read report-service logs.",
+            "facts": {
+              "permission_result": "The failed report request used current permissions and was allowed.",
+              "rep_access": "Rep can perform browser checks but cannot access report-service logs.",
+              "permitted_check": "Compare the same report in a fresh browser session to test saved browser state."
+            }
+          }
+        },
+        "answers": {},
+        "expected": [
+          "suggest_check",
+          "ask"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "transfer",
+    "title": "A useful transfer with limited access",
+    "family": "access",
+    "split": "development",
+    "sources": [
+      {
+        "id": "import_status",
+        "description": "Read import status and available diagnostic access"
+      }
+    ],
+    "questions": [
+      {
+        "id": "scope",
+        "text": "Who has tried the same activity, and who succeeded?"
+      }
+    ],
+    "stages": [
+      {
+        "event": {
+          "text": "After the import schedule changed, three invoice records are absent. All other records arrived. The import finished 40 minutes ago; the three are absent, not partial.",
+          "facts": {
+            "missing_records": "Invoice records INV-41, INV-42, INV-43 dated 2026-09-14 10:00\u201310:15 UTC are absent, not partial.",
+            "comparison": "All other records arrived; the completed import finished 40 minutes ago."
+          }
+        },
+        "reads": {
+          "import_status": {
+            "status": "ok",
+            "text": "Import run R-17 reports completed. No pending processing. Rep cannot view record filtering or scheduling logs; engineering can inspect those for R-17. No evidence establishes the schedule change as the cause.",
+            "facts": {
+              "run_status": "R-17 completed; no processing remains pending.",
+              "rep_access": "Record filtering and scheduling logs are available only to engineering.",
+              "causality": "No diagnostic evidence yet connects the schedule change to these absent records."
+            }
+          }
+        },
+        "answers": {},
+        "expected": [
+          "handoff"
+        ]
+      }
+    ]
+  }
+]

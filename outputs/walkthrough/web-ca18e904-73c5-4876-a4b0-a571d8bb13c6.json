@@ -1,0 +1,31 @@
+{
+  "kind": "interactive_fictional_walkthrough",
+  "case_id": "finish",
+  "source_hashes": {
+    "rep_walkthrough.py": "c20ef4731d5ba234b55f7d3ff34e1417880bbd0858dc8a78695e9e3f4ed88592",
+    "case_progress.py": "471ace52f82a206a88aafa3e8ea6d956aed8bd7017e6452b743b98e721fda190",
+    "investigation.py": "d0e23a4312d467556bc4529885b0734e3bc463e427434b7ae110cb64db1b1472",
+    "SUPPORT_RULES.md": "90bbf407568a2ef1560d9c7438be70660f12f3cbeef4f32a236350b738245311"
+  },
+  "stage": 0,
+  "history": [
+    {
+      "type": "customer_update",
+      "text": "Three members cannot open their workspace after migration. Other members can. All three are entitled to access.",
+      "facts": {
+        "reported_scope": "Three members cannot open the workspace; other members can.",
+        "entitlement": "Administrator confirms the three members should have access."
+      }
+    }
+  ],
+  "calls": [],
+  "case_progress": {
+    "proposal_id": null,
+    "proposal": null,
+    "outcome": "unclear",
+    "closed": false,
+    "status": "investigating"
+  },
+  "progress_history": [],
+  "not_a_quality_benchmark": true
+}

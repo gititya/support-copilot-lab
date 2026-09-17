@@ -1,0 +1,39 @@
+{
+  "files": {
+    "trial/journeys.py": "546063d0c93af612bc4ee1511d50abbdf0b6e7a3758edca07540062c2ad023ee",
+    "trial/journey_world.json": "f73caf5eec3867c0edb271ca402c6b226b06245ecf1a1d611fe791f55aa2f1a3",
+    "trial/web_walkthrough.py": "0c4e5a05c1cc79c2153743c98973ec4692dc4d204a7527ca7544702e3fa93fd0",
+    "trial/web/index.html": "eab51277c40e846d926cc5fddfb3579643cbe3439d4e3c3ba22d48ef810f4026",
+    "trial/web/app.js": "6371b8b41442e29d23f3f88583db80f9820e30981d5c10f2ea9c2d3bed6ac56a",
+    "trial/test_journeys.py": "3ee439236d483fe70bf8cc44b6b83d770bccb7a539d71a5d8ad5e6da0afe04c4",
+    "trial/verify_two_journeys.py": "707aa79608f838b400e477b760f5e4182a77fce6adc1146f4d148db0c3178440"
+  },
+  "recent_traces": [
+    {
+      "file": "outputs/walkthrough/web-59686fb5-76d8-4bac-8497-8d8a9024dc16.json",
+      "status": "investigating",
+      "accepted_handoff": true
+    },
+    {
+      "file": "outputs/walkthrough/web-a6c3f4eb-b14e-41cc-b44f-72b9108a20ff.json",
+      "status": "closed",
+      "accepted_handoff": false
+    },
+    {
+      "file": "outputs/walkthrough/web-bc36a506-1915-432e-96bb-07eb36fceccf.json",
+      "status": "investigating",
+      "accepted_handoff": true
+    },
+    {
+      "file": "outputs/walkthrough/web-095ffc19-2866-4710-a554-ecaad74f9f86.json",
+      "status": "investigating",
+      "accepted_handoff": false
+    }
+  ],
+  "trial_tests": 86,
+  "browser_checks": [
+    "rep-confirmed success followed by explicit closure",
+    "failed fix, new finding, retry lookup, accepted unsent handoff"
+  ],
+  "browser_console": "Only favicon 404 observed."
+}
