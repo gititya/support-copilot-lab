@@ -1,0 +1,8 @@
+{
+  "report": "The administrator refreshed the cache. All three retried opening W6 and it still fails. New requests are T74, T75 and T76.",
+  "record": {
+    "retry": "T74, T75 and T76 evaluated permission version 5; access allowed; render returned HTTP 503.",
+    "access_limits": "Rep cannot inspect render-service logs. Engineering has access."
+  },
+  "expected": "Do not repeat the cache remedy or mark success. Read retry records and revise to an engineering investigation with cause uncertainty."
+}

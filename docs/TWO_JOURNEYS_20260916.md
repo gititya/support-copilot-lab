@@ -1,0 +1,11 @@
+# Two sequential Copilot journeys — 16 September
+
+Implemented the user-approved resolution and engineering escalation experiences in the existing Tier 3 webpage. Both start with the same customer complaint and account information; no selected outcome is in the model input. The only initially available reference is permitted support policy. Customer request identifiers enable matching fictional telemetry queries; the model must choose to read them. The UI customer-facts disclosure is never sent automatically. Copilot generates the next action.
+
+Resolution: ask, receive rep details, inspect request evidence and policy, propose supported fix, rep confirms original activity works, rep explicitly closes. Escalation: same investigation, rep reports attempted fix failed, supplies new symptom and retry IDs, model reads new telemetry and changes to a specific engineering investigation; rep accepts the unsent draft. No forced turn count or automatically generated customer answer.
+
+Verification: 86 trial tests passed, including five new initial-evidence, lookup-gating, correction and outcome-isolation checks. Both journeys passed real-model checks through BrowserSession (outputs/cop1/two-journeys-20260916-171226.json). Both also passed through actual browser controls using installed Playwright CLI and isolated headless Brave. Final UI states were Case closed by you and Handoff accepted by you — not sent; recovery unverified. Browser traces and source hashes listed in outputs/cop1/two-journeys-manifest-20260916.json. Only favicon 404 observed in browser console.
+
+Scope: fictional data and simulated customer outcomes, real AI responses, no delivery. This is a small complete experiment, not independent rep-benefit evidence. Earlier control demos and narrow challenges remain historical. No Voice or other support repository implementation changed. No publication performed. Public prose is a draft in Obsidian Readmes/Copilot Lab.md and docs/README_COPILOT_DRAFT.md; existing repo README left for owner approval.
+
+Reproduce model check: python3 trial/verify_two_journeys.py (paid, 20-call/.40 reservation limit, timestamped evidence). Web: portless copilot-lab /opt/homebrew/bin/python3 trial/web_walkthrough.py. Next: owner tries these two paths using the existing Obsidian walkthrough note.

@@ -1,0 +1,77 @@
+{
+  "case": {
+    "id": "journey",
+    "sources": [
+      {
+        "id": "requests",
+        "description": "Inspect failed workspace requests. Requires one of the customer request IDs."
+      },
+      {
+        "id": "policy",
+        "description": "Read permitted support procedures."
+      },
+      {
+        "id": "retry",
+        "description": "Inspect requests from a retry after an attempted fix. Requires a new retry request ID."
+      }
+    ],
+    "questions": [
+      {
+        "id": "scope",
+        "text": "What happens when they try, who is affected, and which request IDs are shown?"
+      }
+    ],
+    "stages": [
+      {
+        "event": {
+          "text": "Our workspace stopped working after the migration.",
+          "facts": {
+            "customer_report": "Our workspace stopped working after the migration.",
+            "account": "Workspace W6; active business account; migration completed yesterday. Account administrator is available."
+          }
+        },
+        "reads": {
+          "policy": {
+            "status": "ok",
+            "text": "Support may inspect request records. Only an authorized administrator may refresh cached access, and only if a failed request used an older denied permission while current permission allows access. Confirm customer recovery after any fix. Engineers can inspect render-service logs; the rep cannot.",
+            "facts": {
+              "support_policy": "Only an authorized administrator may refresh cached access when an older denied permission was used and current permission allows access. Confirm customer recovery. Render-service logs require engineering."
+            }
+          }
+        }
+      }
+    ]
+  },
+  "records": {
+    "requests": {
+      "required_ids": [
+        "t71",
+        "t72",
+        "t73"
+      ],
+      "record": {
+        "status": "ok",
+        "text": "T71, T72, T73: W6, users U17\u2013U19. Access denied using permission version 4. Current version 5 allows these users access.",
+        "facts": {
+          "request_permissions": "T71, T72, T73 used denied permission version 4 for U17\u2013U19 on W6.",
+          "current_permissions": "Current permission version 5 allows U17\u2013U19 access to W6."
+        }
+      }
+    },
+    "retry": {
+      "required_ids": [
+        "t74",
+        "t75",
+        "t76"
+      ],
+      "record": {
+        "status": "ok",
+        "text": "T74, T75, T76: permission version 5, access allowed, rendering HTTP 503. Only engineering can inspect render-service logs.",
+        "facts": {
+          "retry_requests": "T74, T75, T76: permission version 5 allowed access; rendering returned HTTP 503.",
+          "log_access": "Render-service logs require engineering access."
+        }
+      }
+    }
+  }
+}
