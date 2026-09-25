@@ -44,4 +44,4 @@ The existing 51 tests and 22 new tests pass: 73 total. They cover hidden input b
 
 Review three stored moments with Adi before a larger trial: C05's corrected access scope, C07's specialist request and C03's cache diagnosis. The question is whether the rep advice is useful and appropriately cautious. New independent evaluation needs fresh cases; existing ones are regression material. Rep time saved or improved technical capability still requires a rep using the tool.
 
-Sources: [full results and saved advice](COP1_RESULTS_20260910.md), [trial plan](../trial/PLAN.md), [reviewed regression cases](../trial/reviewed_cases.json). The OpenAI model/pricing source is recorded in each run artifact; costs are estimates from usage rather than invoices.
+Sources: [full results and saved advice](COP1_RESULTS_20260910.md), [reviewed regression cases](../trial/reviewed_cases.json). The OpenAI model/pricing source is recorded in each run artifact; costs are estimates from usage rather than invoices.

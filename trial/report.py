@@ -69,7 +69,7 @@ def render(root):
         '- The evaluator checks structured assertions against observed source values and authored causal evidence. Free-text advice and hypotheses require human review. A valid source citation alone does not guarantee that the prose follows from it.',
         '- A terminal resolve action identifies a diagnosis for the rep. It does not change the product, confirm customer recovery or prove a receiving person read a handoff.',
         '- The two earlier development runs and their inputs are preserved. Their scores use earlier prompts/expectations and must not be pooled with the frozen evaluation.', '',
-        'Sources: [access results](../outputs/cop1/heldout-access-v3.json), [integration results](../outputs/cop1/heldout-integration-v3.json), [timing results](../outputs/cop1/timing-v3.json), [frozen inputs](../outputs/cop1/frozen-inputs-v3.json), [trial plan](../trial/PLAN.md).', '',
+        'Sources: [access results](../outputs/cop1/heldout-access-v3.json), [integration results](../outputs/cop1/heldout-integration-v3.json), [timing results](../outputs/cop1/timing-v3.json), [frozen inputs](../outputs/cop1/frozen-inputs-v3.json).', '',
         '## Saved rep advice for review', '']
     for r in results:
         lines += [f"### {r['case_id']} — {r['family']} — {r['lane']}", '']
