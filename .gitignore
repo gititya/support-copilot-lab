@@ -31,3 +31,6 @@ copilot_claude-design/
 /outputs/cop1/development-v1-inputs/PLAN.md
 /outputs/cop1/development-v2-inputs/PLAN.md
 /outputs/cop1/frozen-v3-inputs/PLAN.md
+
+# New interactive walkthrough sessions stay local; published evidence stays tracked.
+/outputs/walkthrough/web-*.json
