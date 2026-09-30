@@ -1,4 +1,4 @@
-When I tested with [Early Prediction](https://github.com/gititya/support-early-prediction-experiment) to find out if an AI can determine the root cause of the customer's complaint early into the call, I ended up realising that I was asking the right question. So, I wanted to test : **can AI help a human support rep decide what to do next, *as new information changes the investigation*?**
+When I tested with [Early Prediction](https://github.com/gititya/support-early-prediction-experiment) to find out if an AI can determine the root cause of the customer's complaint early into the call, I realized that I wasn't asking the right question. So, I wanted to test : **can AI help a human support rep decide what to do next, *as new information changes the investigation*?**
 
 A customer saying “three people lost access after a migration” tells one where to begin, but a standard support call requires more information to diagnose. I would want to know who is confirmed affected, what they tried, and what happened. Copilot should help me find that out, then move towards a fix or a useful escalation.
 
